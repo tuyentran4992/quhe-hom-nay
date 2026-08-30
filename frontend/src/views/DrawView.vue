@@ -1,0 +1,90 @@
+<script>
+export default { name: 'DrawView' }
+</script>
+<script setup>
+// S2 Draw — 04-ui §2.S2 (BẤT BIẾN C-08): call #3 song song với animation,
+// UI KHÔNG reveal kết quả trước 1500ms. Lỗi DRAW_LIMIT_REACHED → về S1 + toast (§4).
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { api } from '../api/client.js'
+import MagicSequence from '../components/MagicSequence.vue'
+import { MAGIC_SEQUENCE_MS } from '../constants.js'
+
+const emit = defineEmits(['revealed'])
+const router = useRouter()
+const phase = ref('idle') // idle | rolling
+const result = ref(null) // { draw, hexagram }
+const pending = ref(false)
+const done = ref(false) // MagicSequence đã qua mốc 1500ms (C-08: không reveal sớm)
+
+// hào tạm cho nghi thức khi API chưa kịp về (reveal chỉ dùng số liệu THẬT)
+const PLACEHOLDER = [7, 8, 7, 7, 7, 7]
+const lines = computed(() => result.value?.draw?.lines_rolled || PLACEHOLDER)
+
+let routed = false
+async function roll() {
+  if (phase.value !== 'idle') return
+  phase.value = 'rolling'
+  pending.value = true
+  api
+    .createDraw()
+    .then((r) => {
+      result.value = r.data
+      pending.value = false
+      tryGo()
+    })
+    .catch((e) => {
+      pending.value = false
+      if (e.code === 'DRAW_LIMIT_REACHED') {
+        router.replace({ name: 'home', query: { toast: 'draw_limit' } })
+      } else {
+        phase.value = 'idle'
+        result.value = null
+      }
+    })
+}
+function onDone() {
+  done.value = true // MagicSequence qua mốc 1500ms — từ đây mới được reveal
+  // request chậm hơn 1.5s: spinner nối mạch trên khung reveal, chưa nhảy màn
+  if (!result.value) pending.value = true
+  tryGo()
+}
+function tryGo() {
+  if (routed || !done.value || !result.value) return
+  routed = true
+  emit('revealed')
+  // B3: auto-push S3 sau khi reveal (giữ nhịp nhìn symbol ~0.6s)
+  setTimeout(() => {
+    router.push({ name: 'detail', params: { drawId: result.value.draw.id } })
+  }, 600)
+}
+</script>
+
+<template>
+  <section class="min-h-[80dvh] flex flex-col items-center justify-center px-gutter" data-testid="draw-frame">
+    <template v-if="phase === 'idle'">
+      <p class="text-muted text-body mb-6 text-center max-w-sm">
+        Một quẻ mỗi ngày. Hơi thở đều, nghĩ một câu hỏi rõ ràng.
+      </p>
+      <button type="button" class="btn-cinnabar text-h2" data-testid="draw-start" @click="roll">
+        Tâm tĩnh, chạm để gieo
+      </button>
+    </template>
+
+    <div v-else class="relative w-full max-w-md flex flex-col items-center gap-6">
+      <MagicSequence
+        :duration-ms="MAGIC_SEQUENCE_MS"
+        :lines="lines"
+        :symbol="result?.hexagram?.symbol || '䷀'"
+        :ten="result?.hexagram?.ten || 'Đang gieo…'"
+        @done="onDone"
+      />
+      <p v-if="pending" data-testid="draw-spinner" class="text-small text-muted animate-pulse">
+        Đang mở quẻ…
+      </p>
+      <div v-else-if="result && done" data-testid="draw-result" class="text-center">
+        <p class="text-body text-muted">{{ result.hexagram.ten }} — đang vào bảng giải…</p>
+      </div>
+    </div>
+  </section>
+</template>
