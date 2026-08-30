@@ -48,10 +48,11 @@ quhe-hom-nay/
 │   │   ├── Models/             # Eloquent: User Device Session Hexagram Draw Payment AiJob
 │   │   └── Services/           # DrawService InterpretationService PaymentService
 │   ├── database/migrations/    # 7 bảng theo 02-db, tên file 0001..0007
+│   ├── database/data/
+│   │   └── hexagrams.json      # content 64 quẻ đã QV-chốt, canSoi đã strip ✓ đã commit (sha256 76cfc11f…)
 │   ├── database/seeders/
 │   │   ├── DatabaseSeeder.php  # gọi HexagramSeeder (idempotent)
-│   │   ├── HexagramSeeder.php
-│   │   └── data/hexagrams-64.json   # content 64 quẻ đã QV-chốt, canSoi đã strip ✓ đã commit
+│   │   └── HexagramSeeder.php  # đọc ../data/hexagrams.json
 │   ├── routes/api.php
 │   └── .env.example            # đủ biến mục 5, không có giá trị thật
 ├── frontend/                   # Vue 3 + Vite + Tailwind
