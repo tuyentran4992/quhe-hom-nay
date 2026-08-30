@@ -32,3 +32,6 @@ Thumbs.db
 *.swp
 *.log
 .phpactor.json
+
+# Kanban dispatcher worktrees (không bao giờ commit)
+/.worktrees/

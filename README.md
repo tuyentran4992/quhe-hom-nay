@@ -2,7 +2,7 @@
 
 Gieo một quẻ Kinh Dịch mỗi ngày — free, "lễ tùy tâm", premium casual.
 
-**Cổng spec (đọc trước khi code):** `/data/agents/dev-lead/outbox/t_73a729be/spec/`
+**Cổng spec (đọc trước khi code):** `specs/` trong repo này — đường dẫn chính thức từ SPEC-01 (t_dd375e7c).
 01-overview (kiến trúc, cây thư mục, env) · 02-db (DDL + seeder contract) ·
 03-api (contract endpoint — LUẬT, FE/BE code khớp từng field) · 04-ui (màn + design tokens) ·
 05-testplan (ca test + lệnh preview).
