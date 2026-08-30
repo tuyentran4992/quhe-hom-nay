@@ -15,6 +15,11 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class EnsureDeviceSession
 {
+    // t_a0d9ee0f shim (nguồn: QA merge shim t_5cd31bb9, chưa commit lên build):
+    // tests BE-2 tham chiếu hằng số cookie ở đây; giá trị thật nằm ở DeviceIdentityService.
+    // dev-lead khi merge main chính thức gộp nhất còn 1 định nghĩa.
+    public const COOKIE = DeviceIdentityService::COOKIE;
+
     public function __construct(private readonly DeviceIdentityService $identity)
     {
     }

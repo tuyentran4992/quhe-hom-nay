@@ -19,14 +19,17 @@ final class PromptBuilder
             default => $topic,
         };
 
-        $free = json_decode($hex['free_content'] ?? '{}', true) ?: [];
+        // QA MERGE SHIM (t_5cd31bb9): BE-1 model cast JSON column thanh array,
+        // BE-2 PromptBuilder doi string. Chap nhan ca hai — dev-lead ghe 1 kieu khi merge main.
+        $free = is_array($hex['free_content'] ?? null) ? $hex['free_content'] : (json_decode((string) ($hex['free_content'] ?? '{}'), true) ?: []);
+        $kw = is_array($hex['keywords'] ?? null) ? $hex['keywords'] : (json_decode((string) ($hex['keywords'] ?? '[]'), true) ?: []);
         $lines = implode(',', $changingLines ?: []);
 
         return implode("\n", [
             "Chủ đề luận sâu: {$topicLabel}.",
             'Quẻ gốc (Hán: '.($hex['han'] ?? '').', tên: '.($hex['ten'] ?? '').'): '.($hex['symbol'] ?? ''),
             'Đại ý: '.($hex['dai_ci'] ?? ''),
-            'Từ khóa: '.implode(', ', (array) json_decode($hex['keywords'] ?? '[]', true) ?: []),
+            'Từ khóa: '.implode(', ', (array) $kw),
             'Luận hôm nay: '.($hex['luan_nay'] ?? ''),
             'Góc nhìn sẵn có về '.$topicLabel.': '.($free[static::freeKey($topic)] ?? '—'),
             $lines !== '' ? "Hào động (1-based từ dưới lên): {$lines} — ưu tiên luận theo tượng hào động." : 'Không có hào động — luận theo quẻ gốc.',

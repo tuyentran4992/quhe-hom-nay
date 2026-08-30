@@ -136,6 +136,53 @@ class PaymentService
         return $payment;
     }
 
+    /**
+     * #8 (03-api §8) — thân xử lý IPN payOS, TẦM QUỐC TẾ không theo device:
+     * chỉ tin 3 field orderCode/amount/transactionRef. Idempotent theo gateway_ref:
+     * đơn đã paid → 200 ngay, không sửa gì (kể cả paid_at). cancelled → cancelled;
+     * sai số tiền → `expired` + log cảnh báo, vẫn 200 (payOS chốt: không retry-loop).
+     * Bất biến tiền: mọi bước qua transitTo (1 chiều + exception nếu ngược).
+     */
+    public function applyWebhook(int $orderCode, int $amount, string $gatewayRef, bool $cancelled): Payment
+    {
+        $payment = Payment::query()->where('order_code', $orderCode)->first();
+        if ($payment === null) {
+            throw PaymentException::notFound();
+        }
+
+        if ($payment->status === Payment::ST_PAID) {
+            if ((string) $payment->gateway_ref !== $gatewayRef) {
+                logger()->warning('payments.webhook.paid_other_ref', [
+                    'order_code' => $orderCode,
+                    'stored' => $payment->gateway_ref, 'incoming' => $gatewayRef,
+                ]);
+            }
+
+            return $payment; // webhook lặp → 200 ngay (§8)
+        }
+
+        if ($cancelled) {
+            $payment->transitTo(Payment::ST_CANCELLED, ['gateway_ref' => $gatewayRef]);
+            logger()->info('payments.webhook.cancelled', ['order_code' => $orderCode]);
+
+            return $payment;
+        }
+
+        if ($amount !== (int) $payment->amount_vnd) {
+            $payment->transitTo(Payment::ST_EXPIRED, ['gateway_ref' => $gatewayRef]);
+            logger()->warning('payments.webhook.amount_mismatch', [
+                'order_code' => $orderCode, 'expected' => $payment->amount_vnd, 'received' => $amount,
+            ]);
+
+            return $payment;
+        }
+
+        $payment->transitTo(Payment::ST_PAID, ['paid_at' => now(), 'gateway_ref' => $gatewayRef]);
+        logger()->info('payments.webhook.paid', ['order_code' => $orderCode, 'gateway_ref' => $gatewayRef]);
+
+        return $payment;
+    }
+
     /** order_code số tăng dần đụng UQ thì thử lại — payOS dùng số, không uuid. */
     private function nextOrderCode(): int
     {
