@@ -10,15 +10,20 @@ export function useCountdown() {
     if (timer) clearInterval(timer)
     timer = null
   }
-  function start(seconds) {
+  function start(seconds, onExpire) {
     stop()
     remaining.value = Math.max(0, Math.ceil(seconds))
-    if (!remaining.value) return
+    if (!remaining.value) {
+      // E5 t_0285ac01: retry_after = 0 cũng là "hết" — callback nổ ngay, không kẹt mãi
+      if (onExpire) onExpire()
+      return
+    }
     timer = setInterval(() => {
       remaining.value -= 1
       if (remaining.value <= 0 && timer) {
         clearInterval(timer)
         timer = null
+        if (onExpire) onExpire() // chạm 0 → báo chủ sở hữu (phase hết cooldown)
       }
     }, 1000)
   }

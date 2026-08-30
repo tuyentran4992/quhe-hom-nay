@@ -43,7 +43,12 @@ async function askFresh() {
   } catch (e) {
     if (e.code === 'AI_COOLDOWN') {
       phase.value = 'cooldown'
-      cd.start(e.details.retry_after_seconds || 90)
+      // E5 t_0285ac01: đồng hồ chạm 0 → về 'idle' (nút enable lại, hết nhãn "00:00").
+      // retry_after = 0/âm → nổ callback ngay trong start() → idle, không kẹt. `?? 90`
+      // thay `|| 90` để 0 thật từ API không bị biến thành 90.
+      cd.start(e.details.retry_after_seconds ?? 90, () => {
+        if (phase.value === 'cooldown') phase.value = 'idle'
+      })
     } else if (e.code === 'AI_GLOBAL_CAP') {
       phase.value = 'cap'
     } else if (e.code === 'UNLOCK_REQUIRED') {
