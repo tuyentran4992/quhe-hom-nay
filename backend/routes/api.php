@@ -5,6 +5,7 @@ use App\Http\Controllers\HexagramController;
 use App\Http\Controllers\InterpretationController;
 use App\Http\Controllers\MeController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\WebhookController;
 use App\Http\Middleware\EnsureDeviceSession;
 use Illuminate\Support\Facades\Route;
 
@@ -15,6 +16,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/health', fn () => response()->json(['data' => ['status' => 'ok']]));
+
+// t_a0d9ee0f — #8 IPN payOS (03-api §8): NGOÀI EnsureDeviceSession — gateway không
+// mang cookie device; webhook lạ không được làm nhiễm devices table. Verifier 401 trước parse.
+Route::post('/webhooks/payos', [WebhookController::class, 'payos']); // #8
 
 Route::middleware(EnsureDeviceSession::class)->group(function () {
     // BE-1 — gieo quẻ/hiện tại
