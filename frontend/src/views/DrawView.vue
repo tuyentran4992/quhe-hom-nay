@@ -4,17 +4,22 @@ export default { name: 'DrawView' }
 <script setup>
 // S2 Draw — 04-ui §2.S2 (BẤT BIẾN C-08): call #3 song song với animation,
 // UI KHÔNG reveal kết quả trước 1500ms. Lỗi DRAW_LIMIT_REACHED → về S1 + toast (§4).
+// FE-1: #3 về → prime cache #2 (data.hexagram tách data.draw) để S3 zero-fetch;
+// lỗi khác 409 (mạng/500) → draw-error + nút thử lại, không trắng hành động (§4).
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '../api/client.js'
+import { useHexagrams } from '../composables/useHexagrams.js'
 import MagicSequence from '../components/MagicSequence.vue'
 import { MAGIC_SEQUENCE_MS } from '../constants.js'
 
 const emit = defineEmits(['revealed'])
 const router = useRouter()
+const hxlib = useHexagrams()
 const phase = ref('idle') // idle | rolling
 const result = ref(null) // { draw, hexagram }
 const pending = ref(false)
+const rollErr = ref('') // lỗi #3 không phải 409 — rỗng = không lỗi
 const done = ref(false) // MagicSequence đã qua mốc 1500ms (C-08: không reveal sớm)
 
 // hào tạm cho nghi thức khi API chưa kịp về (reveal chỉ dùng số liệu THẬT)
@@ -26,10 +31,12 @@ async function roll() {
   if (phase.value !== 'idle') return
   phase.value = 'rolling'
   pending.value = true
+  rollErr.value = ''
   api
     .createDraw()
     .then((r) => {
       result.value = r.data
+      if (r.data?.hexagram) hxlib.prime(r.data.hexagram) // S3 đọc cache, không xin #2 lại
       pending.value = false
       tryGo()
     })
@@ -40,6 +47,7 @@ async function roll() {
       } else {
         phase.value = 'idle'
         result.value = null
+        rollErr.value = e.code === 'NETWORK' ? 'Mất mạng — chưa gieo được.' : 'Gieo quẻ thất bại. Thử lại nhé.'
       }
     })
 }
@@ -69,6 +77,10 @@ function tryGo() {
       <button type="button" class="btn-cinnabar text-h2" data-testid="draw-start" @click="roll">
         Tâm tĩnh, chạm để gieo
       </button>
+      <div v-if="rollErr" data-testid="draw-error" class="mt-4 text-center" role="alert">
+        <p class="text-cinnabar text-small">{{ rollErr }}</p>
+        <button type="button" data-testid="draw-retry" class="btn-line mt-2" @click="roll">Gieo lại</button>
+      </div>
     </template>
 
     <div v-else class="relative w-full max-w-md flex flex-col items-center gap-6">

@@ -147,6 +147,10 @@ onBeforeUnmount(() => clearTimeout(pollTimer))
 
     <div v-else-if="phase === 'qr'" class="mt-6">
       <PayQr :qr-data="order?.qr_data || ''" :confirm-url="order?.confirm_url || ''" :amount-label="`${PRICE_LABEL} · đơn ${order?.order_code || ''}`" />
+      <p data-testid="pay-stub-note" class="text-small text-muted text-center mt-2">
+        <template v-if="order?.stub">Thanh toán tự động đang sắp mở — giai đoạn này chưa thu tiền thật, mô hình chỉ để thử luồng.</template>
+        <template v-else>Chuyển đúng nội dung ngân hàng để được ghi nhận.</template>
+      </p>
       <p data-testid="pay-status" class="text-body text-muted text-center mt-3">
         <template v-if="payState === 'paid'">Đã nhận được lễ — đang mở…</template>
         <template v-else-if="payState === 'expired'">Đơn hết hạn. <button type="button" class="underline text-bamboo" data-testid="pay-retry" @click="phase = 'form'">Tạo đơn mới</button></template>

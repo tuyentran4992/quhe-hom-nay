@@ -1,4 +1,4 @@
-# TEST-FIELDS — FE-0 · mapping màn hình → data-testid → ý nghĩa
+# TEST-FIELDS — FE-0 scaffold + FE-1 API thật · mapping màn hình → data-testid → ý nghĩa
 
 Nguồn: `mockups/s1-home/TESTIDS.md` (v3, boss duyệt a670766) cho S1; specs/1.mvp/04-ui.md §2-§4 cho S2-S5.
 Quy ước QA: soi element bằng `[data-testid="..."]`. Cột "Khi nào" = điều kiện render; QA assert cả hai nhánh.
@@ -16,8 +16,9 @@ Quy ước QA: soi element bằng `[data-testid="..."]`. Cột "Khi nào" = đi�
 | `home-cta-card` | `today_draw === null` | card "Hôm nay chưa gieo quẻ" |
 | `home-cta-draw` | `today_draw === null` | link → `/draw`, "Gieo quẻ hôm nay" |
 | `home-today-card` | `today_draw != null` | article tóm tắt quẻ hôm nay |
-| `home-hexagram-symbol` | đã gieo | glyph `hexagram.symbol` (䷊) |
+| `home-hexagram-symbol` | đã gieo | glyph từ #2 (cache `useHexagrams`, tra theo `today_draw.hexagram_id` — shape §3.2 không embed) |
 | `home-hexagram-name` | đã gieo | `ten` + `han` → "Địa Thiên Thái 泰" |
+| `home-hexagram-pending` | #2 chưa về/lỗi | "…" hoặc dòng lỗi nhẹ — card vẫn hiện, không trắng |
 | `home-changing-lines` | `changing_lines.length > 0` | cinnabar "Hào 2 động — quẻ biến: …"; rỗng → KHÔNG render |
 | `home-slot-congViec` | đã gieo | `free_content.congViec` (cắt ~2 dòng) |
 | `home-link-detail` | đã gieo | NÚT chính → `/que/{today_draw.id}` "Xem đủ ba ngôi + bản gốc →" |
@@ -38,7 +39,8 @@ Quy ước QA: soi element bằng `[data-testid="..."]`. Cột "Khi nào" = đi�
 | `data-draw-line="1..6"` | rolling | 1 = hào dưới (đánh dấu mốc animation từng hào) |
 | `reveal-hexagram` | T ≥ 1500ms | symbol + ten — BẤT BIẾN C-08: không bao giờ sớm hơn 1.5s |
 | `draw-spinner` | API chậm hơn 1.5s | "Đang mở quẻ…" nối mạch, không trắng |
-| `draw-result` | T ≥ 1.5s VÀ #3 về | "{ten} — đang vào bảng giải…" → 0.6s sau auto-push S3 |
+| `draw-result` | T ≥ 1.5s VÀ #3 về | "{ten} — đang vào bảng giải…" → 0.6s sau auto-push S3; #3 về cũng PRIME cache #2 (S3 không fetch #2 lại) |
+| `draw-error` + `draw-retry` | #3 lỗi KHÔNG phải 409 (mạng/500) | dòng lỗi + nút "Gieo lại" — bấm retry bắn #3 lần 2, vẫn giữ C-08 |
 | `disclaimer-bar` | luôn | App shell |
 
 DRAW_LIMIT_REACHED (409) → replace về `/` + `?toast=draw_limit` → S1 render `toast-stack` / `toast-{n}` nội dung "Hôm nay đã gieo rồi, hẹn 0h."
@@ -46,7 +48,7 @@ DRAW_LIMIT_REACHED (409) → replace về `/` + `?toast=draw_limit` → S1 rende
 ## S3 Kết quả `/que/:drawId` — DetailView.vue
 | testid | khi nào | nội dung |
 |---|---|---|
-| `detail-loading` / `detail-error` | gọi #5 / lỗi | trạng thái, không trắng màn |
+| `detail-loading` / `detail-error` | đang resolve draw/#2 / không tìm thấy draw (deep-link quẻ lạ, id hết hiệu lực) hoặc lỗi mạng | trạng thái, không trắng màn; `detail-error` có link "Về trang chính". FE-1: draw hôm nay → từ #1; quẻ quá khứ → resolve qua #4 (limit 50) rồi #2 — contract KHÔNG có GET /draws/{id} |
 | `detail-linechart` | có dữ liệu | LineChart 6 hào; `data-line="0\|1"` trên→dưới = hào 6→1; `data-position="1..6"`; hào động (6/9) thêm chấm `dot` + chữ "động" |
 | `detail-hexagram-name` | có dữ liệu | `ten` + `han` + symbol |
 | `detail-changing-lines` | `changing_lines` != [] | "Hào N động — quẻ biến: {biếnTen}" |
@@ -78,7 +80,8 @@ DRAW_LIMIT_REACHED (409) → replace về `/` + `?toast=draw_limit` → S1 rende
 | `pay-unlock-btn` | luôn | nút 1: POST #7 order → render QR |
 | `pay-qr` | có order | QR PNG render client-side bằng lib qrcode (qr_data VietQR, dynamic import) |
 | `pay-confirm-link` | `confirm_url` có | stub "tôi đã chuyển" (PAY-01 chưa webhook — QA bấm 1 lần) |
-| `pay-status` | sau khi poll | "Đang chờ xác nhận…" / "Đã mở khóa." |
+| `pay-status` | sau khi poll | "Chờ thanh toán…" / "Đã nhận được lễ — đang mở…" (poll #9 mỗi 3s, timeout 5') |
+| `pay-stub-note` | có order (FE-1 mới) | `stub:true` từ #7 BE-2 → "…chưa thu tiền thật…" (paywall stub — QA KHÔNG assert tiền về) |
 | `pay-thanks` | paid → #10 OK | màn cảm ơn + link về S3 |
 | `pay-repoll` | paid nhưng #10 chưa thấy | nút "kiểm tra lại" (FE refetch #1) |
 | `pay-error` / `pay-retry` | #7/#8/#9 lỗi | thông báo + thử lại (mã lỗi 04-ui §4: `INVALID_TOPIC`, `ALREADY_PAID`, `ORDER_NOT_FOUND`, `ORDER_EXPIRED`) |
@@ -109,7 +112,13 @@ DRAW_LIMIT_REACHED (409) → replace về `/` + `?toast=draw_limit` → S1 rende
 ```
 cd frontend
 npm ci
-npx vitest run                      # 42 tests / 9 files
+npx vitest run                      # 68 tests / 13 files (FE-1: +hexagrams/home/detailview/library/paywall/drawview lỗi)
 npm run typecheck                   # vue-tsc --noEmit, exit 0
 NODE_OPTIONS=--max-old-space-size=1024 npm run build   # → backend/public/app/
 ```
+
+## FE-1 — gọi API THẬT (card t_db7d18a0)
+- 9 hàm `api.*` trong `src/api/client.js` khớp 1-1 đường dẫn `routes/api.php` BE-1 (a4b54a1: #1 #2 #3 #4 #10) + BE-2 (9d22f15: #5 #6 #7 #9). Không còn mock/fixture nào trong `src/` (grep "mock|fake|fixture" = 0 kết quả).
+- Draw §3.2 KHÔNG embed hexagram → cache module mới `src/composables/useHexagrams.js` (ensure/prime/get, in-flight dedupe, 1 request/quẻ/phiên). S1/S3/S5 đọc qua cache; S2 prime từ #3 → S3 zero-fetch.
+- Deep-link `/que/{id}` quá khứ: resolve qua #4 (limit 50) rồi #2 — không có GET /draws/{id}.
+- S4 đọc đúng payload #7 BE-2 (`qr_data`, `confirm_url`, `stub:true` → `pay-stub-note`), poll #9 status ∈ pending/paid/expired/cancelled; paid → refresh #1 → toast + về S3.

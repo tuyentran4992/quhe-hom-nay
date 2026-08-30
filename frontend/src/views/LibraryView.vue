@@ -3,30 +3,31 @@ export default { name: 'LibraryView' }
 </script>
 <script setup>
 // S5 Library — 04-ui §2.S5: timeline ngược #4 (symbol nhỏ + ten + drawn_date).
-// #4 chỉ trả draw §3.2 → tra #2 theo hexagram_id (cache module ≤64 quẻ, 1 request/quẻ).
+// #4 chỉ trả draw §3.2 (KHÔNG embed hexagram) → tra #2 theo hexagram_id qua cache
+// MODULE useHexagrams (≤64 quẻ, 1 request/quẻ cả phiên — vào lại màn không gọi lại).
+// #2 lỗi → dòng vẫn render, fallback "Quẻ #id", không sập cả danh sách.
 // Rỗng → "Chưa có quẻ nào." Không có xóa. #10 refetch ngày mới khi quay lại màn.
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { api } from '../api/client.js'
 import { useDevice } from '../composables/useDeviceApi.js'
+import { useHexagrams } from '../composables/useHexagrams.js'
 import { fmtDateVn, changingLabel } from '../utils/format.js'
 
-const hexCache = new Map() // hexagram_id → {symbol, ten}
-
 const d = useDevice()
+const hxlib = useHexagrams()
 const rows = ref(null) // null=loading
 const err = ref(null)
 const limit = 20
 
 async function ensureHex(id) {
-  if (!hexCache.has(id)) {
-    try {
-      const r = await api.hexagram(id)
-      hexCache.set(id, { symbol: r.data.symbol, ten: r.data.ten })
-    } catch {
-      hexCache.set(id, { symbol: '䷠', ten: `Quẻ #${id}` })
-    }
+  try {
+    return await hxlib.ensure(id)
+  } catch {
+    return { symbol: '䷠', ten: `Quẻ #${id}` } // fallback per-dòng — §4 không trắng
   }
-  return hexCache.get(id)
+}
+function hxOf(id) {
+  return hxlib.get(id) || { symbol: '䷠', ten: `Quẻ #${id}` }
 }
 
 async function load() {
@@ -55,11 +56,11 @@ onMounted(load)
     <ol v-else data-testid="lib-timeline" class="mt-6 space-y-3">
       <li v-for="dr in rows" :key="dr.id" class="card p-4 flex items-center gap-4">
         <span data-testid="lib-item-symbol" class="han text-ink" style="font-size: 30px; line-height: 1.1">
-          {{ d.todayDraw.value?.id === dr.id ? d.todayDraw.value.hexagram?.symbol : '䷠' }}
+          {{ hxOf(dr.hexagram_id).symbol }}
         </span>
         <span class="flex-1">
           <span data-testid="lib-item-name" class="font-medium">
-            {{ d.todayDraw.value?.id === dr.id ? d.todayDraw.value.hexagram?.ten : `Quẻ #${dr.hexagram_id}` }}
+            {{ hxOf(dr.hexagram_id).ten }}
           </span>
           <span data-testid="lib-item-date" class="block text-small text-muted">{{ fmtDateVn(dr.drawn_date) }}</span>
           <span v-if="dr.changing_lines?.length" class="block text-small text-cinnabar mt-0.5">{{ changingLabel(dr.changing_lines) }}</span>

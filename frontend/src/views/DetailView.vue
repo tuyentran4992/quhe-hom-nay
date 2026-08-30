@@ -4,49 +4,58 @@ export default { name: 'DetailView' }
 <script setup>
 // S3 Detail — 04-ui §2.S3: bảng hào trên cùng, 3 tab ngôi (free_content),
 // lưới Vận niên·Đại ý·Từ khóa, accordion Bản gốc, vùng luận sâu (TopicGate).
-// Nguồn: cache #3 (state.device.todayDraw khi đi từ S2) hoặc #2 khi deep-link.
+// FE-1 (shape thật 03-api): #1/#3 KHÔNG embed hexagram trong draw →
+//  - draw hôm nay: lines_rolled/changing_lines từ draw, nội dung quẻ từ cache #2
+//    (prime từ #3 khi đi từ S2 → zero-fetch; refresh thì ensure #2).
+//  - deep-link quẻ KHÁC ngày: contract không có GET /draws/{id} → resolve draw
+//    qua #4 history (limit 50), rồi #2 theo hexagram_id. Không thấy → detail-error.
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { api } from '../api/client.js'
 import { useDevice } from '../composables/useDeviceApi.js'
+import { useHexagrams } from '../composables/useHexagrams.js'
 import LineChart from '../components/LineChart.vue'
 import TopicGate from '../components/TopicGate.vue'
 import { changingLabel } from '../utils/format.js'
 
 const route = useRoute()
 const d = useDevice()
+const hxlib = useHexagrams()
 const draw = ref(null)
 const hx = ref(null)
 const loadErr = ref(null)
 const tab = ref('congViec')
 const TABS = [
-  ['congViec', 'Công việc'],
-  ['tinhDuyen', 'Tình duyên'],
-  ['taiLoc', 'Tài lộc'],
+  ['congViec', 'cong-viec', 'Công việc'],
+  ['tinhDuyen', 'tinh-duyen', 'Tình duyên'],
+  ['taiLoc', 'tai-loc', 'Tài lộc'],
 ]
 const original = ref(false)
+
+async function resolveDraw(id) {
+  // 1) draw hôm nay từ #1 (kể cả đã prime bởi S2)
+  if (!d.me.value) await d.load(true)
+  if (d.todayDraw.value?.id === id) return d.todayDraw.value
+  // 2) quẻ quá khứ: tìm trong #4 (mVP không phân trang, limit tối đa 50)
+  const h = await api.history(50)
+  return (h.data || []).find((dr) => dr.id === id) || null
+}
 
 async function load() {
   loadErr.value = null
   const id = Number(route.params.drawId)
-  // cache từ #1/#3 trước (đi máy bay nội tuyến), deep-link thì tra #2
-  const t = d.todayDraw.value
-  if (t && t.id === id) {
-    draw.value = t
-    hx.value = t.hexagram || (await api.hexagram(t.hexagram_id)).data
+  if (!Number.isInteger(id) || id <= 0) {
+    loadErr.value = new Error('bad id')
     return
   }
   try {
-    if (!d.me.value) await d.load(true)
-    if (d.todayDraw.value?.id === id) {
-      draw.value = d.todayDraw.value
-      hx.value = d.todayDraw.value.hexagram || (await api.hexagram(d.todayDraw.value.hexagram_id)).data
-    } else {
-      // draw khác ngày: MVP chỉ có quẻ hôm nay → lấy hexagram theo route param nếu là hexagram_id
-      const r = await api.hexagram(id)
-      hx.value = r.data
-      draw.value = { id, hexagram_id: r.data.id, lines_rolled: null, changing_lines: [] }
+    const dr = await resolveDraw(id)
+    if (!dr) {
+      loadErr.value = new Error('not found')
+      return
     }
+    draw.value = dr
+    hx.value = hxlib.get(dr.hexagram_id) || (await hxlib.ensure(dr.hexagram_id))
   } catch (e) {
     loadErr.value = e
   }
@@ -86,12 +95,12 @@ const topicForTab = computed(() => ({ congViec: 'xuat_hanh', tinhDuyen: 'duyen',
       <!-- 3 tab ngôi -->
       <nav role="tablist" data-testid="detail-tabs" class="flex gap-2 mt-6">
         <button
-          v-for="[key, label] in TABS"
+          v-for="[key, tid, label] in TABS"
           :key="key"
           type="button"
           role="tab"
           :aria-selected="tab === key"
-          :data-testid="`detail-tab-${key}`"
+          :data-testid="`detail-tab-${tid}`"
           class="px-3 py-1.5 rounded-card font-medium"
           :class="tab === key ? 'bg-cinnabar text-paper' : 'bg-paper2 text-muted'"
           @click="tab = key"
@@ -103,8 +112,8 @@ const topicForTab = computed(() => ({ congViec: 'xuat_hanh', tinhDuyen: 'duyen',
 
       <!-- lưới Vận niên · Đại ý · Từ khóa -->
       <dl class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-6">
-        <div class="card p-3"><dt class="text-small text-muted">Vận niên</dt><dd data-testid="detail-vv-nien" class="text-body">{{ hx.vv_nien || hx.vvanNien }}</dd></div>
-        <div class="card p-3"><dt class="text-small text-muted">Đại ý</dt><dd data-testid="detail-dai-ci" class="text-body">{{ hx.dai_ci || hx.daiCI }}</dd></div>
+        <div class="card p-3"><dt class="text-small text-muted">Vận niên</dt><dd data-testid="detail-vv-nien" class="text-body">{{ hx.vv_nien }}</dd></div>
+        <div class="card p-3"><dt class="text-small text-muted">Đại ý</dt><dd data-testid="detail-dai-ci" class="text-body">{{ hx.dai_ci }}</dd></div>
         <div class="card p-3"><dt class="text-small text-muted">Từ khóa</dt><dd data-testid="detail-keywords" class="text-body">{{ (hx.keywords || []).join(' · ') }}</dd></div>
       </dl>
 
