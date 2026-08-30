@@ -35,6 +35,11 @@ onMounted(async () => {
     <header class="flex items-center gap-3">
       <span data-testid="home-seal" class="han seal" aria-hidden="true">今日</span>
       <h1 data-testid="home-logo" class="han font-bold text-h1 tracking-[0.14em]">Quẻ Hôm Nay</h1>
+      <!-- nav desktop md+ (TESTIDS #23/#24) — mobile có CTA in-page, không cần nav -->
+      <nav class="ml-auto hidden md:flex gap-4 text-small text-muted" aria-label="Điều chính">
+        <RouterLink data-testid="home-nav-draw" class="no-underline hover:text-ink" :to="{ name: 'draw' }">Gieo quẻ</RouterLink>
+        <RouterLink data-testid="home-nav-library" class="no-underline hover:text-ink" :to="{ name: 'library' }">Sổ quẻ của bạn</RouterLink>
+      </nav>
     </header>
 
     <!-- loading: không trắng màn -->
@@ -73,7 +78,14 @@ onMounted(async () => {
           data-testid="home-link-detail"
           class="btn-cinnabar mt-4"
           :to="{ name: 'detail', params: { drawId: today.id } }"
-        >Xem đủ ba ngôi + bản gốc →</RouterLink>
+        >Xem đủ ba ngôi + bản gốc →</RouterLink
+        >
+        <RouterLink
+          data-testid="home-link-detail-inline"
+          class="block text-center text-small text-muted underline mt-2"
+          :to="{ name: 'detail', params: { drawId: today.id } }"
+          >xem thêm</RouterLink
+        >
       </article>
 
       <!-- nhánh CHƯA GIEO -->

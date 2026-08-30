@@ -16,6 +16,7 @@ const routes = [
   { path: '/draw', name: 'draw', component: { template: '<div/>' } },
   { path: '/que/:drawId', name: 'detail', component: { template: '<div/>' } },
   { path: '/mo-khoa/:topic', name: 'paywall', component: { template: '<div/>' } },
+  { path: '/cua-ban', name: 'library', component: { template: '<div/>' } },
 ]
 
 function mk() {
@@ -73,6 +74,17 @@ describe('HomeView', () => {
     expect(w.find('[data-testid="home-slot-congViec"]').text()).toContain('Việc mình nộp')
     expect(w.find('[data-testid="home-link-detail"]').attributes('href')).toBe('/que/42')
     expect(w.find('[data-testid="home-changing-lines"]').text()).toContain('Hào 2 động')
+  })
+
+  it('TESTIDS #9/#23/#24: link-inline S1→S3 + nav desktop draw/library tồn tại', async () => {
+    client.api.me.mockResolvedValue(DRAWN)
+    const r = mk()
+    const w = mount(HomeView, { global: { plugins: [r] } })
+    await r.isReady()
+    await flushPromises()
+    expect(w.find('[data-testid="home-link-detail-inline"]').attributes('href')).toBe('/que/42')
+    expect(w.find('[data-testid="home-nav-draw"]').attributes('href')).toBe('/draw')
+    expect(w.find('[data-testid="home-nav-library"]').attributes('href')).toBe('/cua-ban')
   })
 
   it('chip duyen đã mở (✓), tai_loc/xuat_hanh khóa + giá 29.000đ → link S4', async () => {
