@@ -179,7 +179,7 @@ Lỗi: 409 `IDEMPOTENCY_CONFLICT` (same key, khác body); 422 `VALIDATION_FAILED
 
 Đánh thức webhook cho FE test: set paid + bắn đúng handler #8 nội bộ. 404 nếu `APP_ENV=production`.
 
-## 8. `POST /api/webhooks/payos` — IPN thật (PAY-01; spec chốt trước để BE-0预留 đường)
+## 8. `POST /api/webhooks/payos` — IPN thật (PAY-01; spec chốt trước để BE-0 chừa đường)
 
 Headers: `X-PayOS-Signature` (HMAC SHA256 hex của raw body với `PAYOS_WEBHOOK_SECRET`).
 Body payOS: `{ "data": { "code", "id", "orderCode", "amount", "cancelled", "payDate", "transactionRef", ... } }` — BE chỉ tin 3 field: `orderCode, amount, transactionRef`.
