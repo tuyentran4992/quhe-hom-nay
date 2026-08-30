@@ -67,7 +67,7 @@ DRAW_LIMIT_REACHED (409) → replace về `/` + `?toast=draw_limit` → S1 rende
 |---|---|---|
 | `gate-skeleton` | đang gọi #6 | skeleton chờ |
 | `gate-locked` + `gate-cta-paywall` | chưa unlock (C-03) | blurb 1 câu + nút → `/mo-khoa/{topic}` |
-| `gate-ask` (disabled) + `gate-cooldown` | sau 429 TOPIC_COOLDOWN | đếm ngược `mm:ss` từ `retry_after_seconds`, nút disabled (90s, C-01) |
+| `gate-ask` (disabled) + `gate-cooldown` | sau 429 TOPIC_COOLDOWN | đếm ngược `mm:ss` từ `retry_after_seconds`, nút disabled (90s, C-01). Hết đồng hồ → `gate-cooldown` BIẾN MẤT, `gate-ask` enable lại nhãn "Xin luận sâu" (fix E5 t_0285ac01 — QA không còn thấy "— 00:00" vĩnh viễn) |
 | `gate-cap` | hết lượt ngày | "Hôm nay hết lượt luận, quay lại sau 0h." (cap ngày) |
 | `gate-result` | đã unlock + OK | đoạn AI, `{br}` → `<br>`, nút `gate-ask` "Xin luận sâu" còn dùng |
 | `gate-retry` | 429/500 | nút thử lại |
@@ -112,7 +112,7 @@ DRAW_LIMIT_REACHED (409) → replace về `/` + `?toast=draw_limit` → S1 rende
 ```
 cd frontend
 npm ci
-npx vitest run                      # 68 tests / 13 files (FE-1: +hexagrams/home/detailview/library/paywall/drawview lỗi)
+npx vitest run                      # 76 tests / 14 files (E5 t_0285ac01: +topicgate cooldown→idle)
 npm run typecheck                   # vue-tsc --noEmit, exit 0
 NODE_OPTIONS=--max-old-space-size=1024 npm run build   # → backend/public/app/
 ```
@@ -122,3 +122,8 @@ NODE_OPTIONS=--max-old-space-size=1024 npm run build   # → backend/public/app/
 - Draw §3.2 KHÔNG embed hexagram → cache module mới `src/composables/useHexagrams.js` (ensure/prime/get, in-flight dedupe, 1 request/quẻ/phiên). S1/S3/S5 đọc qua cache; S2 prime từ #3 → S3 zero-fetch.
 - Deep-link `/que/{id}` quá khứ: resolve qua #4 (limit 50) rồi #2 — không có GET /draws/{id}.
 - S4 đọc đúng payload #7 BE-2 (`qr_data`, `confirm_url`, `stub:true` → `pay-stub-note`), poll #9 status ∈ pending/paid/expired/cancelled; paid → refresh #1 → toast + về S3.
+
+## E5 fix (card t_0285ac01) — TopicGate cooldown hết giờ tự mở khoá
+- 429 `AI_COOLDOWN` → `gate-cooldown` đếm `mm:ss` như cũ; khi đồng hồ chạm 0: `gate-cooldown` unmount, `gate-ask` hiện lại ENABLED nhãn "Xin luận sâu" (không còn "— 00:00" disabled vĩnh viễn).
+- Bấm lại sau cooldown → POST #5 với `idempotency_key` KHÁC (uuid mới mỗi lần) → `gate-skeleton` → poll #6.
+- QA assert bằng 2 selector có sẵn: `gate-cooldown` count=0 && `gate-ask` not disabled sau ~90s (ca E5 trong e2e_final.py).
