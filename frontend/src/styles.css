@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 04-ui §1: màu chữ ink, nền giấy; font body self-host (main.js import subset). */
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-paper text-ink font-body text-body;
+    /* nền texture giấy dó thuần CSS — không ảnh nặng (04-ui đầu file) */
+    background-image: radial-gradient(rgb(30 27 24 / 0.035) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+}
+
+@layer components {
+  /* nút chính cinnabar + viền đồng — mockup v2 .btn-primary (token qua class) */
+  .btn-cinnabar {
+    @apply inline-block text-center font-semibold text-paper bg-cinnabar border border-gold/60 rounded-card px-5 py-3 shadow-card active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .card {
+    @apply bg-paper2 rounded-card border border-gold/40 shadow-card;
+  }
+}
