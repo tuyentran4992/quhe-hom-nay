@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Domain\Luan;
 use App\Domain\PromptBuilder;
 use App\Domain\Rules;
 use App\Domain\Wordguard;
@@ -39,7 +40,7 @@ class RunAiBoxJob implements ShouldQueue
         $this->onQueue('ai');
     }
 
-    public function handle(AiBoxClient $client): void
+    public function handle(AiBoxClient $client, ?Luan $luan = null): void
     {
         // claim atomic: queued → running; không giành được = job khác đang làm/bị skip
         $claimed = AiJob::query()
@@ -54,10 +55,14 @@ class RunAiBoxJob implements ShouldQueue
 
         try {
             $draw = $job->draw()->with('hexagram')->firstOrFail();
+            // SPEC-3XU §4bis: từ hào các hào động (han+quốc âm+nghĩa) vào prompt,
+            // xếp sơ→thượng; 0 hào động → mảng rỗng, chỉ đại ý quẻ gốc. Quẻ biến
+            // KHÔNG bao giờ xuất hiện (lưu DB nội bộ — F10 QA).
             $messages = [
                 ['role' => 'system', 'content' => Wordguard::SYSTEM_PROMPT],
                 ['role' => 'user', 'content' => PromptBuilder::userPrompt(
-                    $draw->hexagram->toArray(), $job->topic, $draw->changing_lines ?? []
+                    $draw->hexagram->toArray(), $job->topic, $draw->changing_lines ?? [],
+                    ($luan ?? new Luan())->haoTextsForDraw($draw) // container inject; fallback cho test cũ gọi 1 tham số
                 )],
             ];
 

@@ -43,7 +43,7 @@ class HexagramRollerTest extends TestCase
         }
     }
 
-    public function test_moving_line_share_is_about_12_percent(): void
+    public function test_moving_line_share_is_about_25_percent(): void
     {
         $roller = new HexagramRoller();
         $moving = 0;
@@ -58,9 +58,9 @@ class HexagramRollerTest extends TestCase
             }
         }
         $share = $moving / $total;
-        // 6% + 6% = 12%; cửa sổ 9–15% theo 05-testplan U4
-        $this->assertGreaterThan(0.09, $share);
-        $this->assertLessThan(0.15, $share);
+        // C-09 3 xu (03-api §3.1): 6 hoặc 9 = 1/8 + 1/8 = 25%; cửa sổ 22–28%
+        $this->assertGreaterThan(0.22, $share);
+        $this->assertLessThan(0.28, $share);
     }
 
     public function test_bitmask_always_matches_exactly_one_of_64_patterns(): void

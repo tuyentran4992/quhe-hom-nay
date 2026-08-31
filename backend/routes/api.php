@@ -40,3 +40,5 @@ Route::middleware(EnsureDeviceSession::class)->group(function () {
 
 Route::get('/hexagrams/{id}', [HexagramController::class, 'show']) // #2
     ->whereNumber('id');
+Route::get('/hexagrams/{id}/hao-texts', [HexagramController::class, 'haoTexts']) // #2b SPEC-3XU
+    ->whereNumber('id');
