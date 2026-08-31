@@ -210,9 +210,56 @@ class LandingPageTest extends TestCase
 
     public function test_landing_khong_che_spa_fallback(): void
     {
-        // /app/ que/82 van do spa.php phuc vu (404 o day = index.html chua build trong worktree,
-        // KHONG phai 500/landing).
-        $this->get('/app/que/82')->assertStatus(404);
+        // [MKT-F2-D1 t_2c84e0c8] Assertion cu `assertStatus(404)` chi dung tren worktree
+        // CHUA build SPA; co build that (CI/production serve backend/public/app) -> spa.php
+        // tra index.html 200 -> test cu FAIL tren ghep BE+FE cua QA t_74912356 CHECK 5.
+        // Bat bien can giu khong doi: '/app/*' do spa.php phuc vu, landing Blade KHONG
+        // chen lang mach (khong chuoi 'landing-cta-draw'), khong 500.
+        $res = $this->get('/app/que/82');
+        if (is_readable(public_path('app/index.html'))) {
+            // Moi truong CO build: SPA index phuc vu deep-link — 200 + asset SPA, khong landing.
+            $html = $res->assertOk()->getContent();
+            $this->assertStringNotContainsString('landing-cta-draw', $html, 'landing chen lang mach /app/*');
+            $this->assertStringContainsString('/app/assets', $html, '/app/* khong do SPA index phuc vu');
+        } else {
+            // Moi truong CHUA build: spa.php abort(404) — van khong 500, van khong landing.
+            $res->assertStatus(404);
+            $this->assertStringNotContainsString('landing-cta-draw', $res->getContent());
+        }
+        // Bao phu CAI CON LAI ngay trong lan chay nay (khong phu thuoc state build cua CI):
+        $this->verifySpaFallbackBothStates();
+    }
+
+    /**
+     * Du bao build that cua CI, dao 2 trang thai index.html co/khong trong cung mot lan
+     * chay (cung kỹ thuật backup/restore index SPA như SpaFallbackTest — file that khong bao gio mat).
+     */
+    private function verifySpaFallbackBothStates(): void
+    {
+        $index = public_path('app/index.html');
+        $backup = is_readable($index) ? file_get_contents($index) : null;
+        try {
+            if ($backup === null) {
+                @mkdir(dirname($index), 0777, true);
+            }
+            file_put_contents($index, '<!doctype html><html><body><div id="app">MKT-F2-D1-SPA</div><script src="/app/assets/probe.js"></script></body></html>');
+            $html = $this->get('/app/que/82')->assertOk()->getContent();
+            $this->assertStringNotContainsString('landing-cta-draw', $html, 'landing chen lang mach /app/* khi co build');
+            $this->assertStringContainsString('/app/assets', $html, 'SPA index khong serve asset path');
+
+            unlink($index);
+            $res = $this->get('/app/que/82')->assertStatus(404);
+            $this->assertStringNotContainsString('landing-cta-draw', $res->getContent(), 'landing chen lang mach /app/* khi chua build');
+        } finally {
+            if ($backup !== null) {
+                file_put_contents($index, $backup);
+            } elseif (is_readable($index) && str_contains((string) file_get_contents($index), 'MKT-F2-D1-SPA')) {
+                @unlink($index); // chinh em tao thi don, khong dong build cua nguoi khac
+            }
+        }
+        if ($backup !== null) {
+            $this->assertSame($backup, file_get_contents($index), 'build SPA that phai con nguyen ven sau test');
+        }
     }
 
     // helper: PHPUnit khong co assertDoesntMatch — mo rong bang preg cho tu cam co ranh gioi.
