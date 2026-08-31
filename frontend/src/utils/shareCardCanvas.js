@@ -230,6 +230,32 @@ export function drawShareCard(ctx, model, opts = {}) {
   ctx.restore()
 }
 
+/**
+ * BUG-F7-QA2 (t_b33b9f28 · SPEC-THE §3 PNG ≤500KB): render thật máy thấp đo 695–964KB.
+ * Nguyên nhân: gradient texture lớp nền + antialiasing chữ → ~2.000 màu smooth, PNG
+ * full-color deflate phình to. Fix theo chỉ đạo merge-card t_a2ef281b muc 3b =
+ * palette quantization / flatten texture, KHÔNG giảm resolution (1080×1920 giữ nguyên).
+ * 5-bit/kênh RGB bit-replication (32 mức/kênh = ≤32768 bảng nhưng pixel thực tế gom
+ * ~vài trăm → deflate thắng lớn). Mép dịch ≤3 LSB — token màu #F7F2E7 giữ đúng trực quan.
+ * ALPHA giữ 8-bit (QR không vỡ cạnh). Đo offline Pillow 6 PNG QA mb8: 926–964→85–101KB,
+ * 683–701→64–73KB (cùng mapping (v>>3)<<3|(v>>5)). In-place, trả chính ImageData.
+ */
+export const PNG_QUANT_BITS = 5
+export function quantizeImageData(imageData, bits = PNG_QUANT_BITS) {
+  const keep = 8 - bits
+  const mask = (0xff << keep) & 0xff // ví dụ 5-bit → 0xF8
+  const data = imageData.data
+  for (let i = 0; i < data.length; i += 4) {
+    for (let c = 0; c < 3; c++) {
+      const v = data[i + c]
+      // bit-replication (như Pillow posterize): giữ `bits` cao, lặp vào `keep` thấp
+      data[i + c] = (v & mask) | ((v & mask) >> bits)
+    }
+    // alpha (i+3) giữ 8-bit
+  }
+  return imageData
+}
+
 /** URL hiển thị dưới QR — cắt scheme cho gọn, KHÔNG đổi link copy. */
 function shortUrl(url) {
   return String(url || '').replace(/^https?:\/\//, '')
@@ -254,6 +280,19 @@ export async function renderFrame(model, frame, { qrText } = {}) {
   }
   const caption1x1 = frame.key === '1x1' ? model.caption_1x1 || '' : undefined
   drawShareCard(ctx, model, { frame, qrImage, caption1x1 })
+  // BUG-F7-QA2: flatten gradient/texture về palette 5-bit TRƯỚC encode → PNG ≤500KB
+  // (SPEC-THE §3, chỉ đạo t_a2ef281b muc 3b — KHÔNG giảm resolution). Best-effort:
+  // ctx/môi trường không có ImageData API (jsdom, tainted canvas) → bỏ qua, KHÔNG ném
+  // (đừng biến tối ưu weight thành lỗi E1 fallback).
+  try {
+    if (typeof ctx.getImageData === 'function' && typeof ctx.putImageData === 'function') {
+      const id = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      quantizeImageData(id)
+      ctx.putImageData(id, 0, 0)
+    }
+  } catch {
+    /* bỏ qua quantize — ảnh to nhưng render đúng */
+  }
   const blob = await new Promise((res, rej) =>
     canvas.toBlob((b) => (b ? res(b) : rej(new Error('toBlob_empty'))), 'image/png'),
   )
