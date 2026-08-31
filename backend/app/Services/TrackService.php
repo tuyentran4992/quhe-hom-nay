@@ -29,11 +29,16 @@ class TrackService
      */
     public function track(Device $device, string $name, array $utm = [], ?array $props = null): Event
     {
-        $event = Event::query()->create([
+        $event = new Event([
             'device_id' => $device->device_id,
             'name' => $name,
             'props' => $this->normalizeProps($props),
         ]);
+        // created_at theo ỨNG DỤNG (Carbon test-clock được tôn trọng) — cột DB có
+        // DEFAULT CURRENT_TIMESTAMP nhưng MySQL không biết setTestNow → mọi suy luận
+        // "trong ngày VN" (V5 dedupe 1/device/token/ngày) phải lấy now() của app.
+        $event->created_at = now();
+        $event->save();
 
         $this->applyFirstTouch($device, $utm);
 

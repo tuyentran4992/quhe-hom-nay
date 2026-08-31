@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Domain\Luan;
 use App\Models\Device;
 use App\Services\DrawService;
+use App\Services\ShareLinkService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -13,12 +14,16 @@ use Illuminate\Http\Request;
  * Mỏng — validation ranh giới ở đây, nghiệp vụ C-01 ở DrawService + uq DB.
  * SPEC-3XU: #3 thêm `data.hao_texts` (luật luận §4bis, nguồn hexagram_hao_texts);
  * quẻ biến đã lưu DB nội bộ nhưng KHÔNG xuất hiện ở payload.
+ * F7-BE (ADR-002 §3): hook V7 `share_referred_draw` — device first-touch
+ * utm_medium=share tạo draw → 1 event props {draw_id}; moc ở đây, DrawService
+ * /roller KHÔNG đụng (đơn vị đo K-factor nằm ngoài luồng gieo).
  */
 class DrawController extends Controller
 {
     public function __construct(
         private readonly DrawService $draws,
         private readonly Luan $luan,
+        private readonly ShareLinkService $shareLinks,
     ) {
     }
 
@@ -49,12 +54,25 @@ class DrawController extends Controller
         // Nguồn qua Domain\Luan (1 trách nhiệm tra-luật, controller giữ mỏng).
         $haoTexts = $this->luan->haoTextsForDraw($result['draw']);
 
-        return response()->json(['data' => [
+        $response = response()->json(['data' => [
             'draw' => $draw->toApi(),
             'hexagram' => $result['hexagram']->toApi(),
             'hao_texts' => $haoTexts,
             'already_drawn' => false, // luôn false ở 201 (§3)
         ]], 201);
+
+        // V7 — Laravel 11 `defer()`: callback chạy SAU khi response đã gửi
+        // (InvokeDeferredCallbacks middleware); điều kiện utm_medium=share ở
+        // ShareLinkService (1 nơi). Telemetry lỗi không làm gãy Luống Cày (#3).
+        defer(function () use ($device, $draw) {
+            try {
+                $this->shareLinks->maybeFireReferredDraw($device, $draw);
+            } catch (\Throwable $e) {
+                logger()->warning('track.v7_failed', ['draw' => $draw->id, 'err' => $e->getMessage()]);
+            }
+        });
+
+        return $response;
     }
 
     public function history(Request $request): JsonResponse

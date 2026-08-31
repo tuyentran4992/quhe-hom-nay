@@ -22,7 +22,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // F7-BE: cookie qhn_device là PLAIN (DeviceIdentityService — HttpOnly,
+        // không mã hóa; memory repo: test phải withUnencryptedCookies). Route
+        // /api/* stateless không chạy EncryptCookies nên trước đây vô hại; nhưng
+        // /s/{token} (web group) có EncryptCookies → cookie plain bị null hóa →
+        // middleware sinh device mới MỖI lượt xem (gãy V5 dedupe + self-view).
+        $middleware->encryptCookies(except: ['qhn_device']);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // BE-1 — mọi endpoint /api lỗi trả ĐÚNG error envelope §0.3 (specs/1.mvp/03-api.md):

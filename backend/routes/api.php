@@ -5,6 +5,7 @@ use App\Http\Controllers\HexagramController;
 use App\Http\Controllers\InterpretationController;
 use App\Http\Controllers\MeController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ShareLinkController;
 use App\Http\Controllers\TrackController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Middleware\EnsureDeviceSession;
@@ -41,7 +42,15 @@ Route::middleware(EnsureDeviceSession::class)->group(function () {
     // MKT-F2 — #11 tracking UTM (06-mkt-tracking §3): Throttle 30/phút/IP.
     Route::post('/track', [TrackController::class, 'store']) // #11
         ->middleware('throttle:30,1');
+
+    // F7-BE — share links (SPEC-THE §5): throttle 10/phút/IP — chống sinh token hàng loạt.
+    Route::post('/share-links', [ShareLinkController::class, 'store'])
+        ->middleware('throttle:10,1');
 });
+
+// F7-BE — GET payload công khai KHÔNG cần middleware device (người lạ đọc ảnh thẻ;
+// EnsureDeviceSession vẫn đặt attribute qua route group dưới).
+Route::get('/share-links/{token}', [ShareLinkController::class, 'show']);
 
 Route::get('/hexagrams/{id}', [HexagramController::class, 'show']) // #2
     ->whereNumber('id');
