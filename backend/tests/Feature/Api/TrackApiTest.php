@@ -250,6 +250,67 @@ SQL);
         $this->assertCount(2, $pivot, 'device không utm bị WHERE loại');
     }
 
+    // ---------- TEST 7: MKT-F6-fix — donate_open vào whitelist (spec §2/§3) ----------
+
+    public function test_whitelist_constant_is_single_source_of_three_names(): void
+    {
+        // 1 nguồn sự thật: Event::NAME_WHITELIST — đúng 3 name, không hơn không kém.
+        $this->assertSame(['landing_visit', 'cta_gieo_que', 'donate_open'], Event::NAME_WHITELIST);
+    }
+
+    public function test_donate_open_with_topic_returns_204_and_persists_event_with_props(): void
+    {
+        // SPA mở /mo-khoa/duyen → POST donate_open, props{topic} (spec §3 payload).
+        $resp = $this->asDevice(null)->track([
+            'name' => 'donate_open',
+            'props' => ['topic' => 'duyen'],
+        ]);
+        $resp->assertStatus(204);
+
+        $deviceId = $this->cookieDeviceId($resp);
+        $event = Event::query()->where('device_id', $deviceId)->sole();
+        $this->assertSame('donate_open', $event->name);
+        $this->assertSame('duyen', $event->props['topic']);
+    }
+
+    public function test_donate_open_after_landing_visit_keeps_first_touch_utm_intact(): void
+    {
+        // landing_visit campaign w1 → donate_open mang campaign khac:
+        // events đủ 2 row, cot devices.utm_* GIU NGUYEN first-touch (spec §2 bất biến).
+        $resp1 = $this->asDevice(null)->track(['name' => 'landing_visit', 'utm' => self::UTM]);
+        $deviceId = $this->cookieDeviceId($resp1);
+
+        $this->asDevice($deviceId)->track([
+            'name' => 'donate_open',
+            'utm' => ['source' => 'zalo', 'medium' => 'chat', 'campaign' => 'w2_khac'],
+            'props' => ['topic' => 'duyen'],
+        ])->assertStatus(204);
+
+        $device = Device::query()->findOrFail($deviceId);
+        $this->assertSame('fb_group', $device->utm_source, 'first-touch: donate_open không được đè utm');
+        $this->assertSame('social', $device->utm_medium);
+        $this->assertSame('w1_que_tinh', $device->utm_campaign);
+
+        $names = Event::query()->where('device_id', $deviceId)->orderBy('id')->pluck('name')->all();
+        $this->assertSame(['landing_visit', 'donate_open'], $names);
+    }
+
+    public function test_donate_open_with_no_prior_utm_still_sets_attribution_for_null_columns(): void
+    {
+        // donate_open là event ĐẦU TIÊN của device (deep-link thẳng paywall):
+        // vẫn ghi được utm vào cột đang NULL + props topic bảo toàn.
+        $resp = $this->asDevice(null)->track([
+            'name' => 'donate_open',
+            'utm' => ['campaign' => 'zalo_oa'],
+            'props' => ['topic' => 'tai_loc'],
+        ]);
+        $resp->assertStatus(204);
+
+        $device = Device::query()->findOrFail($this->cookieDeviceId($resp));
+        $this->assertSame('zalo_oa', $device->utm_campaign);
+        $this->assertSame('tai_loc', Event::query()->sole()->props['topic']);
+    }
+
     // ---------- phụ trợ: schema ----------
 
     public function test_events_table_shape_and_device_fk(): void
