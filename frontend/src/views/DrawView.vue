@@ -10,12 +10,14 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '../api/client.js'
 import { useHexagrams } from '../composables/useHexagrams.js'
+import { useHaoTexts } from '../composables/useHaoTexts.js'
 import MagicSequence from '../components/MagicSequence.vue'
 import { MAGIC_SEQUENCE_MS } from '../constants.js'
 
 const emit = defineEmits(['revealed'])
 const router = useRouter()
 const hxlib = useHexagrams()
+const haolib = useHaoTexts()
 const phase = ref('idle') // idle | rolling
 const result = ref(null) // { draw, hexagram }
 const pending = ref(false)
@@ -37,6 +39,7 @@ async function roll() {
     .then((r) => {
       result.value = r.data
       if (r.data?.hexagram) hxlib.prime(r.data.hexagram) // S3 đọc cache, không xin #2 lại
+      if (r.data?.hexagram?.id && Array.isArray(r.data.hao_texts)) haolib.prime(r.data.hexagram.id, r.data.hao_texts) // FE-3XU: S3 zero-fetch #2b
       pending.value = false
       tryGo()
     })

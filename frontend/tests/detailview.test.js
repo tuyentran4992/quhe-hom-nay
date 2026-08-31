@@ -1,6 +1,8 @@
 // DetailView S3 — shape THẬT: cache #3 (draw+tách hexagram, prime vào useHexagrams),
 // deep-link /que/{drawId}: draw hôm nay → #2; draw quá khứ → resolve qua #4 history
 // (contract không có GET /draws/{id}) rồi #2. 3 tab free_content, TopicGate theo tab.
+// FE-3XU — vùng "Luận hôm nay" 04-ui §S3: 0 hào động → chỉ Đại ý; ≥1 → Đại ý + khối
+// TỪ HÀO sơ→thượng (prime #3 zero-fetch · deep-link gọi #2b rồi lọc changing_lines).
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
@@ -9,10 +11,11 @@ import * as client from '../src/api/client.js'
 import { useDevice } from '../src/composables/useDeviceApi.js'
 import { _resetDeviceForTests } from '../src/composables/useDeviceApi.js'
 import { useHexagrams, _resetHexagramCacheForTests } from '../src/composables/useHexagrams.js'
+import { useHaoTexts, _resetHaoTextsForTests } from '../src/composables/useHaoTexts.js'
 
 vi.mock('../src/api/client.js', async (orig) => {
   const real = await orig()
-  return { ...real, api: { me: vi.fn(), today: vi.fn(), hexagram: vi.fn(), history: vi.fn(), requestInterpretation: vi.fn(), aiJob: vi.fn() } }
+  return { ...real, api: { me: vi.fn(), today: vi.fn(), hexagram: vi.fn(), history: vi.fn(), haoTexts: vi.fn(), requestInterpretation: vi.fn(), aiJob: vi.fn() } }
 })
 
 const DRAW42 = { id: 42, hexagram_id: 11, drawn_date: '2026-08-30', lines_rolled: [7, 8, 7, 7, 7, 7], changing_lines: [2], created_at: 't' }
@@ -44,6 +47,7 @@ async function mountAt(path) {
   await r.push(path)
   await r.isReady()
   await flushPromises()
+  await flushPromises() // FE-3XU: load() chờ song song #2 + #2b (thêm chuỗi await)
   return { r, w }
 }
 
@@ -51,6 +55,7 @@ beforeEach(() => {
   vi.clearAllMocks()
   _resetDeviceForTests()
   _resetHexagramCacheForTests()
+  _resetHaoTextsForTests()
   document.body.innerHTML = ''
   client.api.me.mockResolvedValue({ device_id: 'd', is_new_device: false, server_date_vn: '2026-08-30', entitlements: [], today_draw: DRAW42 })
   client.api.hexagram.mockImplementation(async (id) => ({ data: id === 11 ? HX11 : HX3 }))
@@ -124,5 +129,69 @@ describe('DetailView deep-link quẻ quá khứ (idempotent, không có GET /dra
     client.api.me.mockRejectedValue(new client.ApiError(0, 'NETWORK', 'mạng lỗi', {}))
     const { w } = await mountAt('/que/42')
     expect(w.find('[data-testid="detail-error"]').exists()).toBe(true)
+  })
+})
+
+// ===== FE-3XU: vùng "Luận hôm nay" — luật hiển thị 04-ui §S3 =====
+const HAO6 = [
+  { vi: 1, hao: 'Sơ cửu', han: '初九：拔茅茹。', quoc_am: 'Sơ cửu: bạc mao nho.', nghia: 'Rút cỏ chung mầm.' },
+  { vi: 2, hao: 'Lục nhị', han: '六二：包荒。', quoc_am: 'Lục nhị: bao hoang.', nghia: 'Bao dung chỗ hoang.' },
+  { vi: 3, hao: 'Cửu tam', han: '九三：無平不陂。', quoc_am: 'Cửu tam: vô bình bất pha.', nghia: 'Không phẳng mãi.' },
+  { vi: 4, hao: 'Lục tứ', han: '六四：顚飛。', quoc_am: 'Lục tứ: điên phi.', nghia: 'Lộn cánh rơi.' },
+  { vi: 5, hao: 'Lục ngũ', han: '六五：帝乙歸妹。', quoc_am: 'Lục ngũ: đế ất quy muội.', nghia: 'Vua gả em.' },
+  { vi: 6, hao: 'Thượng lục', han: '上六：城復于隍。', quoc_am: 'Thượng lục: thành phục vu hoàng.', nghia: 'Thành lở xuống hào.' },
+]
+const DRAW_STATIC = { id: 55, hexagram_id: 11, drawn_date: '2026-08-30', lines_rolled: [7, 8, 7, 8, 7, 8], changing_lines: [], created_at: 't' }
+
+describe('DetailView vùng Luận hôm nay (FE-3XU, 04-ui §S3)', () => {
+  it('refresh /que/42 (hào động 2, chưa prime) → gọi #2b đúng id, render khối Lục nhị + Đại ý', async () => {
+    client.api.haoTexts.mockResolvedValue({ data: { hexagram_id: 11, hao: HAO6 } })
+    const { w } = await mountAt('/que/42')
+    expect(client.api.haoTexts).toHaveBeenCalledWith(11)
+    const blocks = w.findAll('[data-testid="hao-dong-block"]')
+    expect(blocks.length).toBe(1)
+    expect(blocks[0].attributes('data-vi')).toBe('2')
+    expect(blocks[0].text()).toContain('六二：包荒。')
+    expect(blocks[0].text()).toContain('bao hoang')
+    expect(blocks[0].text()).toContain('Bao dung chỗ hoang')
+    // Đại ý quẻ gốc luôn hiện (1 khối)
+    expect(w.find('[data-testid="luan-hom-nay"]').text()).toContain('giao nhau nên thông')
+  })
+
+  it('≥2 hào động (draw 7 changing [6,2] từ #4) → xếp sơ→thượng đúng thứ tự', async () => {
+    client.api.haoTexts.mockResolvedValue({ data: { hexagram_id: 3, hao: HAO6 } })
+    client.api.history.mockResolvedValue({ data: [{ ...DRAW7, changing_lines: [6, 2], lines_rolled: [8, 8, 7, 7, 9, 9] }], meta: { count: 1 } })
+    const { w } = await mountAt('/que/7')
+    const vis = w.findAll('[data-testid="hao-dong-block"]').map((b) => b.attributes('data-vi'))
+    expect(vis).toEqual(['2', '6']) // sơ→thượng dù changing [6,2]
+  })
+
+  it('0 hào động → CHỈ Đại ý, không hao-dong-block, không "—null—"/khung trống', async () => {
+    client.api.me.mockResolvedValue({ device_id: 'd', is_new_device: false, server_date_vn: '2026-08-30', entitlements: [], today_draw: DRAW_STATIC })
+    const { w } = await mountAt('/que/55')
+    expect(w.find('[data-testid="luan-dai-y"]').exists()).toBe(true)
+    expect(w.find('[data-testid="luan-dai-y"]').text()).toContain('giao nhau nên thông')
+    expect(w.findAll('[data-testid="hao-dong-block"]').length).toBe(0)
+    expect(w.find('[data-testid="luan-hom-nay"]').text()).not.toMatch(/null|undefined/)
+    // 0 hào động = hợp lệ → không xin #2b làm gì (không có hào nào để lấy từ)
+    expect(client.api.haoTexts).not.toHaveBeenCalled()
+  })
+
+  it('đi từ S2 (đã prime #3) → KHÔNG gọi #2b, vẫn đủ khối từ hào', async () => {
+    useHexagrams().prime({ ...HX11 })
+    useHaoTexts().prime(11, [HAO6[1]]) // S2 prime từ data.hao_texts #3
+    const { w } = await mountAt('/que/42')
+    expect(client.api.haoTexts).not.toHaveBeenCalled()
+    const blocks = w.findAll('[data-testid="hao-dong-block"]')
+    expect(blocks.length).toBe(1)
+    expect(blocks[0].text()).toContain('包荒')
+  })
+
+  it('#2b lỗi mạng → không crash: Đại ý vẫn hiện, vùng từ hào im (04-ui §4), text không lộ "quẻ biến"', async () => {
+    client.api.haoTexts.mockRejectedValue(new client.ApiError(0, 'NETWORK', 'mạng lỗi', {}))
+    const { w } = await mountAt('/que/42')
+    expect(w.find('[data-testid="luan-dai-y"]').text()).toContain('giao nhau nên thông')
+    expect(w.findAll('[data-testid="hao-dong-block"]').length).toBe(0)
+    expect(w.text()).not.toMatch(/quẻ biến|symbol_bien/)
   })
 })

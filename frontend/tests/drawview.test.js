@@ -2,6 +2,8 @@
 // API song song; DRAW_LIMIT_REACHED → về S1 toast (04-ui §4). FE-1: #3 về → PRIME cache
 // hexagram (shape #3: data.draw và data.hexagram TÁCH nhau) để S3 không fetch #2 lại;
 // lỗi #3 khác 409 (NETWORK/500) → draw-error, không trắng hành động, cho phép thử lại.
+// FE-3XU: reveal theo lịch PA1 (3060ms, mockup-3xu.html) — sàn C-08 1500ms giữ nguyên;
+// #3 embed data.hao_texts (chỉ hào động) → prime useHaoTexts để S3 zero-fetch #2b.
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
@@ -9,6 +11,7 @@ import DrawView from '../src/views/DrawView.vue'
 import MagicSequence from '../src/components/MagicSequence.vue'
 import * as client from '../src/api/client.js'
 import { _resetHexagramCacheForTests, useHexagrams } from '../src/composables/useHexagrams.js'
+import { _resetHaoTextsForTests, useHaoTexts } from '../src/composables/useHaoTexts.js'
 
 vi.mock('../src/api/client.js', async (orig) => {
   const real = await orig()
@@ -19,6 +22,7 @@ const DRAWN_OK = {
   data: {
     draw: { id: 42, hexagram_id: 11, drawn_date: '2026-08-30', lines_rolled: [7, 8, 7, 7, 7, 7], changing_lines: [2], created_at: 't' },
     hexagram: { id: 11, han: '泰', ten: 'Địa Thiên Thái', symbol: '䷊', lines: [1, 1, 1, 0, 0, 0], free_content: { congViec: 'a', tinhDuyen: 'b', taiLoc: 'c' } },
+    hao_texts: [{ vi: 2, hao: 'Lục nhị', han: '六二：包荒，用馮河。', quoc_am: 'Lục nhị: bao hoang.', nghia: 'Bao dung chỗ hoang.' }],
     already_drawn: false,
   },
 }
@@ -54,7 +58,7 @@ describe('DrawView (C-08)', () => {
     expect(w.text()).not.toMatch(/tâm linh|hóa giải|cúng|mở cung/)
   })
 
-  it('bấm gieo → call #3 song song + UI không reveal trước 1500ms', async () => {
+  it('bấm gieo → call #3 song song + UI không reveal trước 1500ms; reveal theo PA1 3060ms', async () => {
     client.api.createDraw.mockResolvedValue(DRAWN_OK)
     const r = mk()
     const w = mount(DrawView, { global: { plugins: [r] } })
@@ -64,9 +68,11 @@ describe('DrawView (C-08)', () => {
     expect(client.api.createDraw).toHaveBeenCalledTimes(1) // bay song song, không chờ animation
     expect(w.emitted('revealed')).toBeFalsy()
     expect(w.find('[data-testid="draw-result"]').exists()).toBe(false)
-    await vi.advanceTimersByTimeAsync(1499)
+    await vi.advanceTimersByTimeAsync(1499) // sàn C-08 — không reveal sớm hơn 1.5s
     expect(w.find('[data-testid="draw-result"]').exists()).toBe(false)
-    await vi.advanceTimersByTimeAsync(1)
+    await vi.advanceTimersByTimeAsync(1560) // t=3059 — lịch PA1 chưa reveal
+    expect(w.find('[data-testid="draw-result"]').exists()).toBe(false)
+    await vi.advanceTimersByTimeAsync(1) // t=3060 = revealAt PA1 (mockup 3.06s)
     await flushPromises()
     expect(w.find('[data-testid="draw-result"]').exists()).toBe(true)
     // 04-ui B3: reveal xong → auto-push S3
@@ -95,6 +101,18 @@ describe('DrawView (C-08)', () => {
     await vi.advanceTimersByTimeAsync(1600)
     await flushPromises()
     expect(useHexagrams().get(11)).toMatchObject({ ten: 'Địa Thiên Thái', symbol: '䷊' })
+  })
+
+  it('FE-3XU: #3 embed hao_texts → prime useHaoTexts (S3 zero-fetch #2b)', async () => {
+    client.api.createDraw.mockResolvedValue(DRAWN_OK)
+    _resetHaoTextsForTests()
+    const r = mk()
+    const w = mount(DrawView, { global: { plugins: [r] } })
+    await r.isReady()
+    await w.find('[data-testid="draw-start"]').trigger('click')
+    await vi.advanceTimersByTimeAsync(3060)
+    await flushPromises()
+    expect(useHaoTexts().get(11, [2])).toEqual([{ vi: 2, hao: 'Lục nhị', han: '六二：包荒，用馮河。', quoc_am: 'Lục nhị: bao hoang.', nghia: 'Bao dung chỗ hoang.' }])
   })
 
   it('lỗi #3 không phải 409 (BE chết/NETWORK) → draw-error + nút thử lại, không trắng (AC4)', async () => {

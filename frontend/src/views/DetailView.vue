@@ -14,15 +14,19 @@ import { useRoute } from 'vue-router'
 import { api } from '../api/client.js'
 import { useDevice } from '../composables/useDeviceApi.js'
 import { useHexagrams } from '../composables/useHexagrams.js'
+import { useHaoTexts } from '../composables/useHaoTexts.js'
 import LineChart from '../components/LineChart.vue'
+import HaoDongBlock from '../components/HaoDongBlock.vue'
 import TopicGate from '../components/TopicGate.vue'
 import { changingLabel } from '../utils/format.js'
 
 const route = useRoute()
 const d = useDevice()
 const hxlib = useHexagrams()
+const haolib = useHaoTexts()
 const draw = ref(null)
 const hx = ref(null)
+const haoDong = ref([]) // FE-3XU: mảng từ hào của các hào động (sơ→thượng)
 const loadErr = ref(null)
 const tab = ref('congViec')
 const TABS = [
@@ -55,7 +59,19 @@ async function load() {
       return
     }
     draw.value = dr
-    hx.value = hxlib.get(dr.hexagram_id) || (await hxlib.ensure(dr.hexagram_id))
+    // FE-3XU: song song #2 + #2b (≥1 hào động mới xin từ hào; 0 = hợp lệ, chỉ Đại ý)
+    const changing = dr.changing_lines || []
+    const [hxGot, haoGot] = await Promise.all([
+      hxlib.get(dr.hexagram_id) || hxlib.ensure(dr.hexagram_id),
+      changing.length
+        ? (async () => {
+            const cached = haolib.get(dr.hexagram_id, changing)
+            return cached.length ? cached : (await haolib.ensure(dr.hexagram_id, changing)) || []
+          })()
+        : [],
+    ])
+    hx.value = hxGot
+    haoDong.value = haoGot
   } catch (e) {
     loadErr.value = e
   }
@@ -116,6 +132,18 @@ const topicForTab = computed(() => ({ congViec: 'xuat_hanh', tinhDuyen: 'duyen',
         <div class="card p-3"><dt class="text-small text-muted">Đại ý</dt><dd data-testid="detail-dai-ci" class="text-body">{{ hx.dai_ci }}</dd></div>
         <div class="card p-3"><dt class="text-small text-muted">Từ khóa</dt><dd data-testid="detail-keywords" class="text-body">{{ (hx.keywords || []).join(' · ') }}</dd></div>
       </dl>
+
+      <!-- LUẬN HÔM NAY — FE-3XU (04-ui §S3): Đại ý quẻ gốc luôn có; ≥1 hào động
+           → khối TỪ HÀO (label·chữ Hán·Quốc âm·nghĩa) xếp sơ→thượng; 0 hào động
+           = trạng thái hợp lệ, KHÔNG khung trống. Quẻ biến không tồn tại ở FE
+           (gate t_04394e77) — không có bất kỳ element nào về "biến". -->
+      <section data-testid="luan-hom-nay" class="mt-6">
+        <h2 class="font-semibold text-h2 text-ink">Luận hôm nay</h2>
+        <p data-testid="luan-dai-y" class="text-body mt-2">{{ hx.dai_ci }}</p>
+        <div data-testid="luan-hao-list" class="mt-3 space-y-3">
+          <HaoDongBlock v-for="t in haoDong" :key="t.vi" :text="t" />
+        </div>
+      </section>
 
       <!-- accordion Bản gốc -->
       <section v-if="bg" class="mt-6">

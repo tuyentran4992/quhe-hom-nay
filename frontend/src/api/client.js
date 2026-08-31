@@ -46,6 +46,8 @@ export const api = {
   me: () => req('GET', '/api/me'),
   // #2 tra cứu quẻ (deep-link S3)
   hexagram: (id) => req('GET', `/api/hexagrams/${id}`),
+  // #2b 6 từ hào của 1 quẻ — SPEC-3XU (03-api §2b); FE lọc theo changing_lines
+  haoTexts: (id) => req('GET', `/api/hexagrams/${id}/hao-texts`),
   // #3 gieo quẻ hôm nay
   createDraw: () => req('POST', '/api/draws', {}),
   // #4 sổ cá nhân

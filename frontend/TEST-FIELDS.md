@@ -127,3 +127,44 @@ NODE_OPTIONS=--max-old-space-size=1024 npm run build   # → backend/public/app/
 - 429 `AI_COOLDOWN` → `gate-cooldown` đếm `mm:ss` như cũ; khi đồng hồ chạm 0: `gate-cooldown` unmount, `gate-ask` hiện lại ENABLED nhãn "Xin luận sâu" (không còn "— 00:00" disabled vĩnh viễn).
 - Bấm lại sau cooldown → POST #5 với `idempotency_key` KHÁC (uuid mới mỗi lần) → `gate-skeleton` → poll #6.
 - QA assert bằng 2 selector có sẵn: `gate-cooldown` count=0 && `gate-ask` not disabled sau ~90s (ca E5 trong e2e_final.py).
+
+## FE-3XU (card t_463d700d) — nghi thức PA1 + vùng Từ hào S3
+
+### S2 — MagicSequence PA1 (thay 3 bước cũ, gate t_04394e77 chốt PA1)
+| testid | nơi | ghi chú |
+|---|---|---|
+| `magic-seq` | khung nghi thức | wrapper; `data-reduced="true"` khi prefers-reduced-motion |
+| `magic-status` | dưới sân khấu | word-by-beat PA1: "Tung xu — hào 1" → "Hào i · 6" → reveal "泰 ䷊ · hào 2 động"; QA assert KHÔNG rỗng |
+| `coin-cluster` | fly 6 cụm | `data-fly="0..5"` có mặt khi cụm đã tới mốc flyAt[i] (đếm lũy kế); reduced-motion = 0 cluster |
+| `magic-row` | 6 hàng hào | `data-vi="1..6"` (sơ→thượng) + `data-drawn` 0/1; hào 6 hàng ĐẦU TIÊN từ trên = vi 6 |
+| `magic-hao-label` | cạnh mỗi hàng | "hào i" khi đã vẽ, "·" khi chờ |
+| `dyno-badge` | hào động | chữ 動, hiện cùng lúc symbol (3060ms) |
+| `magic-reveal` | symbol + tên | chứa "䷊" + tên quẻ; QA assert xuất hiện ≥3.0s sau bấm (PA1 revealAt 3060 ≥ sàn C-08 1500) |
+
+- Lịch PA1 thuần nằm ở `src/utils/timeline.js` (pa1Timeline/drawAt/flyAt/statusAt) — UT `tests/timeline.test.js` chốt từng mốc; component chỉ render bám lịch.
+
+### S3 — vùng "Luận hôm nay" (04-ui §S3, nguồn #3 prime / #2b fetch)
+| testid | nơi | ghi chú |
+|---|---|---|
+| `detail-luan-hom-nay` | block heading "Luận hôm nay" | QA grep nguyên văn nhãn |
+| `detail-luan-dai-y` | dòng Đại ý dưới heading | ≥1 hào động: Đại ý + đủ N khối từ hào; 0 hào động: CHỈ Đại ý |
+| `hao-dong-block` | 1 khối / hào động | số khối == số `changing_lines`; `data-vi` = vị trí (1..6) |
+| `hao-dong-nhan` | nhãn hào | "Sơ cửu/Cửu nhị/…/Thượng lục" từ `hao_texts.vi` |
+| `hao-dong-han` | chữ Hán | nguyên văn `han` |
+| `hao-dong-quocam` | Quốc âm | `quoc_am` |
+| `hao-dong-nghia` | nghĩa Việt | `nghia` |
+
+- API mới `api.haoTexts(id)` = GET `/api/hexagrams/{id}/hao-texts` (#2b — 03-api §2b); cache `useHaoTexts` (ensure/prime/get) — #3 embed `data.hao_texts` → S3 zero-fetch từ S2; deep-link gọi #2b. #2b fail → vùng từ hào im, Đại ý vẫn render (04-ui §4).
+- Text FE không chứa "quẻ biến"/"biến quẻ" ở mọi state (grep test).
+
+### Bằng chứng FE-3XU
+```
+npx vitest run        # 113 tests / 16 files pass (baseline 83 → +30)
+npm run typecheck     # vue-tsc --noEmit exit 0
+npm run build         # ok → backend/public/app
+# AC4: 3 ảnh thật (Chrome 151 headless CDP, mock-API 5300, data dataset pin b6216b49):
+# /data/agents/fe-dev/outbox/t_463d700d/ac4-s2-dang-gieo.png   (hào 2·6, fly, chưa lộ symbol)
+# .../ac4-s2-reveal.png                                        (3.06s: ䷊ + Địa Thiên Thái + 動, không quẻ biến)
+# .../ac4-s3-tu-hao.png                                        (Luận hôm nay: Đại ý + Cửu nhị 九二：包荒… đủ 4 dòng)
+# tool: outbox/t_463d700d/shot_server.py + shot_ac4.py
+```
