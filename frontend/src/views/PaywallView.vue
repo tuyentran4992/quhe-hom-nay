@@ -97,6 +97,11 @@ async function donate() {
     payErr.value = e.code === 'NETWORK' ? 'Mất mạng — thử lại nhé.' : 'Không gửi được lễ. Thử lại sau.'
   }
 }
+// [MKT-F6-fix/FE] t_9bad794e §2.2 — donate_open: bắn #11 khi MỞ màn (fire-and-forget,
+// catch ăn —tracking không được chặn mach chinh cua paywall; kieu JS landing PA1).
+onMounted(() => {
+  api.track({ name: 'donate_open', props: { topic: topic.value } }).catch(() => {})
+})
 onMounted(async () => { if (!d.me.value) await d.load().catch(() => {}) })
 onBeforeUnmount(() => clearTimeout(pollTimer))
 </script>
