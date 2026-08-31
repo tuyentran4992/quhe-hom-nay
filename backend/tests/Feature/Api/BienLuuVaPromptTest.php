@@ -102,4 +102,23 @@ final class BienLuuVaPromptTest extends ApiTestCase
         $this->assertStringContainsString('Quốc âm:', $prompt);
         $this->assertStringContainsString('Nghĩa:', $prompt);
     }
+
+    /** #4 (gate): draw[] format cũ, THÊM `hao_texts` cạnh đổi — không phá FE cũ. */
+    public function test_history_giu_format_cu_them_hao_texts(): void
+    {
+        $this->drawWith([7, 9, 7, 7, 7, 9], self::DRAW_SECRET . '-e');
+        $devId = DB::table("draws")->orderByDesc("id")->value("device_id");
+        $res = $this->asDevice($devId)->getJson("/api/draws/history?limit=5")->assertOk();
+        $row = $res->json('data.0');
+        $this->assertSame(
+            ['id', 'hexagram_id', 'drawn_date', 'lines_rolled', 'changing_lines', 'created_at', 'hao_texts'],
+            array_keys($row),
+            '#4 draw[] phải giữ đúng 6 field cũ + 1 field mới cuối'
+        );
+        $this->assertCount(2, $row['hao_texts']);
+        $this->assertSame([2, 6], array_column($row['hao_texts'], 'vi'));
+        foreach ($row['hao_texts'] as $t) {
+            $this->assertSame(['vi', 'hao', 'han', 'quoc_am', 'nghia'], array_keys($t));
+        }
+    }
 }

@@ -68,11 +68,25 @@ class DrawController extends Controller
         ]);
         $limit = (int) ($validated['limit'] ?? 20);
 
-        $draws = $this->draws->history($device, $limit)->map(fn ($d) => $d->toApi())->all();
+        $draws = $this->draws->history($device, $limit);
+
+        // SPEC-3XU: #4 giữ format draw[] cũ + thêm `hao_texts` theo từng draw
+        // (luật §4bis — chỉ hào ĐỘNG; FE không phải gọi #2b cho mỗi dòng).
+        // Tra batch 1 query cho MỌI quẻ trong trang (mapForHexagrams — chống N+1).
+        $map = $this->luan->mapForHexagrams($draws->pluck('hexagram_id')->unique()->all());
+        $payload = $draws->map(static function ($d) use ($map) {
+            $changing = array_map(intval(...), $d->changing_lines ?? []);
+            $texts = array_values(array_filter(
+                $map[(int) $d->hexagram_id] ?? [],
+                static fn (array $t): bool => in_array((int) $t['vi'], $changing, true)
+            ));
+
+            return $d->toApi() + ['hao_texts' => $texts];
+        })->all();
 
         return response()->json([
-            'data' => $draws,
-            'meta' => ['count' => count($draws)],
+            'data' => $payload,
+            'meta' => ['count' => count($payload)],
         ]);
     }
 }
