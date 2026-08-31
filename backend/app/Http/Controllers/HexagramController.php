@@ -39,6 +39,7 @@ class HexagramController extends Controller
             throw ApiException::notFound();
         }
 
+        // Shape đúng 03-api §2b: { "data": { hexagram_id, hao: [×6] } }
         return response()->json(['data' => [
             'hexagram_id' => $id,
             'hao' => $texts,

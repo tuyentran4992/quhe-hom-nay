@@ -116,4 +116,27 @@ class HexagramSeederTest extends TestCase
         $bg1 = json_decode(DB::table('hexagrams')->where('id', 1)->value('ban_goc'), true);
         $this->assertArrayHasKey('dungHao', $bg1);
     }
+
+    /**
+     * Gate t_04394e77 c#107 item 3(a): id58 metadata `han` nguồn là 兑 (giản thể
+     * U+5151, sai cho chính tự Chu Dịch) → SEED phải ghi 兊 (U+514A). File json
+     * giữ nguyên (SHA256 SEED-01 khóa) — normalize tại chỗ seed.
+     */
+    public function test_id58_han_seeded_as_chinh_tu(): void
+    {
+        $this->seedNow();
+        $han = (string) DB::table('hexagrams')->where('id', 58)->value('han');
+        $this->assertSame('兊', $han, 'id58 han phải là 兊 (U+514A) sau seed');
+        $this->assertStringNotContainsString('兑', $han);
+    }
+
+    /** Gate 3(c): toàn bảng hexagrams không còn 遁 dị thể (chính tự 遯). */
+    public function test_dong_hexagrams_khong_con_di_the(): void
+    {
+        $this->seedNow();
+        foreach (['han', 'ten', 'quoc_am'] as $c) {
+            $n = DB::table('hexagrams')->where($c, 'like', '%遁%')->count();
+            $this->assertSame(0, $n, "cột {$c} còn 遁 dị thể");
+        }
+    }
 }
