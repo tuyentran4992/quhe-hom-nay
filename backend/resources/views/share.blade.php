@@ -13,13 +13,16 @@
     @php
         $card = $payload['card'];
         $ogUrl = url('/s/' . $token);
+        // BUG-F7-QA3 (t_b0cfc1b4): hiển thị dùng BẢN CLIPPED ≤80 ký tự (server-side
+        // HookClip — SPEC-THE §2); `text` nguyên văn chỉ còn cho canvas FE tự vẽ.
+        $hookText = (string) ($card['hook']['text_clip80'] ?? $card['hook']['text']);
     @endphp
     <title>{{ $card['symbol'] }} {{ $card['ten'] }} — Quẻ Hôm Nay</title>
-    <meta name="description" content="{{ $card['hook']['text'] }}">
+    <meta name="description" content="{{ $hookText }}">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Quẻ Hôm Nay">
     <meta property="og:title" content="{{ $card['symbol'] }} {{ $card['ten'] }}">
-    <meta property="og:description" content="{{ $card['hook']['text'] }}">
+    <meta property="og:description" content="{{ $hookText }}">
     <meta property="og:image" content="{{ url($card['qr_text'] . '/og.png') }}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -62,8 +65,8 @@
         <p class="symbol">{{ $card['symbol'] }}</p>
         <h1 class="ten">{{ $card['ten'] }}</h1>
         <p class="date">Hôm nay {{ $card['drawn_date'] }}</p>
-        @if ($card['hook']['text'] !== '')
-            <p class="hook">“{{ $card['hook']['text'] }}”</p>
+        @if ($hookText !== '')
+            <p class="hook">“{{ $hookText }}”</p>
         @endif
         @if (count($card['keywords']))
             <div class="chips">

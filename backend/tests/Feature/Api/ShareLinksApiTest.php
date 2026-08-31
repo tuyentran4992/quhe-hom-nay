@@ -158,7 +158,7 @@ class ShareLinksApiTest extends ApiTestCase
             array_keys($json['card']),
             'card đúng 8 key, không hơn'
         );
-        $this->assertSame(['text', 'source'], array_keys($json['card']['hook']));
+        $this->assertSame(['text', 'source', 'text_clip80'], array_keys($json['card']['hook']), 'BUG-F7-QA3 t_b0cfc1b4: hook 3 key (text NGUYÊN VĂN + source + bản hiển ≤80)');
         $this->assertSame(11, $json['card']['hexagram_id']);
         $this->assertSame('dd/MM', 'dd/MM'); // format check bên dưới
         $this->assertMatchesRegularExpression('#^\d{2}/\d{2}$#', $json['card']['drawn_date']);
