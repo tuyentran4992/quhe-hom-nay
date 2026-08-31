@@ -70,6 +70,8 @@ export const api = {
   paymentStatus: (code) => req('GET', `/api/payments/${code}/status`),
   // #10 đọc nhanh hôm nay
   today: () => req('GET', '/api/me/today'),
+  // #11 tracking event (06-mkt-tracking §3) — 204, lỗi nuốt được ở caller (fire-and-forget)
+  track: (payload) => req('POST', '/api/track', payload),
   // #11 F7 tạo link chia sẻ thẻ (idempotent per device+draw — F7-CONTRACT §2)
   shareLinks: (draw_id) => req('POST', '/api/share-links', { draw_id }),
   // #12 F7 payload công khai thẻ /s/{token}

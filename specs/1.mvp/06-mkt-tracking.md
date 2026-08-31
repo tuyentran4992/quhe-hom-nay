@@ -47,7 +47,22 @@ Attribution rule (bất biến, đặt ở 1 nơi — `TrackService`): **first-t
 chỉ ghi `devices.utm_*` khi cột đang NULL; sự kiện sau không đè. Cắt gọn
 `utm_*` ở 100 ký tự, chỉ `[A-Za-z0-9_\-.,:()/ ]` (khử injection).
 
-`events.name` whitelist: `landing_visit` | `cta_gieo_que`. Ngoài whitelist → 422.
+`events.name` whitelist: `landing_visit` | `cta_gieo_que` | `donate_open`. Ngoài whitelist → 422.
+
+**MKT-F6-fix (t_a6fbf162, dev-lead 31/08)** — bịt 2 lỗ hổng audit KPI-W1:
+1. `cta_gieo_que` trước đây CHỈ bắn qua gtag → GA4 trống thì onclick là no-op,
+   không bao giờ vào DB server. Nay landing phải POST `/api/track`
+   `{name:'cta_gieo_que', utm}` khi bấm CTA (PA1 — server vẫn là nguồn sự thật,
+   GA4 chỉ phụ; 2 nguồn không cộng dồn vào nhau).
+2. `donate_open`: SPA POST khi MỞ màn `/mo-khoa/:topic` (PaywallView mounted),
+   `props:{topic}`, utm passthrough nếu có. Signal đầu phễu donate.
+
+**Quy ước đọc số của dev-lead (LOCKED)**: CVR GD1 = **draws_devices /
+landing_visit_devices theo campaign** (device-level, first-touch attribution —
+§6). Cột `clicks` (cta_gieo_que) là tín hiệu chẩn đoán phụ — phát hiện nghẽn
+CTA, KHÔNG phải mẫu số/tử số CVR. Lý do chọn device-level: cookie `qhn_device`
+có sẵn từ visit, chống bot đơn giản hơn event-count, và không phụ thuộc wiring
+onclick vừa hỏng. PA1 vẫn làm để có clicks thật + GA4 đồng nhất tên.
 
 ## 3. CONTRACT API (khóa — cả 2 bên code theo đây)
 
@@ -59,6 +74,9 @@ chỉ ghi `devices.utm_*` khi cột đang NULL; sự kiện sau không đè. C�
   "utm": { "source": "fb_group", "medium": "social", "campaign": "w1_que_tinh" },
   "props": { "path": "/", "referrer": "https://facebook.com/..." } }
 ```
+- Payload dạng khác (cùng contract, chỉ đổi `name`/`props`):
+  - CTA landing: `{ "name": "cta_gieo_que", "utm": {…passthrough như visit} }` (props optional).
+  - Mở paywall:  `{ "name": "donate_open", "utm": {…passthrough nếu có}, "props": { "topic": "duyen" } }`.
 - Validate: `name` bắt buộc, whitelist §2. `utm.*` optional string ≤100.
   `props` optional object ≤ 2KB (serialize lại nếu to).
 - Response: `204 No Content` (kể cả utm thiếu — vẫn ghi event). Lỗi:
@@ -94,12 +112,18 @@ Không endpoint nào khác. Không đổi #1..#10 hiện hữu.
 
 ## 6. Truy vấn KPI (growth-lead đọc số — bản chính thức)
 
+CVR GD1 (quy ước LOCKED §2): `draws_devices / landing_visit_devices` theo
+campaign first-touch. `clicks` + `donate_opens` là cột chẩn đoán, không vào CVR.
+
 ```sql
--- CVR theo campaign: visit device → draw device
+-- CVR theo campaign: visit device → draw device (device-level, không đếm event)
 SELECT d.utm_campaign,
        COUNT(DISTINCT CASE WHEN e.name='landing_visit' THEN d.device_id END) AS visits,
        COUNT(DISTINCT CASE WHEN e.name='cta_gieo_que'  THEN d.device_id END) AS clicks,
-       COUNT(DISTINCT dr.device_id) AS draws
+       COUNT(DISTINCT CASE WHEN e.name='donate_open'   THEN d.device_id END) AS donate_opens,
+       COUNT(DISTINCT dr.device_id) AS draws,
+       ROUND(COUNT(DISTINCT dr.device_id) * 100.0
+             / NULLIF(COUNT(DISTINCT CASE WHEN e.name='landing_visit' THEN d.device_id END), 0), 1) AS cvr_pct
 FROM devices d
 LEFT JOIN events e ON e.device_id = d.device_id
 LEFT JOIN draws  dr ON dr.device_id = d.device_id
