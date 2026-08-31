@@ -30,6 +30,17 @@ class ShareLinkService
 
     public const REFERRED_EVENT = 'share_referred_draw';
 
+    /**
+     * F7-CONTRACT §2/ADR-002 §4 — BỘ UTM DUY NHẤT của CTA: redirect URL và
+     * capture devices.utm_* (BUG-F7-QA1 t_18c8b219) đọc cùng nguồn này —
+     * mỗi nơi tự định nghĩa một bộ là gốc lệch funnel.
+     */
+    public const CTA_UTM = [
+        'source' => 'app_card',
+        'medium' => 'share',
+        'campaign' => 'share_card_v1',
+    ];
+
     public function __construct(private readonly TrackService $track)
     {
     }
@@ -201,12 +212,28 @@ class ShareLinkService
     /**
      * V6 — CTA server-side (F7-CONTRACT §1): bắn vì người lạ, dedupe không có
      * trong contract (double-count chấp nhận được như F2 visit).
+     *
+     * BUG-F7-QA1 (t_18c8b219): ngoài props event, PHẢI capture bộ CTA_UTM vào
+     * CỘT devices.utm_* của người bấm — TrackService::applyFirstTouch làm việc
+     * đó (chỉ ghi khi cột đang NULL, sanitize + race-safe). Trước đây chỉ ghi
+     * utm_medium vào props → maybeFireReferredDraw (đọc cột, không đọc props)
+     * không bao giờ fire trên chuột thật vì SPA /app/* không bắn /api/track utm.
      */
     public function recordCtaClick(ShareLink $link, Device $viewer): void
     {
-        $this->track->track($viewer, self::CTA_EVENT, [], [
+        $this->track->track($viewer, self::CTA_EVENT, self::CTA_UTM, [
             'token' => $link->token,
-            'utm_medium' => 'share',
+            'utm_medium' => self::CTA_UTM['medium'],
+        ]);
+    }
+
+    /** URL đích CTA — sinh từ CTA_UTM, controller KHÔNG hardcode chuỗi riêng. */
+    public function ctaRedirectUrl(): string
+    {
+        return '/app/draw?'.http_build_query([
+            'utm_source' => self::CTA_UTM['source'],
+            'utm_medium' => self::CTA_UTM['medium'],
+            'utm_campaign' => self::CTA_UTM['campaign'],
         ]);
     }
 

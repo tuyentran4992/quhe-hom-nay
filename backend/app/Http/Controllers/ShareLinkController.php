@@ -111,7 +111,9 @@ class ShareLinkController extends Controller
         $viewer = $request->attributes->get('device');
         $this->links->recordCtaClick($link, $viewer);
 
-        return redirect('/app/draw?utm_source=app_card&utm_medium=share&utm_campaign=share_card_v1', 302);
+        // BUG-F7-QA1 (t_18c8b219): URL sinh từ CTA_UTM — cùng nguồn với capture
+        // devices.utm_* trong recordCtaClick, không lệch giữa redirect và cột DB.
+        return redirect($this->links->ctaRedirectUrl(), 302);
     }
 
     /** GET /s/{token}/og.png — 1200×630 GD, cache file 1 lần (ADR-002 §2). */
