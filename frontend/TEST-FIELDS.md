@@ -49,7 +49,7 @@ DRAW_LIMIT_REACHED (409) → replace về `/` + `?toast=draw_limit` → S1 rende
 | testid | khi nào | nội dung |
 |---|---|---|
 | `detail-loading` / `detail-error` | đang resolve draw/#2 / không tìm thấy draw (deep-link quẻ lạ, id hết hiệu lực) hoặc lỗi mạng | trạng thái, không trắng màn; `detail-error` có link "Về trang chính". FE-1: draw hôm nay → từ #1; quẻ quá khứ → resolve qua #4 (limit 50) rồi #2 — contract KHÔNG có GET /draws/{id} |
-| `detail-linechart` | có dữ liệu | LineChart 6 hào; `data-line="0\|1"` trên→dưới = hào 6→1; `data-position="1..6"`; hào động (6/9) thêm chấm `dot` + chữ "động" |
+| `detail-linechart` | có dữ liệu | LineChart 6 hào; `data-line="0\|1"` trên→dưới = hào 6→1; `data-position="1..6"`; hào động (6/9) thêm chấm `dot` + chữ "động" + **outline cinnabar quanh `.ln-bar`** (fix t_c09526c3). Cấu trúc mới: mỗi row `[data-line]` = `.ln-bar` (width definite `w-16/24/40` theo size, chứa `.ln-seg` 1 dương/2 âm) + `.ln-aside` (`w-20`, chứa dot+nhãn). QA đo: `bar.getBoundingClientRect().width` phải = 64/96/160px, seg âm mỗi cái ≈ (bar−gap)/2 > 0 |
 | `detail-hexagram-name` | có dữ liệu | `ten` + `han` + symbol |
 | `detail-changing-lines` | `changing_lines` != [] | "Hào N động — quẻ biến: {biếnTen}" |
 | `detail-tabs` | luôn | hàng 3 tab |
