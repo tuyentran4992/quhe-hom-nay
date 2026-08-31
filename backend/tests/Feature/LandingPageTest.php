@@ -113,6 +113,54 @@ class LandingPageTest extends TestCase
         $this->assertStringContainsString("'cta_gieo_que'", $html);
     }
 
+    // ============ [MKT-F6-fix/FE] t_9bad794e — PA1: CTA LUON POST server (§2.1) ============
+
+    public function test_cta_gieo_que_co_mat_khi_ga4_trong_vi_post_server_khong_phai_gtag(): void
+    {
+        // Lỗ hổng audit KPI-W1: __qhnCta chỉ gtag → GA4 trống là no-op, cột clicks vĩnh 0.
+        // PA1: sự kiện cta_gieo_que phải có trong inline JS ngay cả khi khu GA4 không render.
+        config(['landing.ga4_measurement_id' => '']);
+        $html = $this->getLanding()->assertOk()->getContent();
+        $this->assertStringNotContainsString('gtag(', $html, 'khu GA4 vẫn phải tắt khi env trống');
+        $this->assertStringContainsString("'cta_gieo_que'", $html, 'CTA không POST server khi GA4 trống (§2.1 PA1)');
+    }
+
+    public function test_ham_qhncta_post_cta_gieo_que_dung_contract_11(): void
+    {
+        // §3 #11: payload {name:'cta_gieo_que', utm:{source,medium,campaign}} — KHÔNG prefix
+        // utm_ trong utm object (giống JS visit hiện hữu). utm map tái dùng biến đã sinh
+        // trong block visit (KHÔNG parse lại location.search lần 2).
+        config(['landing.ga4_measurement_id' => '']);
+        $html = $this->getLanding('?utm_source=fb&utm_medium=social&utm_campaign=w1')->assertOk()->getContent();
+        preg_match_all('#<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>#s', $html, $m);
+        $ctaBlock = implode("\n", $m[1]);
+        $this->assertStringContainsString('__qhnCta', $ctaBlock, '__qhnCta phải định nghĩa trong JS inline common');
+        $this->assertMatchesRegularExpression('/__qhnCta\s*=\s*function/', $ctaBlock);
+        $this->assertStringContainsString("name:'cta_gieo_que'", preg_replace('/\s+/', '', $ctaBlock), "payload phải có name:'cta_gieo_que'");
+        // fire-and-forget: fetch có catch + keepalive (đừng chặn navigation CTA)
+        $this->assertStringContainsString('keepalive', $ctaBlock);
+        $this->assertStringContainsString('/api/track', $ctaBlock);
+    }
+
+    public function test_qhncta_khong_doc_lai_location_search(): void
+    {
+        // Card: "map được sinh trong JS inline hiện tai, tái dùng đúng mảng utm ay,
+        // KHONG doc lai URL lan 2" — block __qhnCta không được chứa URLSearchParams/location.search.
+        config(['landing.ga4_measurement_id' => 'G-TESTABC123']);
+        $html = $this->getLanding()->assertOk()->getContent();
+        // tách riêng <script> chứa __qhnCta=function...; (block GA4 hoặc block inline visit)
+        preg_match_all('#<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>#s', $html, $m);
+        $blocks = array_values(array_filter($m[1], fn ($b) => str_contains($b, '__qhnCta')));
+        $this->assertNotEmpty($blocks, 'không tìm thấy block chứa __qhnCta');
+        foreach ($blocks as $b) {
+            // URL chi duoc doc DUNG 1 lan (block visit); ham __qhnCta tai dung map `u` do.
+            $this->assertLessThanOrEqual(1, preg_match_all('/URLSearchParams/', $b), 'URLSearchParams bị đọc >1 lần trong block');
+        }
+        // và số lần xuất hiện 'location.search' toàn trang phải ≤1 (chỉ block visit dùng)
+        preg_match_all('/location\.search/', $inline = implode("\n", $m[1]), $mm);
+        $this->assertLessThanOrEqual(1, count($mm[0]), 'location.search bị đọc >1 lần');
+    }
+
     // ============ JS inline + contract /api/track (§1.1) ============
 
     public function test_js_inline_nho_hon_2kb_va_goi_dung_contract(): void

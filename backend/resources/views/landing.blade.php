@@ -15,16 +15,14 @@
 <meta property="og:description" content="Hôm nay bạn là quẻ gì? Gieo một quẻ, nhận luận sâu miễn phí.">
 <meta property="og:type" content="website">
 @if($ga4Id !== '')
-<!-- GA4 (chỉ render khi env GA4_MEASUREMENT_ID khác rỗng — §1) -->
+<!-- GA4 (chỉ render khi env GA4_MEASUREMENT_ID khác rỗng — §1). CTA server-post nằm ở
+     block cuối body (§2.1 PA1): GA4 chỉ PHỤ, nên khu này không còn định nghĩa __qhnCta. -->
 <script async src="https://www.googletagmanager.com/gtag/js?id={{ $ga4Id }}"></script>
 <script>
 window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}
 gtag('js',new Date());gtag('config','{{ $ga4Id }}');
 gtag('event','landing_visit',{{ \Illuminate\Support\Js::from($utm) }});
-window.__qhnCta=function(){gtag('event','cta_gieo_que',{{ \Illuminate\Support\Js::from($utm) }})};
 </script>
-@else
-<script>window.__qhnCta=function(){}</script>
 @endif
 <style>
 :root{--ink:#1E1B18;--paper:#F7F2E7;--paper2:#EFE6D3;--cinnabar:#B33A2B;--gold:#A8802A;--bamboo:#3E5C48;--muted:#5C554A;--radius-card:14px;--gutter:20px;--shadow-card:0 1px 3px rgb(30 27 24 / .12);--shadow-warm:0 10px 26px rgb(30 27 24 / .13), 0 1px 3px rgb(30 27 24 / .10);--font-han:"Noto Serif TC",serif;--font-body:"Be Vietnam Pro",system-ui,sans-serif}
@@ -65,7 +63,11 @@ footer{position:fixed;left:0;right:0;bottom:0;background:rgb(247 242 231 / .97);
 (function(){var p=new URLSearchParams(location.search),u={};
 ["source","medium","campaign"].forEach(function(k){var v=p.get("utm_"+k);if(v)u[k]=v.slice(0,100)});
 var b=JSON.stringify({name:'landing_visit',utm:u,props:{path:location.pathname,referrer:document.referrer||null}});
-try{fetch("/api/track",{method:"POST",headers:{"Content-Type":"application/json"},body:b,credentials:"same-origin",keepalive:true}).catch(function(){})}catch(e){}})();
+try{fetch("/api/track",{method:"POST",headers:{"Content-Type":"application/json"},body:b,credentials:"same-origin",keepalive:true}).catch(function(){})}catch(e){}
+window.__qhnCta=function(){var c=JSON.stringify({name:'cta_gieo_que',utm:u});
+try{fetch("/api/track",{method:"POST",headers:{"Content-Type":"application/json"},body:c,credentials:"same-origin",keepalive:true}).catch(function(){})}catch(e){}
+@if($ga4Id !== '')if(window.gtag)gtag('event','cta_gieo_que',{{ \Illuminate\Support\Js::from($utm) }});@endif};
+})();
 </script>
 </body>
 </html>
