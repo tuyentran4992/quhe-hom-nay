@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Domain\HookClip;
 use App\Domain\ShareToken;
 use App\Models\Device;
 use App\Models\Draw;
@@ -99,11 +100,11 @@ class ShareLinkService
     }
 
     /**
-     * NGUỒN DUY NHẤT chọn câu hook (SPEC-THE §2 — FE chỉ clip80, không tự chọn):
-     * TH1 ≥1 hào động → `nghia` Việt của hào động NHỎ NHẤT (sơ→thượng),
-     *     BE trả nguyên văn, KHÔNG cắt giữa từ (clip80 là phần FE).
-     * TH2 0 hào động → vế ĐẦU dai_ci trước "—" hoặc "," (ký tự nào xuất hiện
-     *     trước), unicode-safe. dai_ci rỗng/null → E6 {text:"", source:"minimal"}.
+     * NGUỒN DUY NHẤT chọn câu hook (SPEC-THE §2): TH1 ≥1 hào động → `nghia` Việt
+     * hào động NHỎ NHẤT (sơ→thượng); TH2 0 hào động → vế ĐẦU dai_ci trước "—"
+     * hoặc ","; rỗng → E6 minimal. Kèm `text_clip80` (BUG-F7-QA3 t_b0cfc1b4):
+     * bản hiển thị ≤80 code-point (HookClip, ≥ thuật toán FE) cho Blade + OG meta;
+     * `text` NGUYÊN VĂN bất biến (canvas 9:16 cần bản đủ); không cắt nổi → ''.
      *
      * @return array<string, mixed>
      */
@@ -126,8 +127,17 @@ class ShareLinkService
         ];
     }
 
-    /** @return array{text:string, source:string} */
+    /** @return array{text:string, text_clip80:string, source:string} */
     private function pickHook(Draw $draw, Hexagram $hexagram): array
+    {
+        $hook = $this->selectHook($draw, $hexagram);
+        $hook['text_clip80'] = HookClip::clip($hook['text']) ?? '';
+
+        return $hook;
+    }
+
+    /** @return array{text:string, source:string} */
+    private function selectHook(Draw $draw, Hexagram $hexagram): array
     {
         $changing = array_values(array_filter(
             array_map(intval(...), $draw->changing_lines ?? []),
@@ -156,7 +166,7 @@ class ShareLinkService
     /**
      * Vế đầu trước "—" (em dash U+2014) hoặc "," — delimiter nào xuất hiện TRƯỚC
      * thắng; regex unicode mb-safe, không cắt giữa đa-byte. Không có dấu nào →
-     * nguyên văn (BE không clip80 — FE clip tại ranh giới từ, SPEC-THE §2).
+     * nguyên văn; bản hiển thị ≤80 do HookClip lo (pickHook → text_clip80).
      */
     private function firstClause(string $text): string
     {
