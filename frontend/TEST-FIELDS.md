@@ -131,28 +131,34 @@ NODE_OPTIONS=--max-old-space-size=1024 npm run build   # → backend/public/app/
 ## FE-3XU (card t_463d700d) — nghi thức PA1 + vùng Từ hào S3
 
 ### S2 — MagicSequence PA1 (thay 3 bước cũ, gate t_04394e77 chốt PA1)
-| testid | nơi | ghi chú |
+| selector | nơi | ghi chú |
 |---|---|---|
-| `magic-seq` | khung nghi thức | wrapper; `data-reduced="true"` khi prefers-reduced-motion |
-| `magic-status` | dưới sân khấu | word-by-beat PA1: "Tung xu — hào 1" → "Hào i · 6" → reveal "泰 ䷊ · hào 2 động"; QA assert KHÔNG rỗng |
-| `coin-cluster` | fly 6 cụm | `data-fly="0..5"` có mặt khi cụm đã tới mốc flyAt[i] (đếm lũy kế); reduced-motion = 0 cluster |
-| `magic-row` | 6 hàng hào | `data-vi="1..6"` (sơ→thượng) + `data-drawn` 0/1; hào 6 hàng ĐẦU TIÊN từ trên = vi 6 |
-| `magic-hao-label` | cạnh mỗi hàng | "hào i" khi đã vẽ, "·" khi chờ |
-| `dyno-badge` | hào động | chữ 動, hiện cùng lúc symbol (3060ms) |
-| `magic-reveal` | symbol + tên | chứa "䷊" + tên quẻ; QA assert xuất hiện ≥3.0s sau bấm (PA1 revealAt 3060 ≥ sàn C-08 1500) |
+| `data-testid="magic-sequence"` | wrapper nghi thức | `:data-fly-count` = số cụm đã phóng (0 khi prefers-reduced-motion) |
+| `data-testid="ritual-stage"` | sân khấu 6 hào (trong `magic-sequence`) | mỗi slot `data-position="1..6"` (1=sơ ở ĐÁY) + `data-draw-line` + class `is-shown` khi hào đã vẽ (mốc drawAt[i]) |
+| `data-testid="coin-cluster"` | cụm xu bay | `:data-fly` = index; đếm = số cụm tại mốc; reduced-motion = 0 |
+| `data-testid="draw-status"` | dòng chữ dưới sân khấu | word-by-beat PA1 (`statusAt`): "Vê nhẹ bó xu…" → "Tung xu — hào 1" (260) → "Hào i · 6" (drawAt) → "Hào 1·6 động — dấu 動" (2560) → "Địa Thiên Thái ䷊" (3060, API chưa về = "Đang mở quẻ…"); `aria-live="polite"`; QA assert KHÔNG rỗng mọi thời điểm |
+| `data-testid="dyno-badge"` | dấu 動 ở hào động (trong slot của `ritual-stage`) | chỉ tồn tại trên slot `r.mov`; class `show` bật tại dynoAt=2560 (TRƯỚC reveal 3060); text `動` |
+| `data-testid="reveal-hexagram"` | symbol + tên quẻ | xuất hiện đúng revealAt=3060ms && có `ten` (API #3 về); chứa symbol ䷊ + tên |
+| `data-testid="reveal-sub"` | dòng dưới reveal | chỉ nhắc hào động: "hào 1·6 động" — CẤM quẻ biến (gate t_04394e77) |
+| `data-testid="draw-frame"` | DrawView wrapper S2 | stage machine |
+| `data-testid="draw-start"` | nút bấm gieo (idle) | một-chạm |
+| `data-testid="draw-spinner"` | pending sau done | API #3 chưa về |
+| `data-testid="draw-result"` | khối kết quả | hiện khi `result && done` |
+| `data-testid="draw-error"` + `data-testid="draw-retry"` | lỗi #3 | `role="alert"` + nút "Gieo lại" |
 
 - Lịch PA1 thuần nằm ở `src/utils/timeline.js` (pa1Timeline/drawAt/flyAt/statusAt) — UT `tests/timeline.test.js` chốt từng mốc; component chỉ render bám lịch.
 
 ### S3 — vùng "Luận hôm nay" (04-ui §S3, nguồn #3 prime / #2b fetch)
-| testid | nơi | ghi chú |
+| selector | nơi | ghi chú |
 |---|---|---|
-| `detail-luan-hom-nay` | block heading "Luận hôm nay" | QA grep nguyên văn nhãn |
-| `detail-luan-dai-y` | dòng Đại ý dưới heading | ≥1 hào động: Đại ý + đủ N khối từ hào; 0 hào động: CHỈ Đại ý |
-| `hao-dong-block` | 1 khối / hào động | số khối == số `changing_lines`; `data-vi` = vị trí (1..6) |
-| `hao-dong-nhan` | nhãn hào | "Sơ cửu/Cửu nhị/…/Thượng lục" từ `hao_texts.vi` |
-| `hao-dong-han` | chữ Hán | nguyên văn `han` |
-| `hao-dong-quocam` | Quốc âm | `quoc_am` |
-| `hao-dong-nghia` | nghĩa Việt | `nghia` |
+| `data-testid="luan-hom-nay"` | `<section>` cả vùng | heading "Luận hôm nay" nằm trong; QA grep nguyên văn nhãn |
+| `data-testid="luan-dai-y"` | dòng Đại ý dưới heading | ≥1 hào động: Đại ý + đủ N khối từ hào; 0 hào động: CHỈ Đại ý |
+| `data-testid="luan-hao-list"` | wrapper danh sách khối | đếm con == số `changing_lines` (0 hào động = list rỗng, không khung trống) |
+| `data-testid="hao-dong-block"` | card 1 khối / hào động | `:data-vi` = vị trí (1..6), sắp xếp sơ→thượng |
+| `data-testid="hao-dong-label"` | nhãn hào | "Sơ cửu/Cửu nhị/…/Thượng lục" (trường `hao`) |
+| `data-testid="hao-dong-han"` | chữ Hán | nguyên văn `han` |
+| `data-testid="hao-dong-quocam"` | Quốc âm | `quoc_am` |
+| `data-testid="hao-dong-nghia"` | nghĩa Việt | `nghia` |
 
 - API mới `api.haoTexts(id)` = GET `/api/hexagrams/{id}/hao-texts` (#2b — 03-api §2b); cache `useHaoTexts` (ensure/prime/get) — #3 embed `data.hao_texts` → S3 zero-fetch từ S2; deep-link gọi #2b. #2b fail → vùng từ hào im, Đại ý vẫn render (04-ui §4).
 - Text FE không chứa "quẻ biến"/"biến quẻ" ở mọi state (grep test).

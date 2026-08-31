@@ -62,12 +62,12 @@ describe('MagicSequence PA1 (timeline mockup)', () => {
   it('hào động: nháy son + dấu 動 tại dynoAt=2560, TRƯỚC reveal; status nhắc hào động', async () => {
     const w = mount(MagicSequence, MOVING)
     await vi.advanceTimersByTimeAsync(2360)
-    expect(w.findAll('.dyno.show').length).toBe(0) // 2360 chưa tới dyno
+    expect(w.findAll('[data-testid="dyno-badge"].show').length).toBe(0) // 2360 chưa tới dyno
     await vi.advanceTimersByTimeAsync(200) // 2560
-    const dynos = w.findAll('.dyno.show')
+    const dynos = w.findAll('[data-testid="dyno-badge"].show')
     expect(dynos.length).toBe(2) // lines [9,...,6] → hào 1 + 6
-    expect(w.find('[data-position="1"] .dyno').classes()).toContain('show')
-    expect(w.find('[data-position="6"] .dyno').classes()).toContain('show')
+    expect(w.find('[data-position="1"] [data-testid="dyno-badge"]').classes()).toContain('show')
+    expect(w.find('[data-position="6"] [data-testid="dyno-badge"]').classes()).toContain('show')
     expect(dynos[0].text()).toBe('動')
     expect(status(w)).toBe('Hào 1·6 động — dấu 動')
     expect(w.emitted('done')).toBeFalsy() // dyno chưa reveal

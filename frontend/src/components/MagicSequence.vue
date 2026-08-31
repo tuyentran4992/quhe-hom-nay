@@ -66,7 +66,7 @@ onBeforeUnmount(() => {
     <div class="ms-stage" data-testid="ritual-stage">
       <div class="ms-slot" :data-position="r.pos" :class="{ 'is-shown': shown(i) }" v-for="(r, i) in rows" :key="r.pos" :data-draw-line="r.pos">
         <span class="ms-line" :class="[r.yang ? 'ms-line--yang' : 'ms-line--yin', shown(i) ? 'done' : '']" :aria-hidden="true" />
-        <span v-if="r.mov" class="dyno ms-dyno" :class="{ show: dynoOn, pulse: dynoOn && !reduced }">動</span>
+        <span v-if="r.mov" class="dyno ms-dyno" data-testid="dyno-badge" :class="{ show: dynoOn, pulse: dynoOn && !reduced }">動</span>
       </div>
       <div
         v-for="(f, i) in (reduced ? [] : Array.from({ length: flyCount }, (_, k) => k))"
