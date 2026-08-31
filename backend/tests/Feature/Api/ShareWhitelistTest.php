@@ -27,10 +27,12 @@ class ShareWhitelistTest extends ApiTestCase
 
     public function test_model_whitelist_contains_exactly_f2_plus_seven_share_names(): void
     {
+        // Merge F7 (t_a2ef281b): danh sách đầy đủ 10 name = F2(2) + MKT-F6-fix(1) + F7(7),
+        // đúng thứ tự thêm của Event::NAME_WHITELIST — 1 nguồn sự thật.
         $this->assertSame(
-            ['landing_visit', 'cta_gieo_que', ...self::SEVEN],
+            ['landing_visit', 'cta_gieo_que', 'donate_open', ...self::SEVEN],
             Event::NAME_WHITELIST,
-            'whitelist = 2 tên F2 + 7 tên F7 nguyên văn, đúng thứ tự thêm'
+            'whitelist = 3 tên F2/F6 + 7 tên F7 nguyên văn, đúng thứ tự thêm'
         );
     }
 

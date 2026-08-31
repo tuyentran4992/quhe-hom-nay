@@ -254,8 +254,13 @@ SQL);
 
     public function test_whitelist_constant_is_single_source_of_three_names(): void
     {
-        // 1 nguồn sự thật: Event::NAME_WHITELIST — đúng 3 name, không hơn không kém.
-        $this->assertSame(['landing_visit', 'cta_gieo_que', 'donate_open'], Event::NAME_WHITELIST);
+        // Merge F7 (t_a2ef281b): whitelist lớn dần theo feature (F7 thêm 7 event share) —
+        // bất biến của lane này là 3 name F2/F6 phải đứng ĐẦU, đúng thứ tự, đủ bộ.
+        $this->assertSame(
+            ['landing_visit', 'cta_gieo_que', 'donate_open'],
+            array_slice(Event::NAME_WHITELIST, 0, 3)
+        );
+        $this->assertGreaterThanOrEqual(3, count(Event::NAME_WHITELIST));
     }
 
     public function test_donate_open_with_topic_returns_204_and_persists_event_with_props(): void
