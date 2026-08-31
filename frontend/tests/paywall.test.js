@@ -12,7 +12,7 @@ import { useToasts } from '../src/composables/useToasts.js'
 
 vi.mock('../src/api/client.js', async (orig) => {
   const real = await orig()
-  return { ...real, api: { me: vi.fn(), today: vi.fn(), createPayment: vi.fn(), paymentStatus: vi.fn() } }
+  return { ...real, api: { me: vi.fn(), today: vi.fn(), createPayment: vi.fn(), paymentStatus: vi.fn(), track: vi.fn() } }
 })
 
 const ORDER = {
@@ -35,7 +35,7 @@ function mk() {
   })
 }
 
-beforeEach(() => { vi.clearAllMocks(); _resetDeviceForTests(); client.api.me.mockResolvedValue(ME_LOCKED) })
+beforeEach(() => { vi.clearAllMocks(); _resetDeviceForTests(); client.api.me.mockResolvedValue(ME_LOCKED); client.api.track.mockResolvedValue(null) })
 afterEach(() => vi.useRealTimers())
 
 async function mountS4(topic = 'duyen') {
@@ -138,5 +138,41 @@ describe('PaywallView — stub paywall từ #7 BE-2', () => {
     await w.find('[data-testid="pay-unlock-btn"]').trigger('click')
     await flushPromises()
     expect(w.find('[data-testid="pay-error"]').exists()).toBe(true)
+  })
+
+  // ============ [MKT-F6-fix/FE] t_9bad794e — donate_open bắn #11 khi mở màn (§2.2) ============
+
+  it('mở /mo-khoa/duyen → api.track gọi ĐÚNG 1 lần payload {name:donate_open, props:{topic}} (§3 #11)', async () => {
+    client.api.track.mockResolvedValue(null)
+    const r = mk()
+    await r.push({ name: 'paywall', params: { topic: 'duyen' } })
+    mount(PaywallView, { global: { plugins: [r] } })
+    await flushPromises()
+    expect(client.api.track).toHaveBeenCalledTimes(1)
+    const arg = client.api.track.mock.calls[0][0]
+    expect(arg.name).toBe('donate_open')
+    expect(arg.props).toEqual({ topic: 'duyen' })
+  })
+
+  it('topic khác vẫn bắn đúng props.topic (route param, không hardcode)', async () => {
+    client.api.track.mockResolvedValue(null)
+    const r = mk()
+    await r.push({ name: 'paywall', params: { topic: 'tai_loc' } })
+    mount(PaywallView, { global: { plugins: [r] } })
+    await flushPromises()
+    expect(client.api.track).toHaveBeenCalledTimes(1)
+    expect(client.api.track.mock.calls[0][0].props).toEqual({ topic: 'tai_loc' })
+  })
+
+  it('track reject (422/NETWORK) → fire-and-forget: UI vẫn render bình thường, không toast/error', async () => {
+    client.api.track.mockRejectedValue(new client.ApiError(422, 'VALIDATION_FAILED', 'x', {}))
+    const r = mk()
+    await r.push({ name: 'paywall', params: { topic: 'duyen' } })
+    const w = mount(PaywallView, { global: { plugins: [r] } })
+    await flushPromises()
+    expect(client.api.track).toHaveBeenCalledTimes(1)
+    expect(w.find('[data-testid="pay-unlock-btn"]').exists()).toBe(true)
+    expect(w.find('[data-testid="pay-donate-block"]').exists()).toBe(true)
+    expect(w.find('[data-testid="pay-error"]').exists()).toBe(false)
   })
 })
