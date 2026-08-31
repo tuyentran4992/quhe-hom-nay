@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Draw extends Model
 {
     protected $fillable = [
-        'device_id', 'user_id', 'hexagram_id', 'drawn_date', 'lines_rolled', 'changing_lines',
+        'device_id', 'user_id', 'hexagram_id', 'bien_hexagram_id', 'drawn_date', 'lines_rolled', 'changing_lines',
     ];
 
     protected $casts = [

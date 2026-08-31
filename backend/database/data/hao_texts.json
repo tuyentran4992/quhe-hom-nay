@@ -1,0 +1,3010 @@
+[
+    {
+        "id": 1,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：潛龍勿用。",
+                "quoc_am": "Sơ cửu: Tiềm long vật dụng.",
+                "nghia": "Rồng còn lặn, chớ vội ra tài."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：見龍在田，利見大人。",
+                "quoc_am": "Cửu nhị: Kiến long tại điền, lợi kiến đại nhân.",
+                "nghia": "Rồng hiện ra giữa ruộng, lợi cho việc gặp được người lớn."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：君子終日乾乾，夕惕若，厲，無咎。",
+                "quoc_am": "Cửu tam: Quân tử chung nhật kiền kiền, tịch dịch nhược, lệ, vô cữu.",
+                "nghia": "Suốt ngày lo làm cho tới, chiều tối vẫn còn e dè. Ở chỗ nguy mà không lỗi."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：或躍在淵，無咎。",
+                "quoc_am": "Cửu tứ: Hoặc dược tại uyên, vô cữu.",
+                "nghia": "Nhảy lên hay ở lại trong vực, còn lựa — chọn nào cũng không lỗi, miễn đúng lúc."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：飛龍在天，利見大人。",
+                "quoc_am": "Cửu ngũ: Phi long tại thiên, lợi kiến đại nhân.",
+                "nghia": "Rồng bay giữa trời, lợi cho việc gặp người lớn."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：亢龍有悔。",
+                "quoc_am": "Thượng cửu: Kháng long hữu hối.",
+                "nghia": "Rồng lên quá cao ắt có điều ăn năn."
+            }
+        ]
+    },
+    {
+        "id": 2,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：履霜，堅冰至。",
+                "quoc_am": "Sơ lục: Lý sương, kiên băng chí.",
+                "nghia": "Giẫm phải sương mỏng, biết ngay băng cứng sẽ tới. Mầm nhỏ hôm nay là cái lớn ngày mai."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：直，方，大，不習，無不利。",
+                "quoc_am": "Lục nhị: Trực, phương, đại, bất tập, vô bất lợi.",
+                "nghia": "Ngay, vuông, lớn — không cần tập dượt trước mà vẫn không chỗ nào không lợi."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：含章，可貞。或從王事，無成有終。",
+                "quoc_am": "Lục tam: Hàm chương, khả trinh. Hoặc tòng vương sự, vô thành hữu chung.",
+                "nghia": "Giấu cái đẹp của mình, giữ vậy là đúng. Hoặc đi làm việc chung: đừng nhận công, mà giữ cho có kết thúc tử tế."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：括囊，無咎，無譽。",
+                "quoc_am": "Lục tứ: Quát nang, vô cữu, vô dự.",
+                "nghia": "Buột miệng túi lại. Không lỗi — cũng chẳng được khen. Ở chỗ này, im là an toàn."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：黃裳，元吉。",
+                "quoc_am": "Lục ngũ: Hoàng thường, nguyên cát.",
+                "nghia": "Mặc quần màu vàng — sắc của trung dung. Rất tốt, vì giữ đúng phận mà vẫn sáng."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：龍戰于野，其血玄黃。",
+                "quoc_am": "Thượng lục: Long chiến vu dã, kỳ huyết huyền hoàng.",
+                "nghia": "Rồng đánh nhau ngoài đồng, máu ra xanh vàng. Âm dồn đến cùng tất cứng lại thành giành giật — cả hai phía đều tổn."
+            }
+        ]
+    },
+    {
+        "id": 3,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：磐桓，利居貞，利建侯。",
+                "quoc_am": "Sơ cửu: Bàn hoàn, lợi cư trinh, lợi kiến hầu.",
+                "nghia": "Quanh co chưa biết đi đâu — thôi thì cứ đứng cho ngay. Lợi ở chỗ dựng người cùng mình."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：屯如，邅如，乘馬班如。匪寇，婚媾。女子貞不字，十年乃字。",
+                "quoc_am": "Lục nhị: Truân như, chiên như, thừa mã ban như. Phỉ khấu, hôn cấu. Nữ tử trinh bất tự, thập niên nãi tự.",
+                "nghia": "Dề dàng, quanh quất, cưỡi ngựa mà chần chừ chưa đi. Đám kia không phải cướp — đó là người đến hỏi cưới. Con gái giữ tiết thì đừng vội nhận lời; mười năm sau hãy gả."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：即鹿無虞，惟入于林中。君子幾，不如舍。往，吝。",
+                "quoc_am": "Lục tam: Tức lộc vô ngu, duy nhập vu lâm trung. Quân tử cơ, bất như xả. Vãng, lận.",
+                "nghia": "Đuổi hươu mà không có người dẫn đường, chỉ tổ lạc vào rừng. Người sáng thấy cơ thì bỏ, đi nữa chỉ thêm hối."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：乘馬班如，求婚媾，往吉，無不利。",
+                "quoc_am": "Lục tứ: Thừa mã ban như, cầu hôn cấu, vãng cát, vô bất lợi.",
+                "nghia": "Cưỡi ngựa chần chừ — nhưng lần này là đi hỏi người ta. Cứ đi, tốt, không gì là không lợi."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：屯其膏，小貞吉，大貞凶。",
+                "quoc_am": "Cửu ngũ: Truân kỳ cao, tiểu trinh cát, đại trinh hung.",
+                "nghia": "Ơn lộc chứa lại chưa ban ra được. Việc nhỏ mà giữ chính thì tốt; việc lớn mà cố làm cho bằng được thì hỏng."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：乘馬班如，泣血漣如。",
+                "quoc_am": "Thượng lục: Thừa mã ban như, khấp huyết liên như.",
+                "nghia": "Cưỡi ngựa mà không đi được, khóc ra máu ròng ròng. Đẩy cái khó đến cùng đường thì chỉ còn đau."
+            }
+        ]
+    },
+    {
+        "id": 4,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：發蒙，利用刑人，用說桎梏，以往，吝。",
+                "quoc_am": "Sơ lục: Phát mông, lợi dụng hình nhân, dụng thoát chất cốc, dĩ vãng, lận.",
+                "nghia": "Lúc mới mở mang thì phải có khuôn phép rõ ràng để người ta biết đường mà bỏ gông cùm. Nhưng nếu chỉ dùng mạnh tay mà đi mãi, thì hối."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：包蒙，吉。納婦，吉。子克家。",
+                "quoc_am": "Cửu nhị: Bao mông, cát. Nạp phụ, cát. Tử khắc gia.",
+                "nghia": "Bao dung kẻ chưa biết — tốt. Nhận người về cùng làm — tốt. Như người con gánh được việc nhà."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：勿用取女，見金夫，不有躬，無攸利。",
+                "quoc_am": "Lục tam: Vật dụng thủ nữ, kiến kim phu, bất hữu cung, vô du lợi.",
+                "nghia": "Đừng kết giao với hạng thấy của thì quên mình. Theo kiểu đó thì chẳng lợi đâu."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：困蒙，吝。",
+                "quoc_am": "Lục tứ: Khốn mông, lận.",
+                "nghia": "Khốn trong chỗ tối của mình — vì ở một mình, không ai để hỏi."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：童蒙，吉。",
+                "quoc_am": "Lục ngũ: Đồng mông, cát.",
+                "nghia": "Trẻ thơ biết lễ phép mà vâng lời dạy — tốt. Kém mà chịu hỏi là cái may."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：擊蒙，不利為寇，利禦寇。",
+                "quoc_am": "Thượng cửu: Kích mông, bất lợi vi khấu, lợi ngự khấu.",
+                "nghia": "Cái tối tới lúc phải đánh cho tan. Nhưng đánh để phòng giữ thì lợi; đánh vì muốn lấn tới thì thành giặc."
+            }
+        ]
+    },
+    {
+        "id": 5,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：需于郊，利用恆，無咎。",
+                "quoc_am": "Sơ cửu: Nhu vu giao, lợi dụng hằng, vô cữu.",
+                "nghia": "Chờ ở ngoài đồng xa — còn cách hiểm trở cả một quãng. Giữ nếp thường cho đều thì không lỗi."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：需于沙，小有言，終吉。",
+                "quoc_am": "Cửu nhị: Nhu vu sa, tiểu hữu ngôn, chung cát.",
+                "nghia": "Chờ ở bãi cát — đã gần nước. Hơi có tiếng ra tiếng vào, bụng cứ rộng thì sau cùng vẫn tốt."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：需于泥，致寇至。",
+                "quoc_am": "Cửu tam: Nhu vu nê, trí khấu chí.",
+                "nghia": "Chờ mà lún xuống bùn — sát mép hiểm. Giặc tới là do mình bước tới chỗ ấy."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：需于血，出自穴。",
+                "quoc_am": "Lục tứ: Nhu vu huyết, xuất tự huyệt.",
+                "nghia": "Chờ ngay trong chỗ máu lửa, rồi cũng chui ra khỏi hang. Ở cái nạn này chỉ có đường ra là biết nhường và chờ cho trọn."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：需于酒食，貞吉。",
+                "quoc_am": "Cửu ngũ: Nhu vu tửu thực, trinh cát.",
+                "nghia": "Chờ mà còn có rượu có cơm ngồi được — tức là cái chờ của người yên lòng. Chính thì tốt."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：入于穴，有不速之客三人來，敬之，終吉。",
+                "quoc_am": "Thượng lục: Nhập vu huyệt, hữu bất tốc chi khách tam nhân lai, kính chi, chung cát.",
+                "nghia": "Vào tới hang, hết chỗ chờ. Bỗng có ba vị khách không mời mà đến — tiếp cho kính trọng thì rốt cuộc vẫn tốt."
+            }
+        ]
+    },
+    {
+        "id": 6,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：不永所事，小有言，終吉。",
+                "quoc_am": "Sơ lục: Bất vĩnh sở sự, tiểu hữu ngôn, chung cát.",
+                "nghia": "Đừng dây dưa với chuyện này. Hơi bị tiếng ra tiếng vào, nhưng biết cắt sớm thì sau vẫn tốt."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：不克訟，歸而逋。其邑人三百戶，無眚。",
+                "quoc_am": "Cửu nhị: Bất khắc tụng, quy nhi bà. Kỳ ấp nhân tam bách hộ, vô sinh.",
+                "nghia": "Kiện với bề trên thì không thắng được — lui về lánh đi. Nhờ vậy mà ba trăm hộ trong ấp mình không vạ lây."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：食舊德，貞厲，終吉。或從王事，無成。",
+                "quoc_am": "Lục tam: Thực cựu đức, trinh lệ, chung cát. Hoặc tòng vương sự, vô thành.",
+                "nghia": "Ăn vào đức cũ mình đã gây, giữ thẳng mà biết lo thì sau tốt. Có làm việc chung thì làm, chớ giành công."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：不克訟，復即命，渝，安貞，吉。",
+                "quoc_am": "Cửu tứ: Bất khắc tụng, phục tức mệnh, du, an trinh, cát.",
+                "nghia": "Không thắng kiện — nhưng quay về thuận theo lẽ phải, đổi bụng mình ra yên, thế thì tốt."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：訟，元吉。",
+                "quoc_am": "Cửu ngũ: Tụng, nguyên cát.",
+                "nghia": "Người đứng phân xử mà giữ trung chính thì rất tốt — nhưng chỉ tốt cho vị trí phân xử, không phải cho người đi kiện."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：或錫之鞶帶，終朝三褫之。",
+                "quoc_am": "Thượng cửu: Hoặc tích chi bàn đới, chung triều tam tỉ chi.",
+                "nghia": "Kiện mà được ban thưởng cái dải lưng, thì trong một buổi sáng bị lột mất ba lần. Cái phần thắng giành bằng chuyện hơn thua không giữ được."
+            }
+        ]
+    },
+    {
+        "id": 7,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：師出以律，否臧，凶。",
+                "quoc_am": "Sơ lục: Sư xuất dĩ luật, phủ tang, hung.",
+                "nghia": "Quân ra phải đi bằng luật. Luật không nghiêm thì dù việc khởi đầu có vẻ tốt, kết cục vẫn hung."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：在師中，吉，無咎。王三錫命。",
+                "quoc_am": "Cửu nhị: Tại sư trung, cát, vô cữu. Vương tam tích mệnh.",
+                "nghia": "Cầm quân mà giữ được mức giữa thì tốt, không lỗi. Nhà vua ba lần ban mệnh — tức là tin mà giao trọn."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：師或輿尸，凶。",
+                "quoc_am": "Lục tam: Sư hoặc dư thi, hung.",
+                "nghia": "Quân mà không có chủ, người này lấn người kia, thì chở thây mà về. Hung."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：師左次，無咎。",
+                "quoc_am": "Lục tứ: Sư tả thứ, vô cữu.",
+                "nghia": "Lùi một bước mà đóng trại vững. Rút có trật tự thì không lỗi — chưa mất lẽ thường."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：田有禽，利執言，無咎。長子帥師；弟子輿尸，貞凶。",
+                "quoc_am": "Lục ngũ: Điền hữu cầm, lợi chấp ngôn, vô cữu. Trưởng tử suất sư; đệ tử dư thi, trinh hung.",
+                "nghia": "Ngoài đồng có chim tới phá ruộng thì bắt được, có cớ mà nói — không lỗi. Nhưng phải giao cho người anh cả dày dạn cầm quân; để chú em út giành việc thì chở thây về, dù chính cũng hung."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：大君有命，開國承家。小人勿用。",
+                "quoc_am": "Thượng lục: Đại quân hữu mệnh, khai quốc thừa gia. Tiểu nhân vật dụng.",
+                "nghia": "Việc xong, vua ban thưởng, mở nước phong nhà. Nhưng người nhỏ thì cho của, đừng giao việc — giao việc là làm loạn nước."
+            }
+        ]
+    },
+    {
+        "id": 8,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：有孚，比之，無咎。有孚盈缶，終來有它，吉。",
+                "quoc_am": "Sơ lục: Hữu phu, tỉ chi, vô cữu. Hữu phu doanh phẫu, chung lai hữu tha, cát.",
+                "nghia": "Lòng tin thật mà đến với nhau thì không lỗi. Thành tín đầy như nước tràn ang — thì cái tốt khác tự tìm tới sau."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：比之自內，貞吉。",
+                "quoc_am": "Lục nhị: Tỉ chi tự nội, trinh cát.",
+                "nghia": "Gần gũi từ trong lòng mình ra, không phải vì bên ngoài thúc — giữ vậy là tốt."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：比之匪人。",
+                "quoc_am": "Lục tam: Tỉ chi phỉ nhân.",
+                "nghia": "Bầu bạn với người không đúng. Ba chữ thôi mà nặng — thương thay."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：外比之，貞吉。",
+                "quoc_am": "Lục tứ: Ngoại tỉ chi, trinh cát.",
+                "nghia": "Hướng ra ngoài mà kết với người hiền ở trên — giữ chính thì tốt."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：顯比。王用三驅，失前禽，邑人不誡，吉。",
+                "quoc_am": "Cửu ngũ: Hiển tỉ. Vương dụng tam khu, thất tiền cầm, ấp nhân bất giới, cát.",
+                "nghia": "Gần gũi tỏ rạng. Như vua đi săn vây ba mặt, chừa một mặt mở: con thú chạy phía trước thì để nó đi, dân trong ấp chẳng phải răn nhắc — tốt. Ai muốn tới thì tới, không đuổi, không bắt."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：比之無首，凶。",
+                "quoc_am": "Thượng lục: Tỉ chi vô thủ, hung.",
+                "nghia": "Đến sau cùng, không đầu được việc gì — xấu. Quẻ Tỉ kể từ hào một tới hào năm, tới đây hết chỗ đứng."
+            }
+        ]
+    },
+    {
+        "id": 9,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：復自道，何其咎，吉。",
+                "quoc_am": "Sơ cửu: Phục tự đạo, hà kỳ cữu, cát.",
+                "nghia": "Trở về đúng đường mình đã đi thì lỗi ở đâu mà sợ — tốt. Kìm lại mà kìm đứng đắn thì chẳng mất gì."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：牽復，吉。",
+                "quoc_am": "Cửu nhị: Khiên phục, cát.",
+                "nghia": "Được người cùng lối kéo nhau cùng về — tốt. Một mình thì khó, có kẻ đồng tâm thì đường lùi cũng hóa đường tiến."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：輿說輻，夫妻反目。",
+                "quoc_am": "Cửu tam: Dữ thoát bức, phu thê phản mục.",
+                "nghia": "Xe bong chốt bánh, vợ chồng quay mặt nhìn nhau. Cố đi khi lực chưa đủ thì gãy giữa đường; cái bực việc ngoài thường dội vào người nhà."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：有孚，血去惕出，無咎。",
+                "quoc_am": "Lục tứ: Hữu phu, huyết khứ dịch xuất, vô cữu.",
+                "nghia": "Giữ lòng tin cho chắc thì chuyện máu me tránh đi, nỗi sợ thoát ra — không lỗi. Lúc này người ta đỡ mình bằng chữ tín, không bằng sức."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：有孚攣如，富以其鄰。",
+                "quoc_am": "Cửu ngũ: Hữu phu loan như, phú kỳ lân.",
+                "nghia": "Tin nhau buộc chặt như một sợi dây. Giàu thì cùng làm giàu với láng giềng — của mình chỉ bền khi nó chảy sang tay người khác."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：既雨既處，尚德載，婦貞厲。月幾望，君子征凶。",
+                "quoc_am": "Thượng cửu: Ký vũ ký xứ, thượng đức tải, phụ trinh lệ. Nguyệt ky vọng, quân tử chinh hung.",
+                "nghia": "Mưa đã xuống, đã yên chỗ — cái chứa đức nay đã đầy. Nhưng khư khư giữ bền như người đàn bà thủ tiết thì thành nguy. Trăng gần tròn, đi thêm là luống; quân tử tiến nữa ắt gặp xấu. Đủ thì dừng, đó là lời hào cuối."
+            }
+        ]
+    },
+    {
+        "id": 10,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：素履往，無咎。",
+                "quoc_am": "Sơ cửu: Tố lý vãng, vô cữu.",
+                "nghia": "Cứ chất phẳng mà đi — không lỗi. Không cần tô vẽ, đường mình quen thì chân mình vững."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：履道坦坦，幽人貞吉。",
+                "quoc_am": "Cửu nhị: Lý đạo thản thản, u nhân trinh cát.",
+                "nghia": "Đường đi phẳng thênh thang; người kín đáo mà giữ vững — tốt. Ít khoe ít ồn nên đi được xa mà không mất mình."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：眇能視，跛能履，履虎尾，咥人，凶。武人為于大君。",
+                "quoc_am": "Lục tam: Miểu năng thị, bả năng lý, lý hổ vĩ, điệt nhân, hung. Vũ nhân vi ư đại quân.",
+                "nghia": "Một mắt mà cho là trông rõ, què mà cho là đi được, cứ dẫm lên đuôi cọp — cọp cắn, hung. Kẻ vũ phu mà đòi làm việc lớn thì chỉ tổ làm hại. Quẻ này trị đúng bệnh tự đánh giá quá tay về mình."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：履虎尾，愬愬，終吉。",
+                "quoc_am": "Cửu tứ: Lý hổ vĩ, sạ sạ, chung cát.",
+                "nghia": "Cũng dẫm đuôi cọp, nhưng e dè run sợ — rốt cuộc tốt. Biết sợ đúng chỗ thì cái nguy hóa thành cái khéo."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：夬履，貞厲。",
+                "quoc_am": "Cửu ngũ: Quải lý, trinh lệ.",
+                "nghia": "Cắt đứt mà bước, quyết quá hóa cứng — dầu chính đáng vẫn là chỗ đáng lo. Người có quyền nhất là người dễ đi một mạch không ngoái lại."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：視履考祥，其旋元吉。",
+                "quoc_am": "Thượng cửu: Thị lý khảo tường, kỳ toàn nguyên cát.",
+                "nghia": "Xem lại dấu chân mình đã đi, xét kỹ lành dữ rồi mới xoay về — rất tốt. Cái kết của quẻ này không nằm ở đích, mà nằm ở lúc mình dám nhìn lại cả chặng."
+            }
+        ]
+    },
+    {
+        "id": 11,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：拔茅茹，以其彙，征吉。",
+                "quoc_am": "Sơ cửu: Bạt mao nhự, dĩ kỳ hội, chinh cát.",
+                "nghia": "Nhổ một sợi cỏ tranh, rễ kéo cả đám lên theo — đi tới thì tốt. Thời đang lên thì rủ bạn cùng lên, đừng đi một mình."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：包荒，用馮河，不遐遺，朋亡，得尚于中行。",
+                "quoc_am": "Cửu nhị: Bao hoang, dụng bằng hà, bất di di, bằng vong, đắc sưởng ư trung hành.",
+                "nghia": "Bọc được chỗ hoang vu, qua sông không cần thuyền, kẻ xa không bỏ rơi, không kết bè đảng — thế là hợp với đường giữa. Giữ được bốn cái đó thì thời Thái đứng được lâu."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：無平不陂，無往不復，艱貞無咎，勿恤其孚，于食有福。",
+                "quoc_am": "Cửu tam: Vô bình bất pha, vô vãng bất phục, gian trinh vô cữu, vật Tuất kỳ phu, ư thực hữu phúc.",
+                "nghia": "Không phẳng nào mãi không dốc, không đi nào mãi không về. Giữa lúc dễ mà giữ được cái khó của mình thì không lỗi; không phải lo, giữ lòng tin thì bữa ăn còn dài. Đây là hào tỉnh táo nhất của một quẻ đang vui."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：翩翩不富，以其鄰，不戒以孚。",
+                "quoc_am": "Lục tứ: Phiên phiên bất phú, dĩ kỳ lân, bất giới dĩ phu.",
+                "nghia": "Nhẹ nhàng cùng bay xuống, mình không giàu mà láng giềng vẫn đi theo — chẳng cần răn bảo gì mà vẫn tin nhau. Người trên chịu bước xuống thì người dưới tự bước lên."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：帝乙歸妹，以祉元吉。",
+                "quoc_am": "Lục ngũ: Đế Ất quy muội, dĩ chỉ nguyên cát.",
+                "nghia": "Như Đế Ất gả em gái — ở ngôi tôn quý mà chịu hạ mình lấy người dưới, nên nhờ phúc mà rất tốt."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：城復于隍，勿用師。自邑告命，貞吝。",
+                "quoc_am": "Thượng lục: Thành phục ư hoàng, vật dụng sư. Tự ấp cáo mệnh, trinh lận.",
+                "nghia": "Thành lở trôi xuống hào — lúc ấy chớ bày binh, chớ cố đánh lớn. Chỉ lo từ trong đất mình ra, giữ khư khư cứng nhắc thì thành đáng tiếc. Thái tới đỉnh là bắt đầu sang Bĩ."
+            }
+        ]
+    },
+    {
+        "id": 12,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：拔茅茹，以其彙，貞吉亨。",
+                "quoc_am": "Sơ lục: Bạt mao nhự, dĩ kỳ hội, trinh cát hanh.",
+                "nghia": "Nhổ sợi cỏ tranh, cả cụm rễ cùng lên — lui thì lui cả nhóm bạn, giữ cho chính thì vẫn tốt vẫn hanh."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：包承，小人吉，大人否亨。",
+                "quoc_am": "Lục nhị: Bao thừa, tiểu nhân cát, đại nhân Bĩ hanh.",
+                "nghia": "Bọc lấy cái đang nâng đỡ mình — kẻ nhỏ thì tốt, còn người lớn thì chính lúc Bĩ này mới là hanh. Ở chỗ cao mà bị kìm thì đừng cố bằng bạn bằng bè."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：包羞。",
+                "quoc_am": "Lục tam: Bao tu.",
+                "nghia": "Bọc lấy cái hổ thẹn — biết mình đang ở chỗ đáng xấu mà vẫn ngồi yên. Hào này nặng nhất quẻ: nguy không nằm ở ngoài, nằm ở việc mình chịu được cái đáng phải hổ thẹn."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：有命無咎，疇離祉。",
+                "quoc_am": "Cửu tứ: Hữu mệnh vô cữu, trừ ly chỉ.",
+                "nghia": "Có mệnh trời mà làm thì không lỗi, và cái phúc lây sang cả những người cùng hạng. Muốn kéo ai ra khỏi lúc nghẽn, mình phải đứng thẳng đã."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：休否，大人吉。其亡其亡，繫于苞桑。",
+                "quoc_am": "Cửu ngũ: Hưu Bĩ, đại nhân cát. Kỳ vong kỳ vong, hệ ư bao tang.",
+                "nghia": "Bĩ thôi rồi — người lớn thì tốt. Tự nhắc 'mất đây, mất đây' mỗi ngày như thế thì mới buộc chắc mình vào gốc dâu. Chính cái lo làm nên sự vững."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：傾否，先否后喜。",
+                "quoc_am": "Thượng cửu: Khuynh Bĩ, tiên Bĩ hậu hỉ.",
+                "nghia": "Bĩ nghiêng rồi đổ — trước nghẹn sau vui. Bĩ tới đây là hết đường, chỉ có điều lúc nó đổ mình còn đứng ở đâu."
+            }
+        ]
+    },
+    {
+        "id": 13,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：同人于門，無咎。",
+                "quoc_am": "Sơ cửu: Đồng Nhân vu môn, vô cữu.",
+                "nghia": "Mở cửa mà hợp người — không lỗi. Chưa kết bè chưa dựng cánh, nên ai vào cũng thành việc được."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：同人于宗，吝。",
+                "quoc_am": "Lục nhị: Đồng Nhân vu tông, lận.",
+                "nghia": "Chỉ đồng với người nhà người họ — hẹp. Hội càng bó vào vòng quen biết thì càng nhỏ dần, việc lớn khó tới."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：伏戎于莽，升其高陵，三歲不興。",
+                "quoc_am": "Cửu tam: Phục nhung ư mãng, thăng kỳ cao lăng, tam tuế bất hưng.",
+                "nghia": "Giấu binh trong bụi cỏ, lại leo lên gò cao dòm ngó — ba năm chẳng làm nên gì. Đã đồng mà còn thủ thế thì cả hội chỉ tốn thời gian chờ nhau."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：乘其墉，弗克攻，吉。",
+                "quoc_am": "Cửu tứ: Thừa kỳ dong, bất khắc công, cát.",
+                "nghia": "Đã trèo lên tường thành định đánh, rồi tự thôi — tốt. Giận tới mức đó mà dừng được thì trong hội còn giữ được nhau."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：同人先號咷而後笑，大師克，相遇。",
+                "quoc_am": "Cửu ngũ: Đồng Nhân tiên hiệu đào nhi hậu tiếu, đại sư khắc, tương ngộ.",
+                "nghia": "Đồng với nhau: khóc trước rồi cười sau — phải trải một trận lớn mới gặp lại nhau. Cái đồng từng chịu thử thách thì khó tan."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：同人于郊，無悔。",
+                "quoc_am": "Thượng cửu: Đồng Nhân vu giao, vô hối.",
+                "nghia": "Hợp người ở ngoài cõi — không hối, mà cũng chưa thỏa. Rộng mà chưa gặp đúng chí, nên chỉ dừng ở chỗ không trách được ai."
+            }
+        ]
+    },
+    {
+        "id": 14,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：無交害，匪咎，艱則無咎。",
+                "quoc_am": "Sơ cửu: Vô giao hại, phi cữu, gian tắc vô cữu.",
+                "nghia": "Chưa dây vào cái hại thì chưa phải lỗi; nhớ giữ cái khó buổi ban đầu thì sau không lỗi. Giàu mà nhớ đường mình từng nghèo — hào này là gốc của cả quẻ."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：大車以載，有攸往，無咎。",
+                "quoc_am": "Cửu nhị: Đại xa dĩ tái, hữu du vãng, vô cữu.",
+                "nghia": "Chở bằng xe lớn thì đi đâu cũng nổi. Lượng mình chứa được tới đâu thì gánh việc tới đó — không lỗi là vì biết đúng sức mình."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：公用享于天子，小人弗克。",
+                "quoc_am": "Cửu tam: Công dụng hưởng ư thiên tử, tiểu nhân bất khắc.",
+                "nghia": "Bậc công hầu đem của quý dâng lên thiên tử mà dự yến — kẻ nhỏ thì chịu, không làm nổi. Của đang có, ai biết dâng cho việc lớn thì của mới hóa thành nghiệp."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：匪其彭，無咎。",
+                "quoc_am": "Cửu tứ: Phi kỳ bành, vô cữu.",
+                "nghia": "Không phình mình lên — không lỗi. Đầy đủ mà biết hóp lại, không khoe, nên người quanh không hóa ra cản mình."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：厥孚交如，威如，吉。",
+                "quoc_am": "Lục ngũ: Quyết phu giao như, uy như, cát.",
+                "nghia": "Lòng tin trao đi rồi nhận lại, hiền mà vẫn có nét nghiêm — tốt. Ở trên mà thật bụng thì kẻ dưới phục, không cần dọa."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：自天祐之，吉無不利。",
+                "quoc_am": "Thượng cửu: Tự thiên hữu chi, cát vô bất lợi.",
+                "nghia": "Trời tự giúp lấy — tốt, không gì là không lợi. Hào cuối của quẻ giàu nhất lại là hào khiêm nhất: cái giúp mình cuối cùng chính là cách mình sống."
+            }
+        ]
+    },
+    {
+        "id": 15,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：謙謙君子，用涉大川，吉。",
+                "quoc_am": "Sơ lục: Khiêm Khiêm quân tử, dụng thiệp đại xuyên, cát.",
+                "nghia": "Người đã khiêm lại biết mình khiêm — giữ chỗ thấp nhất mà qua được sông lớn, tốt. Đây là cái khiêm của người chưa có gì để mất."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：鳴謙，貞吉。",
+                "quoc_am": "Lục nhị: Minh Khiêm, trinh cát.",
+                "nghia": "Cái khiêm bộc ra ngoài mà vẫn giữ đúng — tốt. Nhường thật thì không cần khoe mà người ta vẫn nghe thấy."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：勞謙君子，有終，吉。",
+                "quoc_am": "Cửu tam: Lao Khiêm quân tử, hữu chung, cát.",
+                "nghia": "Có công thật, làm nhiều thật, mà vẫn nhường — ấy là hào duy nhất trong quẻ có chữ 'lao'. Công mà không kể công thì người ta kể giúp, và cái kết tốt."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：無不利，撝謙。",
+                "quoc_am": "Lục tứ: Vô bất lợi, huy Khiêm.",
+                "nghia": "Không gì là không lợi, chỉ cần vung cái khiêm ra — không bó phép nhường ấy cho riêng ai. Ở trên mà nhường người dưới thì cả hai cùng đẹp."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：不富以其鄰，利用侵伐，無不利。",
+                "quoc_am": "Lục ngũ: Bất phú dĩ kỳ lân, lợi dụng xâm phạt, vô bất lợi.",
+                "nghia": "Không cậy của mà láng giềng vẫn theo — dùng cái uy ấy mà dẹp kẻ chưa phục thì không gì chẳng lợi. Khiêm không có nghĩa là không đánh được."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：鳴謙，利用行師，征邑國。",
+                "quoc_am": "Thượng lục: Minh khiêm, lợi dụng hành sư, chinh ấp quốc.",
+                "nghia": "Tiếng khiêm đã vang mà chí còn chưa trọn — chỉ còn việc dẹp cái dở ngay trong nội bộ mình thì tới đích."
+            }
+        ]
+    },
+    {
+        "id": 16,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：鳴豫，凶。",
+                "quoc_am": "Sơ lục: Minh Dự, hung.",
+                "nghia": "Phô cái vui của mình lên cho thiên hạ nghe — hung. Vui mà để cái vui khoe mình thì vui hóa ra tai."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：介于石，不終日，貞吉。",
+                "quoc_am": "Lục nhị: Giới ư thạch, bất chung nhật, trinh cát.",
+                "nghia": "Vững như đá, thấy đúng là đứng lại ngay trong ngày, không dây dưa tới hết bữa — giữ chính thì tốt. Giữa lúc cả làng đang vui, người đứng được là người không cần vui."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：盱豫，悔。遲有悔。",
+                "quoc_am": "Lục tam: Hu dự, hối; trì hữu hối.",
+                "nghia": "Ngửa mặt trông lên chờ người ta cho mình vui — hối. Biết là cái vui vay mà lần lữa không rời — lại thêm hối."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：由豫，大有得。勿疑。朋盍簪。",
+                "quoc_am": "Cửu tứ: Do Dự, đại hữu đắc, vật nghi, bằng hạp trâm.",
+                "nghia": "Vui từ mình mà ra nên người khác được vui theo — được lớn, đừng ngờ. Bạn bè họp về như tóc gom lại dưới một cây trâm."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：貞疾，恆不死。",
+                "quoc_am": "Lục ngũ: Trinh tật, hằng bất tử.",
+                "nghia": "Như người mắc bệnh dai mà chẳng chết được — ngồi trên cái vui mà quyền đã rơi vào tay kẻ khác. Không đổ ngay, chỉ rề rề."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：冥豫，成有渝，無咎。",
+                "quoc_am": "Thượng lục: Minh Dự, thành hữu du, vô cữu.",
+                "nghia": "Mù vì vui, vui triền miên — nhưng nếu chịu đổi thì còn kịp, không lỗi. Kịch bản xấu nhất của quẻ này vẫn có cửa sửa."
+            }
+        ]
+    },
+    {
+        "id": 17,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：官有渝，貞吉。出門交有功。",
+                "quoc_am": "Sơ cửu: quan hữu du, trinh cát. Xuất môn giao hữu công.",
+                "nghia": "Biết linh hoạt thay đổi cách nhìn nhưng vẫn giữ đúng nguyên tắc thì tốt; chủ động mở lòng kết giao với người ngoài thì làm nên việc."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：系小子，失丈夫。",
+                "quoc_am": "Lục nhị: hệ tiểu tử, thất trượng phu.",
+                "nghia": "Bám lấy kẻ nhỏ, cái lợi nhỏ trước mắt ắt phải mất bậc hiền lớn — chọn ai để theo cũng là chọn đường cho mình."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：系丈夫，失小子。隨有求得，利居貞。",
+                "quoc_am": "Lục tam: hệ trượng phu, thất tiểu tử. Tùy hữu cầu đắc, lợi cư trinh.",
+                "nghia": "Theo được người hiền lớn thì phải rời chỗ nhỏ nhen; có cầu có được, nhưng cái lợi thật nằm ở giữ cho chính đáng."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：隨有獲，貞凶。有孚在道，以明，何咎。",
+                "quoc_am": "Cửu tứ: tùy hữu hoạch, trinh hung. Hữu phu tại đạo, dĩ minh, hà cửu.",
+                "nghia": "Người đời theo mình quá đông, thu hoạch quá nhiều thì dù đúng cũng thành nguy; chỉ lòng tin đặt trong đạo sáng suốt mới khỏi lỗi."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：孚于嘉，吉。",
+                "quoc_am": "Cửu ngũ: phu ư gia, cát.",
+                "nghia": "Tin vào điều hay cái tốt và lan cái tin đó đi, việc sẽ tốt."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：拘系之，乃從維之。王用亨于西山。",
+                "quoc_am": "Thượng lục: câu hệ chi, nãi tòng duy chi. Vương dụng hanh ư Tây sơn.",
+                "nghia": "Buộc rồi lại ràng tới cùng cực; chân tình gắn bó thì bền như lời thề tế trời của vua ở núi Tây, còn gò ép thì trái lại."
+            }
+        ]
+    },
+    {
+        "id": 18,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：幹父之蠱，有子考，無咎，厲終吉。",
+                "quoc_am": "Sơ lục: cán phụ chi cổ, hữu tử khảo, vô cửu, lệ chung cát.",
+                "nghia": "Con đứng ra sửa cái hư hỏng cha để lại; có đứa con như vậy thì cha không mang lỗi, việc tuy gian nan nhưng rốt cuộc tốt."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：幹母之蠱，不可貞。",
+                "quoc_am": "Cửu nhị: cán mẫu chi cổ, bất khả trinh.",
+                "nghia": "Sửa chuyện đã rồi của người trên phải mềm mỏng khéo léo, cứng nhắc quá thì hỏng việc."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：幹父之蠱，小有悔，無大咎。",
+                "quoc_am": "Cửu tam: cán phụ chi cổ, tiểu hữu hối, vô đại cửu.",
+                "nghia": "Mạnh tay cải tạo cái cũ, có chút hối hận nhỏ nhưng không đến nỗi phạm lỗi lớn."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：裕父之蠱，往見吝。",
+                "quoc_am": "Lục tứ: dụ phụ chi cổ, vãng kiến lận.",
+                "nghia": "Bao dung, để nguyên cái hỏng của đời trước cho rộng việc thì càng tiến tới càng đáng hổ."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：幹父之蠱，用譽。",
+                "quoc_am": "Lục ngũ: cán phụ chi cổ, dụng dự.",
+                "nghia": "Sửa cái tệ của đời trước một cách hòa nhã thì tiếng khen về mình."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：不事王侯，高尚其事。",
+                "quoc_am": "Thượng cửu: bất sự vương hầu, cao thượng kỳ sự.",
+                "nghia": "Không luồn cúi phục vụ quyền quí nữa, giữ việc mình ở bậc cao thượng — rút lui danh dự, sống cho chí hướng."
+            }
+        ]
+    },
+    {
+        "id": 19,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：咸臨，貞吉。",
+                "quoc_am": "Sơ cửu: hàm lâm, trinh cát.",
+                "nghia": "Cùng nhau đến gần, tiếp xúc công việc bằng sự chính đáng thì tốt."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：咸臨，吉無不利。",
+                "quoc_am": "Cửu nhị: hàm lâm, cát vô bất lợi.",
+                "nghia": "Dùng lòng cảm hóa mà đến với người dưới, tốt, không gì là không lợi."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：甘臨，無攸利。既憂之，無咎。",
+                "quoc_am": "Lục tam: cam lâm, vô du lợi. Ký ưu chi, vô cửu.",
+                "nghia": "Đem lời ngọt ngào dụ dỗ mà đối xử thì chẳng lợi gì; biết tự lo mà sửa thì khỏi lỗi."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：至臨，無咎。",
+                "quoc_am": "Lục tứ: chí lâm, vô cửu.",
+                "nghia": "Đến với việc một cách thực tình, sát sao tận nơi, không lỗi."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：知臨，大君之宜，吉。",
+                "quoc_am": "Lục ngũ: tri lâm, đại quân chi nghi, cát.",
+                "nghia": "Dùng trí tuệ mà cai quản, biết giao việc cho người hiền — đó là đức của bậc lớn, tốt."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：敦臨，吉無咎。",
+                "quoc_am": "Thượng lục: đôn lâm, cát vô cửu.",
+                "nghia": "Đối đãi người dưới bằng lòng đôn hậu thành thật thì tốt, không lỗi."
+            }
+        ]
+    },
+    {
+        "id": 20,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：童觀，小人無咎，君子吝。",
+                "quoc_am": "Sơ lục: đồng quán, tiểu nhân vô cửu, quân tử lận.",
+                "nghia": "Nhìn bằng con mắt trẻ con, thấy gì tin nấy — người thường không sao, người có trách nhiệm thì đáng hổ."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：窺觀，利女貞。",
+                "quoc_am": "Lục nhị: khuy quán, lợi nữ trinh.",
+                "nghia": "Nhòm qua khe, thấy một góc mà tưởng là tất cả; kiểu nhìn narrow, hợp với đạo trinh thuận trong khuôn hẹp của con gái trong nhà — tầm nhìn hạn chế chỉ làm được việc nhỏ."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：觀我生，進退。",
+                "quoc_am": "Lục tam: quán ngã sinh, tiến thoái.",
+                "nghia": "Hãy xét lại cách sống và việc làm của chính mình để biết lúc này nên tiến hay nên lui."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：觀國之光，利用賓于王。",
+                "quoc_am": "Lục tứ: quán quốc chi quang, lợi dụng tân ư vương.",
+                "nghia": "Nhìn rõ vận nước, cái sáng của thời đại thì lợi để ra làm khách của vua — đem tài giúp đời."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：觀我生，君子無咎。",
+                "quoc_am": "Cửu ngũ: quán ngã sinh, quân tử vô cửu.",
+                "nghia": "Bậc ở ngôi cao tự soi lại việc mình đã làm, lấy đó làm gương thì không lỗi."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：觀其生，君子無咎。",
+                "quoc_am": "Thượng cửu: quán kỳ sinh, quân tử vô cửu.",
+                "nghia": "Dù không còn tại vị, thiên hạ vẫn nhìn mình; giữ cho đời mình trong sạch thì không lỗi."
+            }
+        ]
+    },
+    {
+        "id": 21,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：屨校滅趾，無咎。",
+                "quoc_am": "Sơ cửu: lũ hiệu diệt chỉ, vô cửu.",
+                "nghia": "Mới phạm lỗi nhỏ đã bị răn đe, như mang cùm che mất chân — bị phạt sớm nên không mắc lỗi lớn."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：噬膚滅鼻，無咎。",
+                "quoc_am": "Lục nhị: phệ phu diệt tị, vô cửu.",
+                "nghia": "Xử việc dễ như cắn miếng thịt mềm ngập tới mũi — mạnh tay, dứt khoát thì không lỗi."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：噬臘肉，遇毒；小吝，無咎。",
+                "quoc_am": "Lục tam: phệ lạp nhục, ngộ độc; tiểu lận, vô cửu.",
+                "nghia": "Gỡ việc khó như nhai thịt khô lại gặp miếng độc; có chút bực mình nhưng rốt cuộc không lỗi."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：噬乾胏，得金矢，利艱貞，吉。",
+                "quoc_am": "Cửu tứ: phệ can tử, đắc kim thỉ, lợi gian trinh, cát.",
+                "nghia": "Chống lại kẻ cứng đầu nhất, trong đó gặp cả mũi tên kim loại — phải vượt gian khó và giữ thẳng mới tốt."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：噬乾肉，得黃金，貞厲，無咎。",
+                "quoc_am": "Lục ngũ: phệ can nhục, đắc hoàng kim, trinh lệ, vô cửu.",
+                "nghia": "Xử việc khó mà được phần quí; đứng ở vị trí nghiêm khắc, đúng pháp thì không lỗi."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：何校滅耳，凶。",
+                "quoc_am": "Thượng cửu: hà hiệu diệt nhĩ, hung.",
+                "nghia": "Tội accumulated tới cùng, mang gông lớn che mất tai — không còn ai nghe can nữa, xấu."
+            }
+        ]
+    },
+    {
+        "id": 22,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：賁其趾，舍車而徒。",
+                "quoc_am": "Sơ cửu: bí kỳ chỉ, xả xa nhi đồ.",
+                "nghia": "Trang điểm cho bước đi của mình, bỏ xe mà đi bộ — giữ trong sạch, tự thân vận động còn hơn dựa vào vỏ ngoài."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：賁其須。",
+                "quoc_am": "Lục nhị: bí kỳ tu.",
+                "nghia": "Làm đẹp bộ râu mọc theo cằm: cái đẹp của mình phải thuận theo cái gốc, đừng gắn thứ phù phiếm."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：賁如濡如，永貞吉。",
+                "quoc_am": "Cửu tam: bí như nhu như, vĩnh trinh cát.",
+                "nghia": "Văn vẻ bóng bẩy quá mức dễ chìm trong hào nhoáng; giữ được chính đạo lâu dài mới tốt."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：賁如皤如，白馬翰如，匪寇婚媾。",
+                "quoc_am": "Lục tứ: bí như bà như, bạch mã hãn như, phi khấu hôn cấu.",
+                "nghia": "Thà trắng trơn giản dị; cưỡi ngựa trắng phi như bay, tưởng là cướp hóa ra người đến cầu hôn — đừng để hình thức đánh lừa."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：賁于丘園，束帛戔戔，吝，終吉。",
+                "quoc_am": "Lục ngũ: bí ư khâu viên, thúc bạch tiễn tiễn, lận, chung cát.",
+                "nghia": "Trang sức bằng cái đẹp của khu vườn quê, sính lễ ít ỏi trông có keo kiệt nhưng thật bụng thì rốt cuộc tốt."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：白賁，無咎。",
+                "quoc_am": "Thượng cửu: bạch bí, vô cửu.",
+                "nghia": "Cao nhất là lấy chính sự mộc mạc làm đẹp — hết sức phù hoa thì không lỗi."
+            }
+        ]
+    },
+    {
+        "id": 23,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：剝床以足，蔑貞凶。",
+                "quoc_am": "Sơ lục: bác sàng dĩ túc, diệt trinh hung.",
+                "nghia": "Cái xấu gọt bắt đầu từ chân giường, mất chỗ đứng vững; giữ khư khư cái đúng của mình giữa lúc suy thì gặp hung."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：剝床以辨，蔑貞凶。",
+                "quoc_am": "Lục nhị: bác sàng dĩ biện, diệt trinh hung.",
+                "nghia": "Lột tới tận cạnh giường, đã lan tới thân mình; lúc ấy cứng cỏi chỉ thêm nguy."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：剝之，無咎。",
+                "quoc_am": "Lục tam: bác chi, vô cửu.",
+                "nghia": "Ở trong đám đang suy mà mình vẫn hướng về người hiền ở trên, tuy bị cả nhóm trách nhưng không lỗi."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：剝床以膚，凶。",
+                "quoc_am": "Lục tứ: bác sàng dĩ phu, hung.",
+                "nghia": "Đã lột tới da thịt — tai họa chạm vào người, xấu rõ ràng."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：貫魚，以宮人寵，無不利。",
+                "quoc_am": "Lục ngũ: quán ngư, dĩ cung nhân sủng, vô bất lợi.",
+                "nghia": "Dẫn dắt kẻ dưới như xâu cá mà đối đãi tử tế, hóa cái nhỏ thành thế thuận, không gì không lợi."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：碩果不食，君子得輿，小人剝廬。",
+                "quoc_am": "Thượng cửu: thạc quả bất thực, quân tử đắc dư, tiểu nhân bác lư.",
+                "nghia": "Quả tốt duy nhất còn lại không bị ăn: quân tử giữ được lòng dân như được xe chở, tiểu nhân lột mái nhà của chính mình."
+            }
+        ]
+    },
+    {
+        "id": 24,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：不遠復，無祗悔，元吉。",
+                "quoc_am": "Sơ cửu: bất viễn phục, vô chi hối, nguyên cát.",
+                "nghia": "Lừa lỗi chưa đi xa đã quay lại, chưa tới mức phải hối — rất tốt. Biết dừng sớm là phúc."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：休復，吉。",
+                "quoc_am": "Lục nhị: hưu phục, cát.",
+                "nghia": "Vui vẻ quay đầu, sửa lỗi nhẹ nhàng và có người hiền dẫn đường, tốt."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：頻復，厲無咎。",
+                "quoc_am": "Lục tam: tần phục, lệ vô cửu.",
+                "nghia": "Cứ phạm rồi lại sửa nhiều lần, nguy đấy nhưng biết sửa thì không lỗi."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：中行獨復。",
+                "quoc_am": "Lục tứ: trung hành độc phục.",
+                "nghia": "Giữa đám đông đi lệch mà mình đơn độc quay về chính đạo — can đảm đó là theo đúng đường."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：敦復，無悔。",
+                "quoc_am": "Lục ngũ: đôn phục, vô hối.",
+                "nghia": "Quay lại cái thiện bằng lòng đôn hậu, không cần ai biết cũng không hối."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：迷復，凶，有災眚。用行師，終有大敗，以其國君，凶；至于十年，不克征。",
+                "quoc_am": "Thượng lục: mê phục, hung, hữu tai sảnh. Dụng hành sư, chung hữu đại bại, dĩ kỳ quốc quân, hung; chí ư thập niên, bất khắc chinh.",
+                "nghia": "Lầm đường mà không biết quay lại thì gặp họa; làm việc lớn khi đó ắt thua nặng, liên lụy cả người đứng đầu, mười năm không gượng dậy được."
+            }
+        ]
+    },
+    {
+        "id": 25,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：無妄，往吉。",
+                "quoc_am": "Sơ cửu: vô vọng, vãng cát.",
+                "nghia": "Cứ hết lòng ngay thẳng, không mong cầu phi lý, tiến tới sẽ tốt."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：不耕獲，不菑畬，則利有攸往。",
+                "quoc_am": "Lục nhị: bất canh hoạch, bất sư dự, tắc lợi hữu du vãng.",
+                "nghia": "Không tính chuyện cày mà gặt non, không mong hoa lợi từ công chưa làm — thuận tự nhiên mà đi thì lợi."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：無妄之災，或係之牛，行人之得，邑人之災。",
+                "quoc_am": "Lục tam: vô vọng chi tai, hoặc hệ chi ngưu, hành nhân chi đắc, ấp nhân chi tai.",
+                "nghia": "Tai vạ đến với người ngay: trâu bị kẻ qua đường dắt mất, dân làng lại bị nghi oan — ở đời có chuyện xui không do mình."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：可貞，無咎。",
+                "quoc_am": "Cửu tứ: khả trinh, vô cửu.",
+                "nghia": "Giữ được chính đáng, không vọng động thì không lỗi."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：無妄之疾，勿藥有喜。",
+                "quoc_am": "Cửu ngũ: vô vọng chi tật, vật dược hữu hỉ.",
+                "nghia": "Bệnh không do mình gây ra thì đừng chữa chạy lung tung; để yên, thân tự quân bằng sẽ khỏi."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：無妄，行有眚，無攸利。",
+                "quoc_am": "Thượng cửu: vô vọng, hành hữu sảnh, vô du lợi.",
+                "nghia": "Dù mình không sai, thời đã cùng rồi thì động cũng thành lỗi — tốt nhất là đừng làm gì thêm."
+            }
+        ]
+    },
+    {
+        "id": 26,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：有厲利已。",
+                "quoc_am": "Sơ cửu: hữu lệ lợi dĩ.",
+                "nghia": "Tiến lên gặp nguy, lợi ở chỗ biết dừng lại."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：輿說輹。",
+                "quoc_am": "Cửu nhị: dư duyệt phúc.",
+                "nghia": "Tháo chốt trục xe mà ở lại — chủ động ngừng đúng lúc là sáng suốt, không phải nhát."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：良馬逐，利艱貞。曰閑輿衛，利有攸往。",
+                "quoc_am": "Cửu tam: lương mã trục, lợi gian trinh. Viết nhàn dư vệ, lợi hữu du vãng.",
+                "nghia": "Ngựa hay đua nhau đi, phải giữ mình qua gian khó và chính đáng; tập dượt đủ cách phòng vệ cho xe rồi hãy đi, sẽ lợi."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：童牛之牿，元吉。",
+                "quoc_am": "Lục tứ: đồng ngưu chi cộc, nguyên cát.",
+                "nghia": "Đóng nóc vào sừng nghé chưa mọc sừng — ngừa cái xấu từ lúc còn rất sớm, rất tốt."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：豶豕之牙，吉。",
+                "quoc_am": "Lục ngũ: phần thỉ chi nha, cát.",
+                "nghia": "Lợn đã thiến thì nanh không còn đáng sợ — triệt cái hung từ gốc thì tốt."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：何天之衢，亨。",
+                "quoc_am": "Thượng cửu: hà thiên chi cù, hanh.",
+                "nghia": "Nuôi đức đã đầy, đường trời mở thông thênh thang — hanh thông."
+            }
+        ]
+    },
+    {
+        "id": 27,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：舍爾靈龜，觀我朵頤，凶。",
+                "quoc_am": "Sơ cửu: xả nhĩ linh quy, quan ngã đỏa di, hung.",
+                "nghia": "Bỏ của quí linh ứng của mình đi, há miệng thèm muốn cái của người khác — xấu."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：顛頤，拂經，于丘頤，征凶。",
+                "quoc_am": "Lục nhị: điên di, phất kinh, ư khâu di, chinh hung.",
+                "nghia": "Đi xin nuôi nấng chỗ không nên xin, trái đạo thường mà còn trông vào kẻ ở trên cao — tiến tới thì hung."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：拂頤，貞凶，十年勿用，無攸利。",
+                "quoc_am": "Lục tam: phất di, trinh hung, thập niên vật dụng, vô du lợi.",
+                "nghia": "Sống trái đạo nuôi thân: dù coi là đúng vẫn hung, mười năm không ai dùng, không lợi gì."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：顛頤吉，虎視眈眈，其欲逐逐，無咎。",
+                "quoc_am": "Lục tứ: điên di cát, hổ thị đam đam, kỳ dục trục trục, vô cửu.",
+                "nghia": "Nuôi kẻ dưới là đảo lẽ thường nhưng thành trách nhiệm nên tốt; nhìn như hổ chăm chú, đòi cái đáng đòi một cách dứt khoát — không lỗi."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：拂經，居貞吉，不可涉大川。",
+                "quoc_am": "Lục ngũ: phất kinh, cư trinh cát, bất khả thiệp đại xuyên.",
+                "nghia": "Dựa vào người khác mà nuôi thân, trái đạo thường nhưng giữ yên đúng phận thì tốt; chỉ không đủ sức làm chuyện lớn."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：由頤，厲吉，利涉大川。",
+                "quoc_am": "Thượng cửu: do di, lệ cát, lợi thiệp đại xuyên.",
+                "nghia": "Người khác sống nhờ mình — gánh nặng đó mà biết lo sợ, làm cho tử tế thì tốt, đủ sức vượt việc lớn."
+            }
+        ]
+    },
+    {
+        "id": 28,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：藉用白茅，無咎。",
+                "quoc_am": "Sơ lục: tạ dụng bạch mao, vô cửu.",
+                "nghia": "Đồ tế đặt lên cỏ trắng cho cẩn trọng — nâng niu cả chi tiết nhỏ nhất thì không lỗi."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：枯楊生稊，老夫得其女妻，無不利。",
+                "quoc_am": "Cửu nhị: khô dương sinh đề, lão phu đắc kỳ nữ thê, vô bất lợi.",
+                "nghia": "Cây dương khô nảy mầm non, trai lớn tuổi lấy vợ trẻ — chỗ tưởng hết sức sống lại sinh sôi, không gì không lợi."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：棟橈，凶。",
+                "quoc_am": "Cửu tam: đống nạo, hung.",
+                "nghia": "Cây đòn đông cong oằn vì không gồng nổi — gánh việc lớn mà thiếu người hỗ trợ, xấu."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：棟隆，吉。有它吝。",
+                "quoc_am": "Cửu tứ: đống long, cát. Hữu tha lận.",
+                "nghia": "Đòn đông được nâng lên, nhà đứng vững: tốt; chỉ còn e lòng riêng tư thiên vị thì đáng hổ."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：枯楊生華，老婦得其士夫，無咎無譽。",
+                "quoc_am": "Cửu ngũ: khô dương sinh hoa, lão phụ đắc kỳ sĩ phu, vô cửu vô dự.",
+                "nghia": "Dương khô trổ hoa, gái lớn lấy chồng trẻ — tạm được nhất thời, chẳng lỗi cũng chẳng khen."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：過涉滅頂，凶，無咎。",
+                "quoc_am": "Thượng lục: quá thiệp diệt đính, hung, vô cửu.",
+                "nghia": "Lội sông sâu nước ngập đầu — nguy đến tính mạng; nhưng vì việc nghĩa mà liều thì không lỗi."
+            }
+        ]
+    },
+    {
+        "id": 29,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：習坎，入于坎窞，凶。",
+                "quoc_am": "Sơ lục: tập khảm, nhập ư khảm đạm, hung.",
+                "nghia": "Hiểm trở chồng chất, lại rơi xuống tận đáy hố — xấu; là cảnh người sa vào khó khăn mà không chịu nhúc nhích."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：坎有險，求小得。",
+                "quoc_am": "Cửu nhị: khảm hữu hiểm, cầu tiểu đắc.",
+                "nghia": "Đang ở giữa hiểm, đừng mơ việc lớn; ráng lấy từng cái được nhỏ để dần dần ra khỏi."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：來之坎坎，險且枕，入于坎窞，勿用。",
+                "quoc_am": "Lục tam: lai chi khảm khảm, hiểm thả chẩm, nhập ư khảm đạm, vật dụng.",
+                "nghia": "Tới lui đều là hố, hiểm trước sau đều kề bên — tạm dừng dựa vào chỗ chưa chắc, chớ làm gì lúc này."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：樽酒簋貳，用缶，納約自牖，終無咎。",
+                "quoc_am": "Lục tứ: tôn tửu quỹ nhị, dụng phu, nạp ước tự dũ, chung vô cửu.",
+                "nghia": "Giữa lúc hiểm, một vò rượu hai bát cơm đất nẻ cũng đủ kết giao; gửi lòng tin qua chỗ đơn giản nhất — rốt cuộc không lỗi."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：坎不盈，祗既平，無咎。",
+                "quoc_am": "Cửu ngũ: khảm bất doanh, chỉ ký bình, vô cửu.",
+                "nghia": "Cái hố chưa đầy thì dòng chảy chưa thoát; gắng cho tới khi san phẳng được thì không lỗi."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：係用徽纆，寘于叢棘，三歲不得，凶。",
+                "quoc_am": "Thượng lục: hệ dụng khuôi mặc, trí ư tùng cự, tam niên bất đắc, hung.",
+                "nghia": "Bị trói bằng dây lớn, quẳng vào bụi gai, ba năm không thoát — mắc kẹt quá lâu nơi cùng đường, xấu."
+            }
+        ]
+    },
+    {
+        "id": 30,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：履錯然，敬之無咎。",
+                "quoc_am": "Sơ cửu: lý thố nhiên, kính chi vô cửu.",
+                "nghia": "Mới vào đời, việc qua lại bừa bộn trước mắt; cứ kính cẩn từng việc nhỏ thì không lỗi."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：黃離，元吉。",
+                "quoc_am": "Lục nhị: hoàng ly, nguyên cát.",
+                "nghia": "Giữ cái sáng trung hòa, ấm áp mà không chói — rất tốt."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：日昃之離，不鼓缶而歌，則大耋之嗟，凶。",
+                "quoc_am": "Cửu tam: nhật trắc chi ly, bất cổ phu nhi ca, tắc đại điệt chi ta, hung.",
+                "nghia": "Như mặt trời đã xế: không biết vui với phần đời còn lại thì chỉ còn than vãn tuổi già — xấu."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：突如其來如，焚如，死如，棄如。",
+                "quoc_am": "Cửu tứ: đột như lai như, phần như, tử như, khí như.",
+                "nghia": "Thế ập tới bất ngờ như lửa cháy, rồi chết, rồi bị bỏ — bám vào chỗ không đúng vị tất tan nhanh."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：出涕沱若，戚嗟若，吉。",
+                "quoc_am": "Lục ngũ: xuất thế đà nhược, thích ta nhược, cát.",
+                "nghia": "Khóc nước mắt như mưa, lo buồn than thở vì việc nước — chính cái tỉnh thức đó làm nên tốt."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：王用出征，有嘉折首，獲匪其醜，無咎。",
+                "quoc_am": "Thượng cửu: vương dụng xuất chinh, hữu gia chiết thủ, hoạch phỉ kỳ xú, vô cửu.",
+                "nghia": "Đi đánh thì diệt kẻ cầm đầu, không bắt bớ cả bọn lính thường — xử gọn cái gốc, không lỗi."
+            }
+        ]
+    },
+    {
+        "id": 31,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：咸其拇。",
+                "quoc_am": "Sơ lục: hàm kỳ mẫu.",
+                "nghia": "Cái cảm mới động tới ngón chân — mới chỉ rung động nhẹ, chưa đủ để đi."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：咸其腓，凶，居吉。",
+                "quoc_am": "Lục nhị: hàm kỳ phì, hung, cư cát.",
+                "nghia": "Cảm xúc đã lên tới bắp chân, muốn nhúc nhích vội; chạy theo cảm xúc thì hung, ở yên thì tốt."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：咸其股，執其隨，往吝。",
+                "quoc_am": "Cửu tam: hàm kỳ cổ, chấp kỳ tùy, vãng lận.",
+                "nghia": "Đùi phải đi theo chân: để lòng mình chạy theo người khác, ai kéo cũng đi — tiến tới đáng hổ."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：貞吉，悔亡，憧憧往來，朋從爾思。",
+                "quoc_am": "Cửu tứ: trinh cát, hối vong, đồng đồng vãng lai, bằng tòng nhĩ tư.",
+                "nghia": "Giữ chính thì tốt, hết hối; nếu lòng còn vẩn vơ tính toán thiệt hơn thì chỉ kẻ cùng ý nghĩ với mình mới theo."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：咸其脢，無悔。",
+                "quoc_am": "Cửu ngũ: hàm kỳ môi, vô hối.",
+                "nghia": "Cảm tới tận đốt sống sau lưng — tĩnh tới mức không bị xúc động kéo đi, nên không hối."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：咸其輔頰舌。",
+                "quoc_am": "Thượng lục: hàm kỳ phụ giáp thiệt.",
+                "nghia": "Cảm chỉ ở miệng, môi, lưỡi — nói nhiều lời ngọt mà không có lòng, thế là hết."
+            }
+        ]
+    },
+    {
+        "id": 32,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：浚恆，貞凶，無攸利。",
+                "quoc_am": "Sơ lục: tuấn hằng, trinh hung, vô du lợi.",
+                "nghia": "Mới vào đã cầu bền tới đáy, kiên định quá sớm và quá sâu: giữ khư khư vậy cũng thành xấu, chẳng lợi gì."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：悔亡。",
+                "quoc_am": "Cửu nhị: hối vong.",
+                "nghia": "Giữ được trung đạo, bền vừa phải thì điều hối tự mất."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：不恆其德，或承之羞，貞吝。",
+                "quoc_am": "Cửu tam: bất hằng kỳ đức, hoặc thừa chi tu, trinh lận.",
+                "nghia": "Đức không bền, hôm nay hay ngày mai bỏ: người khác sẽ chịu cái hổ của mình, dù coi là đúng cũng đáng hổ."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：田無禽。",
+                "quoc_am": "Cửu tứ: điền vô cầm.",
+                "nghia": "Đi săn mà không được chim muông — đặt mình sai chỗ thì bền tới đâu cũng công cốc."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：恆其德，貞，婦人吉，夫子凶。",
+                "quoc_am": "Lục ngũ: hằng kỳ đức, trinh, phụ nhân cát, phu tử hung.",
+                "nghia": "Giữ một lòng bền bỉ theo bổn phận: tốt cho kẻ ở trong, nhưng người làm việc lớn phải tùy thời mà đổi, khư khư thì xấu."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：振恆，凶。",
+                "quoc_am": "Thượng lục: chấn hằng, hung.",
+                "nghia": "Chuyên làm cho dao động mà đòi gọi là bền — cái bền giả tạo ấy là xấu."
+            }
+        ]
+    },
+    {
+        "id": 33,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：遯尾，厲，勿用有攸往。",
+                "quoc_am": "Sơ lục: Độn vĩ, lệ, vật dụng hữu du vãng.",
+                "nghia": "Rút lui mà quẩn tận đọt đuôi thì nguy. Lúc đó chớ có đi đâu thêm nữa — Tượng truyện bảo: chẳng đi thì tai vạ nào tới."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：執之用黃牛之革，莫之勝說。",
+                "quoc_am": "Lục nhị: Chấp chi dụng hoàng ngưu chi cách, mạc chi thắng thoát.",
+                "nghia": "Bị buộc bằng da trâu vàng, không ai cởi nổi. Chữ duyên, chữ phận buộc chặt: đáng lẽ phải lui mà không lui được, vậy thì ở lại mà giữ bền lòng mình."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：系遯，有疾厲，畜臣妾吉。",
+                "quoc_am": "Cửu tam: Hệ độn, hữu tật lệ, súc thần thiếp cát.",
+                "nghia": "Muốn lui mà còn bị cột chặt — bực đó là cái bệnh, nguy. Chỉ tiện việc trong nhà, nuôi giữ tôi tớ thì tốt; việc lớn thì Tượng truyện bảo rõ: không làm nổi."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：好遯君子吉，小人否。",
+                "quoc_am": "Cửu tứ: Hiếu độn quân tử cát, tiểu nhân phủ.",
+                "nghia": "Rút lui vui vẻ, dứt được điều mình ưa thích: quân tử làm được nên tốt, tiểu nhân thì không đành."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：嘉遯，貞吉。",
+                "quoc_am": "Cửu ngũ: Gia độn, trinh cát.",
+                "nghia": "Lui đúng lúc, đáng khen — giữ chính nên tốt. Tượng: là để chỉnh đốn cả chí hướng mình."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：肥遯，無不利。",
+                "quoc_am": "Thượng cửu: Phì độn, vô bất lợi.",
+                "nghia": "Lui nhẹ nhàng thong thả, chẳng còn gì vấn vít trong lòng — không gì là không lợi."
+            }
+        ]
+    },
+    {
+        "id": 34,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：壯于趾，征凶，有孚。",
+                "quoc_am": "Sơ cửu: Tráng ư chỉ, chinh hung, hữu phu.",
+                "nghia": "Sức mới ở đầu ngón chân đã vội bước — đi tới thì hung, dù lòng thành. Tượng bảo: tin chắc kiểu đó đến đường cùng."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：貞吉。",
+                "quoc_am": "Cửu nhị: Trinh cát.",
+                "nghia": "Giữ chính thì tốt. Bốn hào dương mà riêng hào này giữa — mạnh mà biết đứng giữa, nên không lời nào thêm."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：小人用壯，君子用罔，貞厲。羝羊觸藩，羸其角。",
+                "quoc_am": "Cửu tam: Tiểu nhân dụng tráng, quân tử dụng võng, trinh lệ. Đề dương xúc phan, luy kỳ giác.",
+                "nghia": "Kẻ nhỏ cậy sức, người quân tử không dùng sức theo cách ấy — nhưng cứ khăng khăng mình đúng thì vẫn nguy. Như con dê đực húc bờ dậu, gãy cả sừng."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：貞吉悔亡，藩决不羸，壯于大輿之輹。",
+                "quoc_am": "Cửu tứ: Trinh cát hối vong, phan quyết bất luy, tráng ư đại dư chi phúc.",
+                "nghia": "Chính thì tốt, ăn năn mất hết. Dậu đã nứt ra nên sừng chẳng mắc — mạnh như cái trục xe lớn, đi được đường dài."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：喪羊于易，無悔。",
+                "quoc_am": "Lục ngũ: Táng dương ư dị, vô hối.",
+                "nghia": "Mất dê nơi đồng ruộng, chẳng buồn đi đòi — hết ăn năn. Bản lĩnh của người mạnh mà không chấp nhặt chuyện nhỏ."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：羝羊觸藩，不能退，不能遂，無攸利，艱則吉。",
+                "quoc_am": "Thượng lục: Đề dương xúc phan, bất năng thoái, bất năng toại, vô du lợi, gian tắc cát.",
+                "nghia": "Dê đực húc dậu, mắc sừng: lùi không được, tiến chẳng xong — chẳng đặng lợi gì. Biết mình đang khó mà cẩn trọng, thì hóa tốt; Tượng bảo: lỗi nhờ đó không kéo dài."
+            }
+        ]
+    },
+    {
+        "id": 35,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：晉如，摧如，貞吉。罔孚，裕無咎。",
+                "quoc_am": "Sơ lục: Tấn như, tồi như, trinh cát. Võng phu, dụ vô cữu.",
+                "nghia": "Tiến một bước bị đẩy lại một bước — giữ chính thì tốt. Chưa ai tin mình: cứ rộng rãi bình tĩnh, không lỗi. Tượng: vì chưa nhận được mệnh lệnh gì, chờ được."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：晉如，愁如，貞吉。受茲介福，于其王母。",
+                "quoc_am": "Lục nhị: Tấn như, sầu như, trinh cát. Thụ ti giới phúc, ư kỳ vương mẫu.",
+                "nghia": "Tiến mà ưu tư — người biết lo là người làm việc nghiêm. Giữ chính thì tốt, cái phúc lớn rồi sẽ tới từ bậc bề trên đáng tin."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：眾允，悔亡。",
+                "quoc_am": "Lục tam: Chúng doãn, hối vong.",
+                "nghia": "Được nhiều người thuận tình khen ngợi — ăn năn hết. Lên mà cả đám đồng ý, đường đó là đường thật."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：晉如鼫鼠，貞厲。",
+                "quoc_am": "Cửu tứ: Tấn như thạch thử, trinh lệ.",
+                "nghia": "Tiến kiểu con chuột đồng: năm ngón nghề không ngón nào tới nơi, tham mà sợ mất — coi bộ đứng đắn mà thực là nguy."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：悔亡，失得勿恤，往吉無不利。",
+                "quoc_am": "Lục ngũ: Hối vong, thất đắc vật tuất, vãng cát vô bất lợi.",
+                "nghia": "Ăn năn hết. Được mất đừng bận lòng — cứ đi tới, tốt, không gì không lợi. Người đã đứng đúng chỗ thì không cần tính hơn thiệt từng nước."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：晉其角，維用伐邑，厲吉無咎，貞吝。",
+                "quoc_am": "Thượng cửu: Tấn kỳ giác, duy dụng phạt ấp, lệ cát vô cữu, trinh lận.",
+                "nghia": "Tiến tới tận cái sừng — cùng chỗ rồi. Chỉ dùng mà sửa nội bộ nhà mình thì vững: nguy mà sau tốt, không lỗi; nhưng khăng khăng tiến thêm nữa thì chỉ đáng tiếc."
+            }
+        ]
+    },
+    {
+        "id": 36,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：明夷于飛，垂其翼。君子于行，三日不食，有攸往，主人有言。",
+                "quoc_am": "Sơ cửu: Minh di ư phi, thùy kỳ dực. Quân tử ư hành, tam nhật bất thực, hữu du vãng, chủ nhân hữu ngôn.",
+                "nghia": "Chim sáng bị thương bay là là, rũ cánh. Người quân tử rời đi, ba ngày đói; có chỗ để tới thì chủ nhà cũng càu nhàu — đi sớm khỏi nơi tối, đừng mong thiên hạ hiểu ngay."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：明夷，夷于左股，用拯馬壯，吉。",
+                "quoc_am": "Lục nhị: Minh di, di ư tả cổ, dụng chửng mã tráng, cát.",
+                "nghia": "Sáng bị thương ở vế trái — què mà chưa ngã. Cứu ngay bằng con ngựa khỏe: đừng đợi lành hẳn mới chạy, kịp thì tốt."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：明夷于南狩，得其大首，不可疾貞。",
+                "quoc_am": "Cửu tam: Minh di ư nam thú, đắc kỳ đại thủ, bất khả tật trinh.",
+                "nghia": "Đi săn phương nam mà trừ được đầu mối gây tối — sáng được đòi lại. Nhưng đừng vội: không thể sửa cả một thời buổi trong một ngày."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：入于左腹，獲明夷之心，于出門庭。",
+                "quoc_am": "Lục tứ: Nhập ư tả phúc, hoạch minh di chi tâm, ư xuất môn đình.",
+                "nghia": "Đi vào tận chỗ kín, thấy rõ lòng kẻ gây tối, rồi lặng lẽ bước ra khỏi cổng — biết hết mà không nói hết, đó là lối sống khôn khéo."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：箕子之明夷，利貞。",
+                "quoc_am": "Lục ngũ: Cơ Tử chi Minh Di, lợi trinh.",
+                "nghia": "Như Cơ Tử: làm tôi, giả điên, mà cái sáng bên trong không tắt — giữ được chính giữa thời ấy là lợi."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：不明晦，初登于天，后入于地。",
+                "quoc_am": "Thượng lục: Bất minh hối, sơ đăng ư thiên, hậu nhập ư địa.",
+                "nghia": "Tối hẳn: chẳng những che sáng của người, mà còn tự tắt phần sáng của mình. Mới lên trời, sau xuống đất — kẻ làm tối thì rơi xa nhất. Tượng: vì mất phép trị vậy."
+            }
+        ]
+    },
+    {
+        "id": 37,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：閑有家，悔亡。",
+                "quoc_am": "Sơ cửu: Nhàn hữu gia, hối vong.",
+                "nghia": "Lập cái cổng cho nhà từ sớm — phép tắc đặt trước thì về sau khỏi phải cãi, ăn năn hết. Tượng: vì lòng người chưa đổi."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：無攸遂，在中饋，貞吉。",
+                "quoc_am": "Lục nhị: Vô toại, ư trung quĩ, trinh cát.",
+                "nghia": "Không tự cho mình quyết mọi chuyện, giữ trọn việc bếp núc trong nhà — chính thì tốt. Tượng: thuận mà khéo."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：家人嗃嗃，悔厲吉；婦子嘻嘻，終吝。",
+                "quoc_am": "Cửu tam: Gia nhân hách hách, hối lệ cát; phụ tử hy hy, chung lận.",
+                "nghia": "Nhà nghiêm khắc: có người buồn lòng, có chút gay gắt — nhưng tốt. Vợ con cười đùa quá trớn: vui trước, tiếc sau. Tiểu tượng: nghiêm vừa thì chưa mất phép nhà; cười cợt quá là mất phép."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：富家，大吉。",
+                "quoc_am": "Lục tứ: Phú gia, đại cát.",
+                "nghia": "Làm giàu cho nhà — đại tốt. Tượng: thuận mà đúng chỗ."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：王假有家，勿恤。吉。",
+                "quoc_am": "Cửu ngũ: Vương cách hữu gia, vật tuất. Cát.",
+                "nghia": "Vua đến với nhà mình: cả nhà thương nhau, chẳng phải lo — tốt. Tượng: là giao cảm bằng tình yêu thương, không bằng quyền."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：有孚威如，終吉。",
+                "quoc_am": "Thượng cửu: Hữu phu uy như, chung cát.",
+                "nghia": "Có thành tín lại có nét uy — tốt từ đầu đến cuối. Tượng: uy ấy là quay vào mình mà sửa được, không phải do nạt."
+            }
+        ]
+    },
+    {
+        "id": 38,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：悔亡，喪馬勿逐，自復；見惡人無咎。",
+                "quoc_am": "Sơ cửu: Hối vong, táng mã vật trục, tự phục; kiến ác nhân vô cữu.",
+                "nghia": "Ăn năn hết. Mất ngựa đừng đuổi theo — tự nó về. Gặp người khó ưa vẫn tiếp được, không lỗi: trái chiều mà siết chặt thì chỉ mất thêm."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：遇主于巷，無咎。",
+                "quoc_am": "Cửu nhị: Ngộ chủ ư hạng, vô cữu.",
+                "nghia": "Gặp đấng trên ở ngõ nhỏ — không phải chính điện, miễn là gặp. Tượng: chưa mất đạo đâu. Thời xa cách, đi đường vòng mà tới còn hơn không tới."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：見輿曳，其牛掣，其人天且劓，無初有終。",
+                "quoc_am": "Lục tam: Kiến dư duệ, kỳ ngưu chế, kỳ nhân thiên thả nghệ, vô sơ hữu chung.",
+                "nghia": "Xe bị kéo lại, bò níu không đi, người tài xế mang vết xăm trán vết cắt mũi — một khởi đầu bẽ mặt đủ đường. Nhưng rồi 'không đầu có cuối': khó đâu, cuối vẫn tới được, vì gặp hào cứng thương nhau."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：睽孤，遇元夫，交孚，厲無咎。",
+                "quoc_am": "Cửu tứ: Khuê cô, ngộ nguyên phu, giao phu, lệ vô cữu.",
+                "nghia": "Ở vào thế trái chiều mà côi cút, gặp được bậc hiền lớn: hai bên tin nhau, nguy mà không lỗi."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：悔亡，厥宗噬膚，往何咎。",
+                "quoc_am": "Lục ngũ: Hối vong, quyết tông phệ phu, vãng hà cữu.",
+                "nghia": "Ăn năn hết. Người cùng họ cắn thấu da — gặp nhau dễ dàng; cứ tới, lỗi gì. Tượng: đi tới là có vui."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：睽孤，見豕負涂，載鬼一車，先張之弧，后說之弧，匪寇婚媾，往遇雨則吉。",
+                "quoc_am": "Thượng cửu: Khuê cô, kiến trư phụ đồ, tải quỷ nhất xa, tiên trương chi hổ, hậu duyệt chi hổ, phỉ khấu hôn cấu, vãng ngộ vũ tắc cát.",
+                "nghia": "Ở chỗ cùng quẩn cô độc nên sinh nghi: thấy bạn mình thành lợn lầy, thành xe chở quỷ; giương nỏ lên rồi lại hạ xuống — hóa ra không phải cướp, mà là người tới cầu hôn. Cứ tới, gặp mưa là tốt: nghi tan thì thật hiện ra."
+            }
+        ]
+    },
+    {
+        "id": 39,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：往蹇，來譽。",
+                "quoc_am": "Sơ lục: Vãng kiển, lai dự.",
+                "nghia": "Tiến thì gặp khó, dừng lại được tiếng khen. Tượng: là khéo chờ đó."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：王臣蹇蹇，匪躬之故。",
+                "quoc_am": "Lục nhị: Vương thần kiển kiển, phi cung chi cố.",
+                "nghia": "Tôi của vua, khó chồng lên khó — không phải vì việc mình. Tượng: rốt cuộc không ai trách được."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：往蹇來反。",
+                "quoc_am": "Cửu tam: Vãng kiển lai phản.",
+                "nghia": "Đi thì kẹt, quay về thì người trong nhà mừng. Tượng: quay về giữ chỗ mình đang đứng."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：往蹇來連。",
+                "quoc_am": "Lục tứ: Vãng kiển lai liên.",
+                "nghia": "Đi thì kẹt, về thì bắt được tay nhau — liên hợp với người trên dưới. Tượng: về chỗ mình mà vững thực."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：大蹇朋來。",
+                "quoc_am": "Cửu ngũ: Đại kiển bằng lai.",
+                "nghia": "Khó lớn thật lớn — mà bạn bè tìm tới. Tượng: vì giữ trung, ứng đúng phép, nên tụ được người."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：往蹇來碩，吉；利見大人。",
+                "quoc_am": "Thượng lục: Vãng kiển lai thạc, cát; lợi kiến đại nhân.",
+                "nghia": "Đi thì kẹt, về thì công lớn — tốt; lợi ở chỗ theo người hiền mà đi. Tượng: chí để trong nước, hướng về cái đáng quý."
+            }
+        ]
+    },
+    {
+        "id": 40,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：無咎。",
+                "quoc_am": "Sơ lục: Vô cữu.",
+                "nghia": "Vừa thoát hiểm, ngồi yên chưa làm gì — không lỗi. Tượng: cứng mềm gặp đúng lúc, nghĩa là không lỗi."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：田獲三狐，得黃矢，貞吉。",
+                "quoc_am": "Cửu nhị: Điền hoạch tam hồ, đắc hoàng thỉ, trinh cát.",
+                "nghia": "Đi săn bắt được ba con cáo — trừ đám nịnh gây rối; được tên vàng: giữ trung mà bắn, chính thì tốt."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：負且乘，致寇至，貞吝。",
+                "quoc_am": "Lục tam: Phụ thả thừa, trí khấu chí, trinh lận.",
+                "nghia": "Chở đồ trên lưng mà lại đòi ngồi xe — mời trộm tới. Dẫu có là 'đáng' thì vẫn đáng tiếc. Tượng: tự mình rước giặc, trách ai."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：解而拇，朋至斯孚。",
+                "quoc_am": "Cửu tứ: Giải nhi mẫu, bằng chí ti phu.",
+                "nghia": "Cởi được chỗ buộc nơi ngón chân cái — đừng dây dưa với kẻ tiểu nhân níu quanh chân; bạn tốt mới thật lòng tin nhau mà tới."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：君子維有解，吉；有孚于小人。",
+                "quoc_am": "Lục ngũ: Quân tử duy hữu giải, cát; hữu phu ư tiểu nhân.",
+                "nghia": "Quân tử chỉ lo một việc: tự cởi trói cho mình — tốt; đến kẻ tiểu nhân cũng tin mà lui. Tượng: tiểu nhân lui là dấu đã cởi xong."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：公用射隼，于高墉之上，獲之，無不利。",
+                "quoc_am": "Thượng lục: Công dụng xạ chuẩn, ư cao dong chi thượng, hoạch chi, vô bất lợi.",
+                "nghia": "Bắn con chim ưng đậu trên tường cao — trị tận gốc kẻ gây loạn: không gì không lợi. Tượng: là giải cả cái loạn từ rễ."
+            }
+        ]
+    },
+    {
+        "id": 41,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：已事遄往，無咎，酌損之。",
+                "quoc_am": "Sơ cửu: dĩ sự toàn vãng, vô cữu, chước tổn chi.",
+                "nghia": "Việc mình đã xong thì đi nhanh sang việc người, không lỗi — nhưng phải cân mà bớt. Tượng truyện: sở dĩ đi nhanh là vì hai bên cùng hợp chí, không phải vay ơn."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：利貞，征凶，弗損益之。",
+                "quoc_am": "Cửu nhị: lợi trinh, chinh hung, phất tổn ích chi.",
+                "nghia": "Lợi ở chỗ giữ vững; vội đi tới thì xấu. Có những lúc không cần hạ mình xuống mà vẫn ích cho người — Tượng gọi đó là lấy đường trung làm chí."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：三人行，則損一人；一人行，則得其友。",
+                "quoc_am": "Lục tam: tam nhân hành, tắc tổn nhất nhân; nhất nhân hành, tắc đắc kỳ hữu.",
+                "nghia": "Ba người cùng đi thì thể nào cũng thiệt một người; một mình đi dứt khoát thì gặp được bạn. Tượng: ba người thì sinh nghi."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：損其疾，使遄有喜，無咎。",
+                "quoc_am": "Lục tứ: tổn kỳ tật, sử toàn hữu hỷ, vô cữu.",
+                "nghia": "Bớt cái bệnh của mình, khiến nó sớm khỏi thì mừng — không lỗi ở chỗ bớt, chỉ lỗi ở chỗ để lâu."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：或益之十朋之龜，弗克違，元吉。",
+                "quoc_am": "Lục ngũ: hoặc ích chi thập bằng chi quy, phất khắc vi, nguyên cát.",
+                "nghia": "Có người cho đôi rùa quý giá mười xâu tiền, từ chối không nổi — rất tốt. Tượng: vì được trợ từ trên, không phải tự kiếm mà được."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：弗損益之，無咎，貞吉，利有攸往，得臣無家。",
+                "quoc_am": "Thượng cửu: phất tổn ích chi, vô cữu, trinh cát, lợi hữu du vãng, đắc thần vô gia.",
+                "nghia": "Không giảm mình mà vẫn ích cho người: không lỗi, giữ vững thì tốt, đi tới có lợi, được người giúp mà không ai là kẻ thuộc về riêng mình. Tượng: thế là toại nguyện lớn."
+            }
+        ]
+    },
+    {
+        "id": 42,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：利用為大作，元吉，無咎。",
+                "quoc_am": "Sơ cửu: lợi vi đại tác, nguyên cát, vô cữu.",
+                "nghia": "Được trao việc lớn: lợi. Phải rất tốt mới không lỗi. Tượng: người ở dưới mà làm việc lớn thì đừng coi việc đó là dày công ơn — nhận việc vì đáng nhận."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：或益之十朋之龜，弗克違，永貞吉。王用享于帝，吉。",
+                "quoc_am": "Lục nhị: hoặc ích chi thập bằng chi quy, phất khắc vi, vĩnh trinh cát. Vương dụng hưởng vu đế, cát.",
+                "nghia": "Có người cho đôi rùa quý mười xâu tiền, từ chối không nổi; giữ vững lâu dài thì tốt. Vua đem lễ ấy dâng lên Trời — tốt. Tượng: của ấy tự ngoài tới."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：益之用凶事，無咎。有孚中行，告公用圭。",
+                "quoc_am": "Lục tam: ích chi dụng hung sự, vô cữu. Hữu phu trung hành, cáo công dụng khuê.",
+                "nghia": "Đem cái ích của mình chữa việc hung của người thì không lỗi. Phải thật lòng, đi đường giữa; khi trình lên bậc trên thì cầm thẻ ngọc mà nói thẳng, không vòng vo."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：中行，告公從。利用為依遷國。",
+                "quoc_am": "Lục tứ: trung hành, cáo công tòng. Lợi vi y thiên quốc.",
+                "nghia": "Đi đường giữa thì trình điều gì bậc trên cũng nghe. Lợi trong việc nương nhau mà dời cả nước — chuyện lớn chỉ làm được khi người trên kẻ dưới cùng tin một hướng."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：有孚惠心，勿問元吉。有孚惠我德。",
+                "quoc_am": "Cửu ngũ: hữu phu huệ tâm, vật vấn nguyên cát. Hữu phu huệ ngã đức.",
+                "nghia": "Có lòng thành thật muốn làm lợi cho người — khỏi cần hỏi, tốt sẵn rồi. Người ta cũng lấy cái ơn ấy mà đáp lại đức của mình. Tượng: thế là toại nguyện lớn."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：莫益之，或擊之，立心勿恆，凶。",
+                "quoc_am": "Thượng cửu: mạc ích chi, hoặc kích chi, lập tâm vật hằng, hung.",
+                "nghia": "Chẳng ai cho thêm nữa, mà lại có người đánh. Tượng: lời cầu lợi ấy thiên lệch, cái họa từ ngoài tới. Đặt lòng không bền, chỉ chực mình được — đó là chỗ quẻ này tự phạt mình."
+            }
+        ]
+    },
+    {
+        "id": 43,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：壯于前趾，往不勝為咎。",
+                "quoc_am": "Sơ cửu: tráng vu tiền chỉ, vãng bất thắng vi cữu.",
+                "nghia": "Sức mới nằm ở đầu ngón chân mà vội bước: đi không thắng thì lỗi tại mình. Tượng: chưa thắng mà đã đi, ấy là lỗi."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：惕號，莫夜有戎，勿恤。",
+                "quoc_am": "Cửu nhị: dị hiệu, mộ dạ hữu nhung, vật tuất.",
+                "nghia": "Cảnh giác mà hô lên cho mọi người cùng biết: giữa đêm khuya có giặc tới cũng không lo. Tượng: vì giữ được đường giữa."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：壯于頄，有凶。君子夬夬，獨行遇雨，若濡有慍，無咎。",
+                "quoc_am": "Cửu tam: tráng vu quỳ, hữu hung. Quân tử quải quải, độc hành ngộ vũ, nhược nhu hữu ôn, vô cữu.",
+                "nghia": "Để khí nổi lên tận gò má — hung. Người quân tử thì quyết tới cùng, một mình đi gặp mưa, thân hơi ướt mà bụng hơi giận, nhưng rốt cuộc không lỗi. Tượng: cuối cùng vẫn vô cữu."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：臀無膚，其行次且。牽羊悔亡，聞言不信。",
+                "quoc_am": "Cửu tứ: đồn vô phu, kỳ hành thứ thả. Khiên dương hối vong, văn ngôn bất tín.",
+                "nghia": "Mông không có da, ngồi không yên, đi thì ngập ngừng. Kéo dê đi sau thì hết hối; tiếc là nghe lời ấy lại không tin. Tượng: vì ngôi không đúng, tai không tỏ."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：莧陸夬夬，中行無咎。",
+                "quoc_am": "Cửu ngũ: hạn lục quải quải, trung hành vô cữu.",
+                "nghia": "Nhổ cỏ rau dền trên gò đất cứng, nhổ cho sạch rễ — quyết tới cùng, đi đường giữa thì không lỗi. Tượng: không lỗi nhưng cái trung ấy chưa sáng tỏ được."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：無號，終有凶。",
+                "quoc_am": "Thượng lục: vô hiệu, chung hữu hung.",
+                "nghia": "Khóc cũng không ra tiếng — hết chỗ kêu. Tượng: cái hung ấy rồi không kéo dài được."
+            }
+        ]
+    },
+    {
+        "id": 44,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：系于金柅，貞吉。有攸往，見凶，羸豕孚蹢躅。",
+                "quoc_am": "Sơ lục: hệ vu kim nãi, trinh cát. Hữu du vãng, kiến hung, luy thí phu địch trục.",
+                "nghia": "Buộc cái xe vào hãm bằng đồng thì giữ vững mà tốt. Cứ để nó đi là thấy xấu ngay. Một con lợn gầy mà còn quẩn quanh không chịu yên — cái mềm mới lớn, nhỏ thôi, nhưng chưa lúc nào ngừng."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：包有魚，無咎，不利賓。",
+                "quoc_am": "Cửu nhị: bao hữu ngư, vô cữu, bất lợi tân.",
+                "nghia": "Trong túi có con cá: không lỗi, nhưng chớ đem đãi khách. Cái mình giữ được thì giữ kín, khoe ra là mất."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：臀無膚，其行次且，厲，無大咎。",
+                "quoc_am": "Cửu tam: đồn vô phu, kỳ hành thứ thả, lệ, vô đại cữu.",
+                "nghia": "Mông không có da, ngồi không yên, đi thì ngập ngừng — khó chịu, nhưng không đến nỗi lỗi lớn. Tượng: vì đi mà chưa bị ai kéo đi."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：包無魚，起凶。",
+                "quoc_am": "Cửu tứ: bao vô ngư, khởi hung.",
+                "nghia": "Túi không có cá. Tượng: cái họa ấy nổi lên vì xa dân. Ngôi cao mà không còn ai ở dưới mình thì mất chỗ bám."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：以杞包瓜，含章，有隕自天。",
+                "quoc_am": "Cửu ngũ: dĩ kỷ bao qua, hàm chương, hữu vẫn tự thiên.",
+                "nghia": "Dùng lá dây cây kỷ mà bọc lấy quả dưa chín: giữ cho nó đừng rơi, giữ cái đẹp mà không khoe. Rồi có cái từ trên rơi xuống — không phải mình tìm."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：姤其角，吝，無咎。",
+                "quoc_am": "Thượng cửu: cấu kỳ giác, lận, vô cữu.",
+                "nghia": "Gặp nhau ở tận cái sừng: chát, khó xử — nhưng không lỗi. Tượng: ở chỗ cùng quẫn nên mới đáng chê."
+            }
+        ]
+    },
+    {
+        "id": 45,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：有孚不終，乃亂乃萃，若號一握為笑，勿恤，往無咎。",
+                "quoc_am": "Sơ lục: hữu phu bất chung, nãi loạn nãi tụ, nhược hiệu nhất ác vi tiếu, vật tuất, vãng vô cữu.",
+                "nghia": "Có lòng tin mà không giữ tới cùng: rối trước rồi lại tụ sau. Nếu thật tiếng kêu lên thì người ta nắm tay mình ngay; còn nửa chừng thì chỉ bị cười. Đừng lo, cứ tới — không lỗi. Tượng: vì chí còn rối."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：引吉，無咎，孚乃利用禴。",
+                "quoc_am": "Lục nhị: dẫn cát, vô cữu, phu nãi lợi dụng việt.",
+                "nghia": "Kéo nhau cùng tới thì tốt, không lỗi. Đã thật lòng thì lễ mỏng cũng dùng được. Tượng: giữ đường giữa mà không đổi."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：萃如嗟如，無攸利，往無咎，小吝。",
+                "quoc_am": "Lục tam: tụ như ta như, vô du lợi, vãng vô cữu, tiểu lận.",
+                "nghia": "Muốn tụ mà chỉ biết than — chẳng ích gì. Đứng lên đi tới thì không lỗi, chỉ hơi chật vật nhỏ. Tượng: tới với bậc trên một cách thuận."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：大吉，無咎。",
+                "quoc_am": "Cửu tứ: đại cát, vô cữu.",
+                "nghia": "Rất tốt, không lỗi. Tượng: vì ngôi chưa xứng — nên chỉ khi nào cái tốt là lớn thật thì mới hết tiếng ra."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：萃有位，無咎。匪孚，元永貞，悔亡。",
+                "quoc_am": "Cửu ngũ: tụ hữu vị, vô cữu. Phi phu, nguyên vĩnh trinh, hối vong.",
+                "nghia": "Giữ ngôi mà nhóm người: không lỗi. Nhưng nếu lòng người chưa thật tin mình, thì phải tốt từ đầu, giữ vững lâu dài — cái hối mới hết. Tượng: chí mình còn chưa sáng ra được."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：齎咨涕洟，無咎。",
+                "quoc_am": "Thượng lục: tê tư thế di, vô cữu.",
+                "nghia": "Thở dài, lệ chảy — không lỗi. Tượng: vì ở trên cùng mà lòng không yên. Kẻ đứng ngoài cuộc họp mà biết buồn vì bị bỏ lại thì còn hơn vui vẻ giả vờ."
+            }
+        ]
+    },
+    {
+        "id": 46,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：允升，大吉。",
+                "quoc_am": "Sơ lục: doãn thăng, đại cát.",
+                "nghia": "Lên mà được người trên tin thật — rất tốt. Tượng: vì chí hợp với nhau. Cái lên này không phải mình tự đẩy, mà là được kéo lên."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：孚乃利用禴，無咎。",
+                "quoc_am": "Cửu nhị: phu nãi lợi dụng việt, vô cữu.",
+                "nghia": "Đã thật lòng thì lễ mỏng cũng đủ, không lỗi. Không cần sắm sửa gì to cho buổi gặp đầu tiên. Tượng: có lòng tin thì có mừng."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：升虛邑。",
+                "quoc_am": "Cửu tam: thăng hư ấp.",
+                "nghia": "Lên cái ấp trống: tới nơi không ai giữ, đi tới đâu rộng tới đó. Tượng: không còn nghi ngờ gì nữa — cứ đi."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：王用亨于岐山，吉無咎。",
+                "quoc_am": "Lục tứ: vương dụng hưởng vu Kỳ sơn, cát vô cữu.",
+                "nghia": "Như vua Thái Vương tế núi Kỳ: dâng việc lên trên, giữ lễ thì tốt, không lỗi. Tượng: vì thuận trong công việc."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：貞吉，升階。",
+                "quoc_am": "Lục ngũ: trinh cát, thăng giai.",
+                "nghia": "Giữ vững thì tốt; lên từng bậc thang, không nhảy. Tượng: thế là toại nguyện lớn."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：冥升，利于不息之貞。",
+                "quoc_am": "Thượng lục: minh thăng, lợi vu bất tức chi trinh.",
+                "nghia": "Lên trong tối — lên mà không biết mình lên tới đâu. Chỉ lợi ở cái bền vững không thôi: ngừng chuyện leo, hãy giữ việc mình còn đang dở. Tượng: để cho sự tiêu hao không thành chỗ giàu của mình."
+            }
+        ]
+    },
+    {
+        "id": 47,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：臀困于株木，入于幽谷，三歲不覿。",
+                "quoc_am": "Sơ lục: đồn khốn vu chu mộc, nhập vu u cốc, tam tuế bất địch.",
+                "nghia": "Ngồi không yên trên gốc cây, rồi chui vào hang tối, ba năm không thấy ai nhìn tới. Tượng: tối thì làm sao thấy được — tại mình ở trong tối."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：困于酒食，朱紱方來，利用亨祀，征凶，無咎。",
+                "quoc_am": "Cửu nhị: khốn vu tửu thực, chu phất phương lai, lợi dụng hưởng tự, chinh hung, vô cữu.",
+                "nghia": "Bị khốn ngay giữa tiệc rượu — no cũng là một kiểu kẹt. Người mặc áo đỏ chầu đang tới: lợi ở chỗ thành tâm mà làm việc tế. Đi tới thì xấu, nhưng không lỗi. Tượng: ở giữa mà có cái mừng."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：困于石，據于蒺藜，入于其宮，不見其妻，凶。",
+                "quoc_am": "Lục tam: khốn vu thạch, cứ vu tật lê, nhập vu kỳ cung, bất kiến kỳ thê, hung.",
+                "nghia": "Dựa vào đá thì đá chặn, ngồi lên gai thì gai cắm; về tới nhà mà không thấy vợ mình — xấu. Tượng: dựa vào cái cứng của người khác là bất tường."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：來徐徐，困于金車，吝，有終。",
+                "quoc_am": "Cửu tứ: lai từ từ, khốn vu kim xa, lận, hữu chung.",
+                "nghia": "Người mình chờ tới chậm rì, lại bị kẹt chỗ xe vàng — bực, nhưng rồi có kết quả. Tượng: chí ở dưới; ngôi tuy không xứng mà còn có người ứng."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：劓刖，困于赤紱，乃徐有說，利用祭祀。",
+                "quoc_am": "Cửu ngũ: nghệ nguyệt, khốn vu xích phất, nãi từ hữu duyệt, lợi dụng tế tự.",
+                "nghia": "Muốn cắt mũi người, chặt chân người — và chính mình cũng khốn vì kẻ mặc áo đỏ. Rồi chậm rãi mà vui trở lại, vì giữ được đường giữa mà ngay thẳng. Lợi ở việc tế tự. Tượng: nhờ vậy mà hưởng được phúc."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：困于葛藟，于臲卼，曰動悔。有悔，征吉。",
+                "quoc_am": "Thượng lục: khốn vu cát lỗi, vu nặc ngột, viết động hối. Hữu hối, chinh cát.",
+                "nghia": "Bị dây leo quấn chặt, đứng trên chỗ chơi vơi — làm gì cũng hối. Nhưng biết hối thật thì đi tới lại tốt. Tượng: ở chỗ cùng mà biết động; động ra khỏi đó thì đường rộng."
+            }
+        ]
+    },
+    {
+        "id": 48,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：井泥不食，舊井無禽。",
+                "quoc_am": "Sơ lục: tỉnh nê bất thực, cựu tỉnh vô cầm.",
+                "nghia": "Giếng đầy bùn nên không ai múc; cái giếng bỏ lâu đến chim cũng không đậu. Tượng: ở chỗ thấp nhất, thời bỏ quên — không phải tại giếng."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：井谷射鮒，瓮敝漏。",
+                "quoc_am": "Cửu nhị: tỉnh cốc xạ phụ, ung tệ lậu.",
+                "nghia": "Nước giếng chảy xuống khe chỉ để bắn cá nhỏ, cái bình vỡ rò. Có tài mà chảy sai chỗ thì uổng. Tượng: vì không được ai cùng."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：井渫不食，為我心惻，可用汲，王明，并受其福。",
+                "quoc_am": "Cửu tam: tỉnh tiết bất thực, vi ngã tâm trắc, khả dụng cấp, vương minh, tinh thụ kỳ phúc.",
+                "nghia": "Giếng đã ta sạch rồi mà chưa ai múc — làm đau lòng ta. Vốn đã tới lúc dùng được, chỉ cần người trên sáng suốt thì cả hai cùng hưởng phúc. Tượng: người đi đường thấy vậy cũng thương; mong vua sáng là để nhận được phúc."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：井甃，無咎。",
+                "quoc_am": "Lục tứ: tỉnh châu, vô cữu.",
+                "nghia": "Kiến thành giếng bằng đá — đang sửa thì chưa múc được, nhưng không lỗi. Tượng: vì lúc ấy chỉ có thể tu sửa giếng."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：井冽，寒泉食。",
+                "quoc_am": "Cửu ngũ: tỉnh liệt, hàn tuyền thực.",
+                "nghia": "Giếng trong veo, nước suối lạnh ai cũng uống được. Cái hay của giếng lúc này là nó không cần nói gì cả. Tượng: vì giữ được giữa và chính."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：井收勿幕，有孚元吉。",
+                "quoc_am": "Thượng lục: tỉnh thu vật mạc, hữu phu nguyên cát.",
+                "nghia": "Giếng đã múc xong, đừng đậy nắp — cứ để đó cho người tới sau. Có lòng thành thì rất tốt. Tượng: cái tốt ở trên cùng là công đã thành."
+            }
+        ]
+    },
+    {
+        "id": 49,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：鞏用黃牛之革。",
+                "quoc_am": "Sơ cửu: củng dụng hoàng ngưu chi cách.",
+                "nghia": "Buộc chặt bằng da bò vàng: mới khởi sự đổi thì lấy điều giữa (vàng) và lẽ thuận (bò) mà ràng lấy mình — chưa có thời, chưa có thế, đừng làm gì cả. Tượng: lúc này chưa thể làm nên việc."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：巳日乃革之，征吉，無咎。",
+                "quoc_am": "Lục nhị: dĩ nhật nãi cách chi, chinh cát, vô cữu.",
+                "nghia": "Chuẩn bị nhiều ngày rồi mới ra tay đổi: đi tới thì tốt, không lỗi. Đổi mà chờ cho lòng người tin trước — đó là đổi có gốc."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：征凶，貞厲，革言三就，有孚。",
+                "quoc_am": "Cửu tam: chinh hung, trinh lệ, cách ngôn tam tựu, hữu phu.",
+                "nghia": "Vội tiến thì xấu, khăng khăng giữ cứng cũng là nguy. Kế đổi phải bàn đi duyệt lại mấy lượt cho thỏa rồi mới làm — có vậy mới thật được tin. Tượng: lời đổi đã tam tựu thì còn đi đâu mà bàn thêm."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：悔亡，有孚改命，吉。",
+                "quoc_am": "Cửu tứ: hối vong, hữu phu cải mệnh, cát.",
+                "nghia": "Hết ăn năn; được người tin rồi mà đổi mệnh — tốt. Chữ tin đứng trước chữ đổi, phần khó nằm ở chữ tin ấy."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：大人虎變，未占有孚。",
+                "quoc_am": "Cửu ngũ: đại nhân hổ biến, vị chiếm hữu phu.",
+                "nghia": "Bậc lớn đổi như hổ thay lông: da mới rỡ ràng rành rành trước mắt, chưa cần bói đã biết người ta tin. Tượng: vì vẻ văn chương sáng rõ."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：君子豹變，小人革面，征凶，居貞吉。",
+                "quoc_am": "Thượng lục: quân tử báo biến, tiểu nhân cách diện, chinh hung, cư trinh cát.",
+                "nghia": "Việc đổi đã xong: người quân tử đổi như báo thay da — đổi tận trong lòng; kẻ tiểu nhân chỉ đổi cái mặt ra ngoài. Lúc ấy bày thêm thì xấu, thôi động mà giữ cho chính thì tốt. Tượng: tiểu nhân đổi mặt là thuận theo người trên, cũng chỉ đòi hỏi đến thế thôi."
+            }
+        ]
+    },
+    {
+        "id": 50,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：鼎顛趾，利出否，得妾以其子，無咎。",
+                "quoc_am": "Sơ lục: đỉnh điên chỉ, lợi xuất bĩ, đắc thiếp dĩ kỳ tử, vô cữu.",
+                "nghia": "Đỉnh lộn ngược chân: lật úp vạc lại nghe ngược đời, nhưng chính là cách đổ bỏ cái để dành ôi thiu trong đó. Thiếp mà nhờ con nên trọng cũng vậy — biết dùng thì chỗ thấp vẫn làm nên việc, không lỗi. Tượng: chưa trái đạo; đổ bỏ cái cũ là để theo điều quý."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：鼎有實，我仇有疾，不我能即，吉。",
+                "quoc_am": "Cửu nhị: đỉnh hữu thực, ngã cừu hữu tật, bất ngã năng tức, cát.",
+                "nghia": "Vạc đã đầy đồ ăn: người có của thật, học thật trong mình. Kẻ ghét ta mang tật đố trong lòng nhưng không bén mảng vào ta được — tốt. Tượng: đã có thực thì càng phải kỹ đường đi bước tới; kẻ có tật rốt cuộc cũng không trách được ta."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：鼎耳革，其行塞，雉膏不食，方雨虧悔，終吉。",
+                "quoc_am": "Cửu tam: đỉnh nhĩ cách, kỳ hành tắc, trĩ cao bất thực, phương vũ khuy hối, chung cát.",
+                "nghia": "Tai vạc hỏng nên không xỏ đòn khiêng được: vạc đứng chôn một chỗ, mỡ chim trĩ nấu sẵn mà không ai được ăn — của ngon đợi người, tài chờ thời. Đợi lúc mưa xuống, hai bên thấu khí nhau thì vơi ăn năn, rốt cuộc vẫn tốt. Tượng: tai hỏng là mất cách đi tới của nó."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：鼎折足，覆公餗，其形渥，凶。",
+                "quoc_am": "Cửu tứ: đỉnh triết túc, phúc công tốc, kỳ hình ốc, hung.",
+                "nghia": "Chân vạc gãy, đổ tung bữa ăn của công, nhớp nhúa cả người — xấu. Người tài mỏng mà gánh việc nặng, khi vỡ thì hỏng cả việc chung, mất luôn chỗ tin. Tượng: đổ tiệc của công thì còn tin vào đâu được nữa."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：鼎黃耳金鉉，利貞。",
+                "quoc_am": "Lục ngũ: đỉnh hoàng nhĩ, kim huyền, lợi trinh.",
+                "nghia": "Tai vàng, đòn xỏ bằng kim loại cứng: vạc có tai có đòn thì đi khắp được, của ngon tới được bàn người. Lợi ở giữ chính. Tượng: lấy lẽ giữa làm lòng."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：鼎玉鉉，大吉，無不利。",
+                "quoc_am": "Thượng cửu: đỉnh ngọc huyền, đại cát, vô bất lợi.",
+                "nghia": "Đòn xỏ bằng ngọc: vừa cứng vừa ấm, nâng vạc lên mà không làm sứt — rất tốt, không điều gì không lợi. Tượng: ở trên cùng mà điều tiết được cứng với mềm."
+            }
+        ]
+    },
+    {
+        "id": 51,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：震來虩虩，后笑言啞啞，吉。",
+                "quoc_am": "Sơ cửu: chấn lai khích khích, hậu tiếu ngôn ách ách, cát.",
+                "nghia": "Sấm đến sợ run, sau đó cười nói vui vẻ — tốt. Cái tốt nằm ở thứ tự: biết sợ trước nên giữ được cái vui sau. Tượng: sợ mà biết lo thì phúc tới; cười đúng lúc là vì sau có phép tắc."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：震來厲，億喪貝，躋于九陵，勿逐，七日得。",
+                "quoc_am": "Lục nhị: chấn lai lệ, ức táng bối, tê ư cửu lăng, vật trục, thất nhật đắc.",
+                "nghia": "Sấm đến dữ, của cải mất nhiều: cứ lên gò cao mà tránh, đừng nhào xuống đuổi theo cái mất — bảy ngày thì lại được. Người còn thì của lại. Tượng: nguy vì nhu cưỡi lên cương — ăn trên ngồi trước người cứng cỏi mà không sợ sao được."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：震蘇蘇，震行無眚。",
+                "quoc_am": "Lục tam: chấn tô tô, chấn hành vô sảnh.",
+                "nghia": "Sấm đến thì ngơ ngác thất thần — nhưng cứ giữ cái sợ mà rón rén đi thì tai vạ không tới. Tượng: sở dĩ ngơ ngác vì ngôi không đáng — tài đức chưa xứng chỗ nên mới hoảng."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：震遂泥。",
+                "quoc_am": "Cửu tứ: chấn toại nê.",
+                "nghia": "Một tiếng sét mà sa lầy luôn: muốn động mà động không nổi, khí thế chìm nghỉm trong bùn. Tượng: chưa sáng tỏ nên không thoát ra được."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：震往來厲，億無喪，有事。",
+                "quoc_am": "Lục ngũ: chấn vãng lai lệ, ức vô táng, hữu sự.",
+                "nghia": "Đi tới đều gặp sấm, chỗ nào cũng nguy — nhưng giữ được lẽ giữa thì chẳng mất mát bao nhiêu, việc lớn vẫn làm nên. Tượng: đi đứng giữa chỗ nguy mà việc đáng làm thì không mất."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：震索索，視矍矍，征凶。震不于其躬，于其鄰，無咎。婚媾有言。",
+                "quoc_am": "Thượng lục: chấn tác tác, thị quắc quắc, chinh hung. Chấn bất ư kỳ thân, ư kỳ lân, vô cữu. Hôn cấu hữu ngôn.",
+                "nghia": "Sấm đến co ro, mắt nhìn dáo dác — lúc ấy làm gì cũng xấu. Nhưng sấm chưa đánh vào mình mà đã đánh kề hàng xóm: biết lấy đó mà răn mình, sửa nhà mình kịp thời thì không lỗi, dẫu họ hàng thân thích có lời trách móc. Tượng: sợ chưa được đạo giữa, nhưng biết kính sợ trước nạn của người khác mà lo tu thân thì không trách được."
+            }
+        ]
+    },
+    {
+        "id": 52,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：艮其趾，無咎，利永貞。",
+                "quoc_am": "Sơ lục: cấn kỳ chỉ, vô cữu, lợi vĩnh trinh.",
+                "nghia": "Mới nhón chân đã biết dừng: không lỗi, nhưng cái lợi ở chỗ giữ được lâu dài sự chính ấy — dừng một lần thì dễ, dừng luôn thì khó. Tượng: dừng nơi ngón chân là chưa rời khỏi đường chính."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：艮其腓，不拯其隨，其心不快。",
+                "quoc_am": "Lục nhị: cấn kỳ phỉ, bất chửng kỳ tùy, kỳ tâm bất khoái.",
+                "nghia": "Chỉ dừng được cái bắp chân: mình nhịn được mình mà không kéo nổi người mình phải theo — trong lòng không vui. Tượng: người trên không chịu lùi mà nghe mình. Có những cái dừng đúng mà vẫn buồn."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：艮其限，列其夤，厲薰心。",
+                "quoc_am": "Cửu tam: cấn kỳ hạn, liệt kỳ dần, lệ huân tâm.",
+                "nghia": "Dừng gấp ngay chỗ ngang lưng, làm sống lưng như rời ra — cái nín ép ấy thiêu đốt cả tim. Ép xác không phải là tĩnh. Tượng: nguy mà đốt lòng là vậy."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：艮其身，無咎。",
+                "quoc_am": "Lục tứ: cấn kỳ thân, vô cữu.",
+                "nghia": "Dừng được cả thân mình: không lỗi — không cần ai nhắc, tự mình đứng lại được. Tượng: giữ lấy chính mình mà thôi."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：艮其輔，言有序，悔亡。",
+                "quoc_am": "Lục ngũ: cấn kỳ phụ, ngôn hữu tự, hối vong.",
+                "nghia": "Khóa được cái hàm dưới: nói năng có trước có sau thì ăn năn hết. Hào này là bài học đắt nhất của thời mạng xã hội — dừng ở cái miệng. Tượng: vì giữ được lẽ giữa và chính."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：敦艮，吉。",
+                "quoc_am": "Thượng cửu: đôn cấn, cát.",
+                "nghia": "Dừng một cách đôn hậu: dừng ở chỗ dày dặn nhất, trọn vẹn nhất — tốt. Tượng: tốt vì kết thúc bằng chất."
+            }
+        ]
+    },
+    {
+        "id": 53,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：鴻漸于干，小子厲，有言，無咎。",
+                "quoc_am": "Sơ lục: hồng tiệm ư can, tiểu tử lệ, hữu ngôn, vô cữu.",
+                "nghia": "Chim hồng đáp xuống bến nước — chỗ thấp nhất của bờ: người nhỏ thấy vậy mà lo, có lời chê. Nhưng mới đi mà đã đòi cao mới là lỗi; ở bến thì bị coi nhẹ là lẽ thường — không lỗi. Tượng: xét theo nghĩa lý thì không đáng trách."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：鴻漸于磐，飲食衎衎，吉。",
+                "quoc_am": "Lục nhị: hồng tiệm ư bàn, ẩm thực hản hản, cát.",
+                "nghia": "Chim hồng lên phiến đá lớn, ăn uống vui vẻ — tốt, vì đã có chỗ đứng vững và có phần của mình. Tượng: 'bất tố bão' — cái no ấy không phải ăn không mà có."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：鴻漸于陸，夫征不復，婦孕不育，凶；利禦寇。",
+                "quoc_am": "Cửu tam: hồng tiệm ư lục, phu chinh bất phục, phụ dựng bất dục, hung; lợi ngự khấu.",
+                "nghia": "Chim hồng vốn loài ở nước lại bay lên gò khô: đi một mạch không về — vợ chửa mà không nuôi được con, xấu. Tiến cướp bước, bỏ bầy bạn, cái được trước mắt trả bằng cái mất lâu dài. Chỉ lợi một việc: chống giặc — giặc lòng tham tiến đang tới. Tượng: chồng đi chẳng về là rời bầy bạn mà đi, mất chỗ dựa của mình vậy."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：鴻漸于木，或得其桷，無咎。",
+                "quoc_am": "Lục tứ: hồng tiệm ư mộc, hoặc đắc kỳ giốc, vô cữu.",
+                "nghia": "Chim hồng đậu lên cây: chân có màng vốn vụng đậu — nhưng nếu được cành vuông vắn bằng phẳng thì vẫn đứng yên, không lỗi. Ở chỗ cao không phải của mình mà sống thuận, nhường nhịn, thì cao mà không nguy. Tượng: thuận mà khéo vậy."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：鴻漸于陵，婦三歲不孕，終莫之勝，吉。",
+                "quoc_am": "Cửu ngũ: hồng tiệm ư lăng, phụ tam tuế bất dựng, chung mạc chi thắng, cát.",
+                "nghia": "Chim hồng lên gò cao. Có kẻ giữa đường cản trở, ba năm không toại nguyện — nhưng rốt cuộc không gì thắng nổi cái chính đáng: tốt, được thỏa lòng. Tượng: cuối cùng không ai hơn được, nên được điều sở nguyện."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：鴻漸于逵，其羽可用為儀，吉。",
+                "quoc_am": "Thượng cửu: hồng tiệm ư quì, kỳ vũ khả dụng vi nghi, cát.",
+                "nghia": "Chim hồng lên tới đường cao chín ngả, lông rụng xuống cũng thành đồ nghi lễ trên cờ: hết bậc rồi — người ở cuối con đường để lại không chỉ kết quả, mà cả một khuôn cho kẻ sau noi. Tượng: trật tự ấy không gì làm loạn được."
+            }
+        ]
+    },
+    {
+        "id": 54,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：歸妹以娣，跛能履，征吉。",
+                "quoc_am": "Sơ cửu: quy muội dĩ đệ, bả năng lý, chinh cát.",
+                "nghia": "Em đi theo chị về nhà chồng, phận phụ mà giữ đúng phép: què mà đi đúng kiểu của người què thì vẫn đi được — tốt. Tượng: chị em cùng về là lẽ thường xưa; biết đỡ đần nhau thì việc nhỏ cũng thành công."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：眇能視，利幽人之貞。",
+                "quoc_am": "Cửu nhị: diếu năng thị, lợi u nhân chi trinh.",
+                "nghia": "Chột một bên mà còn thấy đường: sáng vừa phải thôi, đủ đi. Vợ hiền gặp chồng không xứng — hay mình mà chỗ không được trọng; hay nhất là giữ bền lòng trinh trong chỗ kín. Tượng: không vì thế mà bỏ đạo thường."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：歸妹以須，反歸以娣。",
+                "quoc_am": "Lục tam: quy muội dĩ tu, phản quy dĩ đệ.",
+                "nghia": "Đòi làm chính thất mà không ai hỏi cưới cho đúng lễ, rốt cuộc ngược lại về làm lẽ: 'tu' là chờ — chờ không được, đi vội thì nhận phận dưới. Tượng: vì xử không đáng — muốn phần trên mà bỏ lễ của phần dưới."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：歸妹愆期，遲歸有時。",
+                "quoc_am": "Cửu tứ: quy muội khiên kỳ, trì quy hữu thì.",
+                "nghia": "Qua ngày hẹn mà chưa được rước — nhưng chậm này là chậm của người có giá: để sau sẽ có lúc đi. Tượng: cái chí hoãn kỳ là đợi đáng người mới đi. Chậm không phải ế, chậm là đang chọn."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：帝乙歸妹，其君之袂，不如其娣之袂良。月幾望，吉。",
+                "quoc_am": "Lục ngũ: Đế Ất quy muội, kỳ quân chi duệ, bất như kỳ đệ chi duệ lương. Nguyệt cơ vọng, cát.",
+                "nghia": "Vua Đế Ất gả em gái: tay áo của vợ cả sang trọng lại khiêm nhường kém cả tay áo nàng hầu đi theo — không lấy diện mạo hơn người. Trăng gần rằm mà chưa đầy: tốt, vì cái gần đầy còn giữ được lâu. Tượng: ngôi cao mà xử giữa, đi bằng đức quý."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：女承筐無實，士刲羊無血，無攸利。",
+                "quoc_am": "Thượng lục: nữ thừa khuông vô thực, sĩ khuy dương vô huyết, vô du lợi.",
+                "nghia": "Vợ bưng giỏ tế không có đồ, chồng làm lễ cắt dê không ra máu — cả hai chỉ còn cái vỏ của nghi thức. Hôn sự tới đây thì hết nói: không lợi đường nào. Tượng: bưng cái giỏ rỗng — lòng đã trống trước khi lễ hỏng."
+            }
+        ]
+    },
+    {
+        "id": 55,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：遇其配主，雖旬無咎，往有尚。",
+                "quoc_am": "Sơ cửu: ngộ kỳ phối chủ, tuy tuần vô cữu, vãng hữu thượng.",
+                "nghia": "Gặp được người đáng mình phối hợp: tài lực ngang nhau cũng không lỗi — cứ đi tới, sẽ được coi trọng. Tượng: ngang nhau thì tốt; hơn thua nhau một ly là thành tai."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：豐其蔀，日中見斗，往得疑疾，有孚發若，吉。",
+                "quoc_am": "Lục nhị: phong kỳ bộ, nhật trung kiến đẩu, vãng đắc nghi tật, hữu phu phát nhược, cát.",
+                "nghia": "Bóng rợp giăng đầy — giữa trưa mà trông thấy sao Bắc đẩu: sáng của người trên đã bị che mất rồi. lúc này cứ tiến lên chỉ rước bệnh nghi kỵ vào thân; chỉ có lòng thành từ từ làm nở lòng người — mới tốt. Tượng: giữ tín để mở chí người trên."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：豐其沛，日中見沫，折其右肱，無咎。",
+                "quoc_am": "Cửu tam: phong kỳ phái, nhật trung kiến muội, triết kỳ hữu quăng, vô cữu.",
+                "nghia": "Bóng che còn dày hơn — giữa trưa thấy cả sao nhỏ: người có tài bị cất mất tay mặt, muốn giúp cũng không giúp được. Đó không phải lỗi của anh — 'vô cữu' ghi ngay vậy. Tượng: cảnh ấy thì làm lớn không nổi; tay gãy rồi, rốt cuộc không dùng được."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：豐其蔀，日中見斗，遇其夷主，吉。",
+                "quoc_am": "Cửu tứ: phong kỳ bộ, nhật trung kiến đẩu, ngộ kỳ di chủ, cát.",
+                "nghia": "Cũng cảnh giữa trưa thấy sao ấy — nhưng may gặp được người đồng lòng cùng làm: tốt. Một mình không xé nổi màn che. Tượng: đi mà gặp bạn thì cái tốt ấy mới thành việc."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：來章，有慶譽，吉。",
+                "quoc_am": "Lục ngũ: lai chương, hữu khánh dự, cát.",
+                "nghia": "Mời được người hiền về thì chương trình thành hình, sáng rõ: có phúc, có tiếng — tốt. Hào này không giỏi nhất quẻ, nhưng giỏi nhất ở chỗ biết hạ mình đi tìm người giỏi. Tượng: cái tốt của hào 5 là ở chỗ có phúc chung."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：豐其屋，蔀其家，窺其戶，闃其無人，三歲不覿，凶。",
+                "quoc_am": "Thượng lục: phong kỳ ốc, bộ kỳ gia, khuy kỳ hộ,quých kỳ vô nhân, tam tuế bất địch, hung.",
+                "nghia": "Nhà dựng quá to, màn giăng kín nhà: nhòm qua cửa thấy vắng teo không người, ba năm chẳng ai ghé mắt — xấu. Ở đỉnh mà cắt hết người quanh mình thì cái nhà mình xây thành cái lồng mình ở. Tượng: bay tận trời, che kín mình — tại tự giấu, không phải tại ai."
+            }
+        ]
+    },
+    {
+        "id": 56,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：旅瑣瑣，斯其所取災。",
+                "quoc_am": "Sơ lục: lữ tỏa tỏa, tư kỳ sở thủ tai.",
+                "nghia": "Đi đường mà lặt vặt bủn xỉn, tự hạ mình xuống quá thấp: cái vạ ấy chính người đó rước lấy. Tượng: chí cùng, tai dã — bụng co lại thì họa tới."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：旅即次，懷其資，得童僕貞。",
+                "quoc_am": "Lục nhị: lữ tức thứ, hoài kỳ tư, đắc đồng bộc trinh.",
+                "nghia": "Có quán trọ đàng hoàng, có tiền mang theo, có tôi tớ giữ bụng trung — người đi đường đủ ba thứ ấy thì đi xa không khốn. Tượng: được người tôi trung thì rốt cuộc không ai trách được mình. Người đáng hơn của."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：旅焚其次，喪其童僕，貞厲。",
+                "quoc_am": "Cửu tam: lữ phần kỳ thứ, táng kỳ đồng bộc, trinh lệ.",
+                "nghia": "Quán trọ cháy, tôi tớ bỏ đi: khách mà lên mặt khinh người dưới thì mất hết chỗ dựa — ngay mấy cũng thành nguy. Tượng: thân lữ thứ mà cháy chỗ ở thì cũng đau rồi; lấy cái khách mà xử tệ với người ở dưới, mất là lẽ đương nhiên."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：旅于處，得其資斧，我心不快。",
+                "quoc_am": "Cửu tứ: lữ ư xử, đắc kỳ tư phủ, ngã tâm bất khoái.",
+                "nghia": "Có chỗ ở tạm, tiền bạc lẫn dao phòng thân đều đủ — mà bụng vẫn không vui. Tượng: chưa có ngôi thật thì của nhiều cũng không sướng. Người tha hương giàu vẫn là khách."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：射雉一矢亡，終以譽命。",
+                "quoc_am": "Lục ngũ: xạ trĩ nhất thỉ vong, chung dĩ dự mệnh.",
+                "nghia": "Bắn con trĩ mà mất một mũi tên — nhưng được con chim làm lễ vật ra mắt, rốt cuộc nhận về tiếng tốt và chức mệnh. Ở đất khách, dám chịu thiệt nhỏ để mua chữ lễ. Tượng: được người trên biết tới."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：鳥焚其巢，旅人先笑后號咷。喪牛于易，凶。",
+                "quoc_am": "Thượng cửu: điểu phần kỳ sào, lữ nhân tiên tiếu hậu hào đào. Táng ngưu ư dị, hung.",
+                "nghia": "Chim tự đốt tổ mình: người đi đường cười trước, khóc sau; để mất con trâu ở chỗ dễ dãi — xấu. Trâu là cái nhu thuận; đánh mất nó vì khinh suất thì hết đường giữ thân. Tượng: ở đất khách mà ngồi lên đầu người khác, lẽ tự nhiên bị đốt; mất nhu thuận rồi thì ai can cũng không nghe."
+            }
+        ]
+    },
+    {
+        "id": 57,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：進退，利武人之貞。",
+                "quoc_am": "Sơ lục: tiến thoái, lợi vũ nhân chi trinh.",
+                "nghia": "Hào 1: tới lui chưa biết đường nào — trong lòng đang nghi. Lợi ở chỗ giữ được cái chính như người võ biền: nghĩ kỹ thì được, nhưng tới lúc phải quyết thì chặt như dao xuống."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：巽在床下，用史巫紛若，吉無咎。",
+                "quoc_am": "Cửu nhị: tốn tại sàng hạ, dụng sử vu phân nhược, cát vô cữu.",
+                "nghia": "Hào 2: nhún xuống tận dưới giường, nhờ sử quan, thầy khấn chạy lễ nhiều nhịp mà lễ thành khấn thiết — tốt, không lỗi. Mềm mà vì việc thành, không vì sợ ai: giữ được thế trung nên không mang tiếng luồn."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：頻巽，吝。",
+                "quoc_am": "Cửu tam: tần tốn, lận.",
+                "nghia": "Hào 3: nhún liên hồi, ai cũng chiều — đáng hổ, vì mất hết lập trường của mình."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：悔亡，田獲三品。",
+                "quoc_am": "Lục tứ: hối vong, điền hoạch tam phẩm.",
+                "nghia": "Hào 4: hết ăn năn, đi săn thu được ba thứ — trên thuận dưới hòa, việc gì cũng có phần lợi. Mềm đúng chỗ thì chẳng mất gì mà được cả ba."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：貞吉悔亡，無不利。無初有終，先庚三日，后庚三日，吉。",
+                "quoc_am": "Cửu ngũ: trinh cát hối vong, vô bất lợi. Vô sơ hữu chung, tiên canh tam nhật, hậu canh tam nhật, cát.",
+                "nghia": "Hào 5: chính thì tốt, hết ăn năn, không điều gì không lợi. Không có khởi đầu mà có kết thúc — tức là không phải người khai cuộc, chỉ là người sửa sang cho công việc cũ nên hình. Ban hành hiệu lệnh thì trước ngày Canh ba hôm, sau ngày Canh ba hôm: tính trước, chờ cho đủ chín ngày mới đổi — tốt."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：巽在床下，喪其資斧，貞凶。",
+                "quoc_am": "Thượng cửu: tốn tại sàng hạ, táng kỳ tư phủ, trinh hung.",
+                "nghia": "Hào 6: nhún tới dưới giường mà mất luôn của cải và búa rìu — mất cả vốn liếng lẫn quyền quyết đoán. Dẫu chính cũng xấu: mềm quá mức thì không còn gì để mà chính."
+            }
+        ]
+    },
+    {
+        "id": 58,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：和兌，吉。",
+                "quoc_am": "Sơ cửu: hòa duyệt, cát.",
+                "nghia": "Hào 1: hòa mà vui, vui với mọi người không thiên vị ai — tốt. Đi với ai người ta cũng không hồ nghi mình: đó là cái vui sạch."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：孚兌，吉，悔亡。",
+                "quoc_am": "Cửu nhị: phu duyệt, cát, hối vong.",
+                "nghia": "Hào 2: vui bằng lòng tin thật — giữ chữ tín mà được lòng người thì tốt, hết ăn năn. Trong có chủ, ngoài mới vui lâu được."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：來兌，凶。",
+                "quoc_am": "Lục tam: lai duyệt, hung.",
+                "nghia": "Hào 3: chạy tới chỗ vui — thấy đâu vui là sà đến, lấy hưởng thụ làm lẽ sống. Xấu, vì ngôi mình ở mà lòng đòi chỗ khác."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：商兌，未寧，介疾有喜。",
+                "quoc_am": "Cửu tứ: thương duyệt, vị ninh, giới tật hữu hỉ.",
+                "nghia": "Hào 4: vui còn đắn đo — nửa muốn theo người chính, nửa bị kẻ gần mình kéo đi, lòng chưa yên. Nhưng biết răn như biết bệnh mà tránh, đoạn tuyệt thú vui hư thì có mừng."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：孚于剝，有厲。",
+                "quoc_am": "Cửu ngũ: phu vu bác, hữu lệ.",
+                "nghia": "Hào 5: tin ngay kẻ đang lột mình — có nguy. Ngôi chính giữa mà còn sai vì một chữ tin đặt nhầm chỗ, nên quẻ càng nhắc phải đề phòng."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：引兌。",
+                "quoc_am": "Thượng lục: dẫn duyệt.",
+                "nghia": "Hào 6: kéo dài cái vui cho tới lúc vui cũng phảiLeading đi mời — vui mà phải dẫn mới vui thì chưa phải người sáng."
+            }
+        ]
+    },
+    {
+        "id": 59,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：用拯馬壯，吉。",
+                "quoc_am": "Sơ lục: dụng chửng mã tráng, cát.",
+                "nghia": "Hào 1: tan mới chớm — cứu ngay thì kịp. Nhờ được sức khỏe của con ngựa mạnh (hào 2 bên cạnh) nên tốt. Tan lúc còn nhỏ thì chữa bằng hành động nhanh, không bằng lời."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：渙奔其机，悔亡。",
+                "quoc_am": "Cửu nhị: hoán bôn kỳ kỷ, hối vong.",
+                "nghia": "Hào 2: giữa lúc tan tác, chạy tới được cái kỷ để tựa (bệ ngồi, chỗ nương) — hết ăn năn. Thời này có chỗ dựa hơn có mưu hay."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：渙其躬，無悔。",
+                "quoc_am": "Lục tam: hoán kỳ cung, vô hối.",
+                "nghia": "Hào 3: tan được cả cái riêng của mình — quên thân mình, quay ra lo việc chung thì không hối. Gốc của chia rẽ thường bắt đầu từ chữ 'tôi'."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：渙其群，元吉。渙有丘，匪夷所思。",
+                "quoc_am": "Lục tứ: hoán kỳ quần, nguyên cát. Hoán hữu khâu, phỉ di sở tư.",
+                "nghia": "Hào 4: tan cái bầy phái của mình để cả nước thành một khối — tốt lớn. Tan bè mà thành gò đống cao rộng, đó chẳng phải điều người thường nghĩ ra được."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：渙汗其大號，渙王居，無咎。",
+                "quoc_am": "Cửu ngũ: hoán hãn kỳ đại hào, hoán vương cư, vô cữu.",
+                "nghia": "Hào 5: lệnh lớn của vua ban ra như mồ hôi toát rồi không thu lại được — một lời nói ra phải trọn; kho lẫm của vua tan ra cho dân thì không lỗi. Lúc lòng người đang rã, lệnh phải minh bạch và của phải thiệt thả."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：渙其血，去逖出，無咎。",
+                "quoc_am": "Thượng cửu: hoán kỳ huyết, khứ dịch xuất, vô cữu.",
+                "nghia": "Hào 6: tan được cả cái hại đổ máu — rời xa chỗ nguy, thoát ra thì không lỗi. Đến đây không đánh nhau để giữ nữa; lui đúng lúc cũng là một cách hàn."
+            }
+        ]
+    },
+    {
+        "id": 60,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：不出戶庭，無咎。",
+                "quoc_am": "Sơ cửu: bất xuất hộ đình, vô cữu.",
+                "nghia": "Hào 1: thời chưa tới thì không ra khỏi cửa sân, giữ miệng — không lỗi. Biết lúc thông lúc tắc thì im cũng là một cách làm."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：不出門庭，凶。",
+                "quoc_am": "Cửu nhị: bất xuất môn đình, hung.",
+                "nghia": "Hào 2: đã tới lúc phải ra khỏi cổng mà cứ ẩn — xấu. Hai hào đều 'không ra', nhưng một là đúng thời, một là trễ thời: mực thước là biết lúc."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：不節若，則嗟若，無咎。",
+                "quoc_am": "Lục tam: bất tiết nhược, tắc tha nhược, vô cữu.",
+                "nghia": "Hào 3: không biết giữ mực để rồi phải than — tự mình làm mình than thì còn trách ai. Biết ăn năn chỗ đó thì cũng gọi là không lỗi thêm."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：安節，亨。",
+                "quoc_am": "Lục tứ: an tiết, hanh.",
+                "nghia": "Hào 4: giữ mực mà thấy yên — không phải gồng. Nền nếp trở thành thói quen thì đường đi rộng."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：甘節，吉；往有尚。",
+                "quoc_am": "Cửu ngũ: cam tiết, cát, vãng hữu sảng.",
+                "nghia": "Hào 5: biến cái mực thước thành ngọt — mình vui và người khác thấy dễ noi theo. Đi tới đâu cũng được đề cao."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：苦節，貞凶，悔亡。",
+                "quoc_am": "Thượng lục: khổ tiết, trinh hung, hối vong.",
+                "nghia": "Hào 6: khắc mình tới mức cay đắng — dẫu đúng cũng xấu; ăn năn hết thì nhờ biết dừng."
+            }
+        ]
+    },
+    {
+        "id": 61,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：虞吉，有他不燕。",
+                "quoc_am": "Sơ cửu: ngu cát, hữu tha bất yến.",
+                "nghia": "Hào 1: lường xét rồi mới tin thì tốt; đã chọn tin mà còn ngoái nhìn kẻ khác thì bụng không yên. Chữ tín bắt đầu bằng cái cân, không phải bằng lời."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：鳴鶴在陰，其子和之，我有好爵，吾與爾靡之。",
+                "quoc_am": "Cửu nhị: minh hạc tại âm, kỳ tử họa chi, ngã hữu hảo tước, ngô dữ nhĩ ma chi.",
+                "nghia": "Hào 2: hạc mẹ kêu trong bóng tối, hạc con gáy họa theo — kêu thật thì có thứ nghe mình, không cần ai thấy. Ta có chén rượu ngon, ta cùng chú sẻ chia: lòng thành cất lên tiếng ắt có tiếng đáp."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：得敵，或鼓或罷，或泣或歌。",
+                "quoc_am": "Lục tam: đắc địch, hoặc cổ hoặc bãi, hoặc khấp hoặc ca.",
+                "nghia": "Hào 3: gặp đúng người đối đầu (kéo mình đi) — lúc thì trống giục xông lên, lúc thì bỏ dở, lúc khóc lúc cười thất thường. Người không có chữ tín ở trong lòng thì làm nô lệ cho tâm trạng."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：月几望，馬匹亡，無咎。",
+                "quoc_am": "Lục tứ: nguyệt kỷ vọng, mã thất vong, vô cữu.",
+                "nghia": "Hào 4: trăng đã gần rằm mà biết dừng — đừng tròn thêm nữa; ngựa cái quên bầy để một lòng kéo xe theo chủ — không lỗi. Gần chỗ sáng thì giữ mình đừng tranh sáng."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：有孚攣如，無咎。",
+                "quoc_am": "Cửu ngũ: hữu phu loan như, vô cữu.",
+                "nghia": "Hào 5: buộc chặt lòng tin với nhau mà không gượng ép — người tin mình vì mình thật, không phải vì mình giữ. Không lỗi."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：翰音登于天，貞凶。",
+                "quoc_am": "Thượng cửu: hàn âm đăng vu thiên, trinh hung.",
+                "nghia": "Hào 6: tiếng gà vỗ cánh vọng lên trời — tiếng đi trước, xác ở lại, bay không nổi. Nói to hơn việc mình làm thì dẫu chính cũng xấu; thanh dư quá thực, đức không chống nổi danh."
+            }
+        ]
+    },
+    {
+        "id": 62,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：飛鳥以凶。",
+                "quoc_am": "Sơ lục: phi điểu dĩ hung.",
+                "nghia": "Hào 1: chim non chưa đủ lông đã ham bay cao — xấu, và chẳng cứu được nữa. Phận thấp mà vươn liều thì chính mình làm mình rơi."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：過其祖，遇其妣；不及其君，遇其臣；無咎。",
+                "quoc_am": "Lục nhị: quá kỳ tổ, ngộ kỳ tỷ; bất cập kỳ quân, ngộ kỳ thần; vô cữu.",
+                "nghia": "Hào 2: đi qua ông nội mà gặp bà nội — theo lẽ mà linh hoạt; không tới được vua thì gặp tôi mà làm việc — không lỗi. Lúc nhỏ vượt mức, giữ đúng phận thì vẫn đi được đường."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：弗過防之，從或戕之，凶。",
+                "quoc_am": "Cửu tam: phất quá phòng chi, tùng hoặc thương chi, hung.",
+                "nghia": "Hào 3: chẳng nhích lên mà cũng chẳng phòng bị — theo bầy thì có ngày bị làm hại. Thời này không có chỗ cho người lơ đãng."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：無咎，弗過遇之。往厲必戒，勿用永貞。",
+                "quoc_am": "Cửu tứ: vô cữu, phất quá ngộ chi. Vãng lệ tất giới, vật dụng vĩnh trinh.",
+                "nghia": "Hào 4: không lỗi, vì không vượt bừa mà gặp đúng lẽ; nhưng tiến tới chỗ hiểm thì phải răn — ở thời này chớ khư khư giữ cứng một phép mãi. Cứng mà biết xuống thấp là khôn."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：密雲不雨，自我西郊，公弋取彼在穴。",
+                "quoc_am": "Lục ngũ: mật vân bất vũ, tự ngã tây giao, công dắc thủ bỉ tại huyệt.",
+                "nghia": "Hào 5: mây đặc mà không rơi mưa — khí trên chưa giao được với khí dưới, việc lớn chưa chín. Chỉ đi săn được con thú trong hang thôi: thời này thắng cái nhỏ gần mình, đừng mơ cái lớn."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：弗遇過之，飛鳥離之，凶，是謂災眚。",
+                "quoc_am": "Thượng lục: phất ngộ quá chi, phi điểu ly chi, hung, thị vị tai sảnh.",
+                "nghia": "Hào 6: gặp mà không xong, vẫn cứ vượt mãi — chim bay tới mức tiếng kêu thảm thiết lạc loài, xấu. Đó không phải trời đánh, đó là cái tai mình rước lấy: vượt quá mà không biết điểm dừng."
+            }
+        ]
+    },
+    {
+        "id": 63,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ cửu",
+                "han": "初九：曳其輪，濡其尾，無咎。",
+                "quoc_am": "Sơ cửu: duệ kỳ luân, nhu kỳ vĩ, vô cữu.",
+                "nghia": "Hào 1: kéo hãm bánh xe lại, để ướt cái đuôi như cáo qua sông e dè — không lỗi. Việc đã xong mà vẫn đi chậm và biết sợ thì chẳng ai trách được."
+            },
+            {
+                "vi": 2,
+                "hao": "Lục nhị",
+                "han": "六二：婦喪其茀，勿逐，七日得。",
+                "quoc_am": "Lục nhị: phụ táng kỳ phất, vật trục, thất nhật đắc.",
+                "nghia": "Hào 2: người mất cái rèm che xe, đừng đuổi theo đòi — bảy ngày lại được. Thất thế tạm thời thì giữ trung chính mà chờ, rồi ra tới lượt mình."
+            },
+            {
+                "vi": 3,
+                "hao": "Cửu tam",
+                "han": "九三：高宗伐鬼方，三年克之，小人勿用。",
+                "quoc_am": "Cửu tam: Cao Tông phạt quỷ phương, tam niên khắc chi, tiểu nhân vật dụng.",
+                "nghia": "Hào 3: vua Cao Tông đánh quỷ phương, ba năm mới thắng — việc lớn đã xong lại sinh việc lớn khác, thắng bằng mệt, không bằng nhanh. Lúc này đừng dùng kẻ tiểu tâm: chưa kịp nghỉ mà giao việc thì hỏng cả việc."
+            },
+            {
+                "vi": 4,
+                "hao": "Lục tứ",
+                "han": "六四：繻有衣袽，終日戒。",
+                "quoc_am": "Lục tứ: nhu hữu y nho, chung nhật giới.",
+                "nghia": "Hào 4: áo đẹp mà thủ sẵn giẻ rách phòng thủng thuyền, suốt ngày canh — việc đã xong nhưng vẫn mặc áo sang mà để giẻ bên mình: lúc tốt đẹp nhất là lúc phải phòng nhất."
+            },
+            {
+                "vi": 5,
+                "hao": "Cửu ngũ",
+                "han": "九五：東鄰殺牛，不如西鄰之禴祭，實受其福。",
+                "quoc_am": "Cửu ngũ: đông lân sát ngưu, bất như tây lân chi thược tế, thực thụ kỳ phúc.",
+                "nghia": "Hào 5: làng đông giết bò tế to, không bằng làng tây làm lễ mỏng mà đúng lúc, lòng thật — thần hưởng cái thành chứ không hưởng cái sang. Cái phúc thật thuộc về kẻ biết lúc."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng lục",
+                "han": "上六：濡其首，厲。",
+                "quoc_am": "Thượng lục: nhu kỳ thủ, lệ.",
+                "nghia": "Hào 6: để ướt cả đầu — qua sông xong rồi mà còn ngâm mình dưới nước, nguy. Đỉnh là chỗ rơi: người ta không ngã vì việc dở, người ta ngã vì việc đã xong mà tưởng không cần trông nữa."
+            }
+        ]
+    },
+    {
+        "id": 64,
+        "hao_texts": [
+            {
+                "vi": 1,
+                "hao": "Sơ lục",
+                "han": "初六：濡其尾，吝。",
+                "quoc_am": "Sơ lục: nhu kỳ vĩ, lận.",
+                "nghia": "Hào 1: ướt cái đuôi — bắt tay vào việc mà không lượng sức, việc dở, hổ. Chưa biết bờ bên kia mà đã lội."
+            },
+            {
+                "vi": 2,
+                "hao": "Cửu nhị",
+                "han": "九二：曳其輪，貞吉。",
+                "quoc_am": "Cửu nhị: duệ kỳ luân, trinh cát.",
+                "nghia": "Hào 2: kéo hãm bánh xe lại — sức chưa tới thì ghìm mà đi; giữ chính thì tốt. Người có tài mà chờ được thời là người khó lật."
+            },
+            {
+                "vi": 3,
+                "hao": "Lục tam",
+                "han": "六三：未濟，征凶，利涉大川。",
+                "quoc_am": "Lục tam: vị tế, chinh hung, lợi thiệp đại xuyên.",
+                "nghia": "Hào 3: chưa qua được mà vội tiến — xấu; cứ ở giữa dòng mà tính chuyện vượt lớn thì chỉ lợi khi đã có thuyền và người. Câu quẻ này hai lối đọc trái nhau, đều đáng giữ."
+            },
+            {
+                "vi": 4,
+                "hao": "Cửu tứ",
+                "han": "九四：貞吉，悔亡，震用伐鬼方，三年有賞于大國。",
+                "quoc_am": "Cửu tứ: trinh cát, hối vong, chấn dụng phạt quỷ phương, tam niên hữu thưởng vu đại quốc.",
+                "nghia": "Hào 4: chính thì tốt, hết ăn năn — phấn chấn mà gánh việc, đánh đất quỷ phương ba năm, rồi được thưởng ở nước lớn. Cái dở ở đây không phải thiếu sức, mà thiếu thời; giữ chính thì tới lượt."
+            },
+            {
+                "vi": 5,
+                "hao": "Lục ngũ",
+                "han": "六五：貞吉，無悔，君子之光，有孚，吉。",
+                "quoc_am": "Lục ngũ: trinh cát, vô hối, quân tử chi quang, hữu phu, cát.",
+                "nghia": "Hào 5: chính thì tốt, không hối — cái sáng của người quân tử là lòng tin để trong ngực rồi tự nó rọi ra ngoài. Ở chỗ dở dang mà giữ được sáng, tốt."
+            },
+            {
+                "vi": 6,
+                "hao": "Thượng cửu",
+                "han": "上九：有孚于飲酒，無咎，濡其首，有孚失是。",
+                "quoc_am": "Thượng cửu: hữu phu vu ẩm tửu, vô cữu; nhu kỳ thủ, hữu phu thất thị.",
+                "nghia": "Hào 6: tin người mà vui chén — tạm không lỗi; nhưng để ướt tới đầu lúc chén đã ngà thì mất cái đáng tin, thành ra sai. Vui gần bờ thì được, vui giữa dòng thì chết đuối."
+            }
+        ]
+    }
+]

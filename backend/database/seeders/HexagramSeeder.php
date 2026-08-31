@@ -58,10 +58,18 @@ class HexagramSeeder extends Seeder
 
             $id = (int) $item['id'];
 
+            // Gate t_04394e77 c#107 3(a): id58 metadata `han` nguồn là 兑 (giản thể
+            // U+5151) — chính tự Chu Dịch là 兊 (U+514A). File json BẤT BIẾN (SHA256
+            // SEED-01 khóa) → chuẩn hóa tại chỗ seed, không sửa data file.
+            $han = (string) $item['han'];
+            if ($id === 58 && $han === '兑') {
+                $han = '兊';
+            }
+
             DB::table('hexagrams')->updateOrInsert(
                 ['id' => $id],
                 [
-                    'han' => $item['han'],
+                    'han' => $han,
                     'ten' => $item['ten'],
                     'quoc_am' => $item['quocAm'],
                     'upper' => $item['upper'],

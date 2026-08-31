@@ -31,6 +31,8 @@ class DrawService
 
     /**
      * POST /api/draws (#3). Đã gieo hôm nay → 409 DRAW_LIMIT_REACHED (03-api §3 lỗi).
+     * SPEC-3XU §4bis: quẻ biến TÍNH + LƯU nội bộ (`draws.bien_hexagram_id`),
+     * KHÔNG trả qua API (controller không đưa vào payload).
      *
      * @return array{draw: Draw, hexagram: Hexagram}
      */
@@ -54,10 +56,19 @@ class DrawService
 
             $changing = $this->roller->changingLines($lines);
 
+            // §4bis: quẻ biến = quẻ gốc XOR các hào động → tra id, LƯU nội bộ
+            // (null khi 0 hào động — không "biến" thành chính nó). Không lộ API.
+            $bienId = null;
+            if ($changing !== []) {
+                $bien = $this->findHexagramByLines($this->roller->bienOf($bitmask, $changing));
+                $bienId = $bien?->id;
+            }
+
             try {
                 $draw = Draw::query()->create([
                     'device_id' => $device->device_id,
                     'hexagram_id' => $hexagram->id,
+                    'bien_hexagram_id' => $bienId,
                     'drawn_date' => $vnToday->format('Y-m-d'),
                     'lines_rolled' => $lines,
                     'changing_lines' => $changing === [] ? null : $changing, // 02-db §5: NULL nếu không có
