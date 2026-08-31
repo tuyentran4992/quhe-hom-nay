@@ -42,9 +42,14 @@ curl -sb /tmp/q.jar -X POST http://127.0.0.1:8000/api/ai/interpretations \
 
 **U3 — CUT-45.** Bước: test PHP duyệt 64 row: mỗi slot `free_content.{congViec,tinhDuyen,taiLoc}` split whitespace. Kỳ vọng: mọi slot ≤45 từ (0/192 vi phạm — đã kiểm offline khi viết spec).
 
-**U4 — RngDrawService.** Bước: gọi 10.000 lần hàm rolling (03-api §3 logic): xác suất 6/9
-(động) xấp xỉ 12% (9–15%), mọi giá trị ∈{6,7,8,9}, `changing_lines` khớp vị trí 6/9.
-Kỳ vọng: 6 hào trả về luôn khớp đúng 1 trong 64 pattern `hexagrams.lines` (không quẻ ảo).
+**U4 — RngDrawService 3 xu (SPEC-3XU, thay bản cỏ-thi cũ).** Bước: gọi hàm rolling
+(03-api §3.1) đủ 6 hào, lặp **≥ 200.000 hào** (240k+ lần `random_int`, chạy trong test PHP
+thời gian <60s bằng cách gọi thẳng service, không qua HTTP). Kỳ vọng: (a) mọi giá trị
+∈{6,7,8,9}; (b) tần suất 4 loại lệch không quá **5σ** so với 12.5/37.5/37.5/12.5 — với
+n=200.000 hào, σ = √(n·p·(1−p)): p=1/8 → σ≈148 (ngưỡng ±741), p=3/8 → σ≈217 (ngưỡng
+±1083); (c) `changing_lines` khớp đúng vị trí mang 6/9; (d) 6 hào trả về luôn khớp
+1 trong 64 pattern `hexagrams.lines` (không quẻ ảo); (e) grep mã roller: chỉ `random_int`,
+không `rand(`/`mt_rand(`.
 
 **U5 — Rules bất biến.** Bước: assert `Domain\Rules` constants: `AI_COOLDOWN_SECONDS===90`
 (giây — KHÔNG có constant "90 lần"), `PRICE_UNLOCK_VND===29000`, `FREE_DRAW_PER_DAY===1`,
@@ -56,7 +61,15 @@ Kỳ vọng: pass; thêm test quét source: không magic number 29000/90 nằm n
 1000 / 500000 / 500001 / 29000+1 khi kind=unlock. Kỳ vọng: fail 2 ca đầu-cuối theo C-07;
 unlock luôn bị ghi đè 29000 (C-05) dù client gửi gì.
 
-## 2. FEATURE / API (F1–F8) — đối chiếu 03-api từng field
+**U7 — HaoTextSeeder đủ 64×6, không rỗng (SPEC-3XU).** Bước: `migrate:fresh --seed` rồi
+`php artisan db:seed --class=HaoTextSeeder` lần 2. Kỳ vọng: `SELECT COUNT(*)=384`,
+`SELECT COUNT(*) FROM hexagram_hao_texts WHERE han='' OR quoc_am='' OR nghia=''` = 0, mỗi
+`hexagram_id` đúng 6 dòng `vi` 1..6 distinct, chạy 2 lần vẫn 384 (idempotent); đối chiếu
+ngẫu nhiên 3 hào với file nguồn `hao_texts.json` khớp nguyên văn `han`. Lưu ý từ dev-lead
+(đã verify DDL thật 31/08): cột NOT NULL KHÔNG chặn chuỗi rỗng ở MariaDB — chốt "không rỗng"
+bằng `<>''` trong test + seeder phải FAIL-to-loud nếu nguồn thiếu bất kỳ field nào.
+
+## 2. FEATURE / API (F1–F9) — đối chiếu 03-api từng field
 
 **F1 — GET /api/me thiết bị lạ.** Bước: curl không cookie. Kỳ vọng: 200, `Set-Cookie:
 qhn_device=...HttpOnly`, body đủ 5 field §1, `today_draw=null`, `is_new_device=true`.
@@ -87,13 +100,21 @@ order_code (200/202, không row mới); cùng key khác body → 409 `IDEMPOTENC
 `GET /api/me.entitlements=['tai_loc']`; gọi #7b lần 2 idempotent không lỗi. Webhook thật
 #8 ký sai signature → 401.
 
-## 3. E2E / UI-GATE (E1–E6) — qa-engineer chạy trên bản build (preview §0)
+**F9 — `hao_texts` trong #3 + endpoint #2b (SPEC-3XU).** Bước: mock roller trả
+`lines_rolled` có k hào động (test helper, không mong chờ ngẫu nhiên) rồi gọi #3; gọi #2b
+id=11 và id=65. Kỳ vọng: #3 201, `data.hao_texts` đúng k phần tử, `vi` tăng dần sơ→thượng,
+mỗi phần tử đủ 5 field `{vi,hao,han,quoc_am,nghia}`; k=0 → `hao_texts: []` (không null);
+#2b id=11 → 200 đúng 6 phần tử; id=65 → 404.
+
+## 3. E2E / UI-GATE (E1–E7) — qa-engineer chạy trên bản build (preview §0)
 
 **E1 — First-run flow.** Bước: incognito mở `/` → Gieo → xem 3 ngôi → về `/`. Kỳ vọng:
 không console error; disclaimer hiện trên mọi màn; quẻ hiện khớp symbol/ten.
 
-**E2 — Magic sequence ≥1.5s.** Bước: record frame (Playwright) từ chạm đến reveal. Kỳ vọng:
-≥1.500 ms, hào vẽ dưới→trên; request #3 bay song song không chờ animation.
+**E2 — Magic sequence 3 xu ≥1.5s (SPEC-3XU).** Bước: record frame (Playwright) từ chạm đến
+reveal. Kỳ vọng: ≥1.500 ms, đủ 6 hào theo thứ tự dưới→trên, mỗi bước gieo thể hiện 3 xu
+(count số phần tử xu trong DOM tại frame giữa animation — shape chờ UX-3XU chốt, test chỉ
+bắt buộc ≥3 xu mỗi hào); request #3 bay song song không chờ animation.
 
 **E3 — Paywall stub.** Bước: S3 → Xin luận sâu (duyên) → Paywall → QR hiển thị, input
 "Lễ tùy tâm" chỉ nhận 1.000–500.000 → simulate-paid (test local dùng #7b) → luận sâu poll
@@ -109,10 +130,16 @@ bùa|thay đổi vận mệnh|tâm linh|thỉnh|cốt". Kỳ vọng: 0 kết qu�
 (giữ `qhn_device` — mock bằng cách đổi session id trên server) → /api/me. Kỳ vọng:
 `entitlements` còn `duyen`, S3 mở luận sâu được luôn.
 
+**E7 — Luận 0 / 1 / nhiều hào động (SPEC-3XU).** Bước: dùng test-mode mock roller trên
+preview (env `QA_MOCK_LINES` — BE-1 chừa: đọc JSON 6 số từ env, chỉ bật khi APP_ENV!=production)
+lần lượt gieo 3 ca: không hào động / 1 hào động / 3 hào động. Kỳ vọng: S3 hiển thị đúng 1
+khối đại ý (k=0); đại ý + 1 khối từ hào (k=1); đại ý + 3 khối từ hào theo thứ tự sơ→thượng,
+mỗi khối đủ Hán + quốc âm + nghĩa (k=3); cả 3 ca KHÔNG có tên/symbol quẻ biến trên màn.
+
 ## 4. Definition of Done toàn chain
 
-- [ ] U1–U6 + F1–F8 xanh trên CI local (`php artisan test`) trước mỗi merge card BE.
-- [ ] E1–E6 xanh do qa-engineer xác nhận (dev-lead nhận report + screenshot, không tự chạy).
+- [ ] U1–U7 + F1–F9 xanh trên CI local (`php artisan test`) trước mỗi merge card BE.
+- [ ] E1–E7 xanh do qa-engineer xác nhận (dev-lead nhận report + screenshot, không tự chạy).
 - [ ] 03-api field-by-field khớp FE network panel (QA diff JSON mẫu vs thực tế 3 ca F2/F4/F8).
 - [ ] Không file >250 dòng; không magic number ngoài `Domain/Rules`; không secret trong git
       (`git grep -Ii 'AIBOX_API_KEY=.\+' ; git grep -i 'password'.env.example` → chỉ placeholder).

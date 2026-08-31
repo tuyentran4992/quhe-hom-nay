@@ -16,6 +16,7 @@ KHÔNG có API công khai nào cần Bearer trong MVP. Mọi response lỗi dùn
 | C-06 | `AI_GLOBAL_CAP_PER_HOUR` | `90` | cap TOÀN CỤC job AI tạo mới trong 60 phút gần nhất (đếm `ai_jobs.requested_at`) |
 | C-07 | `DONATE_MIN_VND` / `DONATE_MAX_VND` | `1000` / `500000` | khoảng tiền "Lễ tùy tâm" |
 | C-08 | `MAGIC_SEQUENCE_MS` | `1500` | FE tối thiểu cho animation gieo quẻ (04-ui); BE không enforce |
+| C-09 | `COIN_THROWS_PER_YAO` / `COIN_FACE_VALUES` | `3` / `sấp=2 · ngửa=3` | Lăn gieo mỗi hào = 3 đồng xu độc lập; tổng điểm ∈ {6,7,8,9}. Thuật toán §3. (Boss lệnh 31/08: bỏ mô phỏng cỏ thi, quay về 3 xu chuẩn — SPEC-3XU) |
 
 Quy ước chung: sai validate → 422 + `errors[]` theo field; vi phạm rule C-xx → đúng mã
 4xx ghi cạnh rule; mọi timestamp RFC3339 UTC; mọi `amount` là INTEGER đồng (không float).
@@ -78,18 +79,46 @@ KHÔNG BAO GIỜ có `canSoi` (không tồn tại trong DB).
 
 Lỗi: 404 `NOT_FOUND` (id ngoài 1..64 hoặc chưa seed).
 
+## 2b. `GET /api/hexagrams/{id}/hao-texts` — 6 từ hào của 1 quẻ (SPEC-3XU)
+
+Dùng cho S3 khi deep-link / đọc quẻ cũ từ Library (#4): FE lọc theo `changing_lines` của
+draw để hiển thị (luật hiển thị ở 04-ui §S3). Nguồn: bảng `hexagram_hao_texts` (02-db §4b).
+
+Response 200 — `{ "data": { "hexagram_id": int, "hao": [ {vi, hao, han, quoc_am, nghia} ×6 ] } }`
+mảng luôn đủ 6 phần tử, thứ tự vi=1..6 (sơ→thượng).
+Lỗi: 404 `NOT_FOUND` (id ngoài 1..64 hoặc chưa seed).
+
 ## 3. `POST /api/draws` — gieo quẻ hôm nay (C-01)
 
 Request body: `{}` (rỗng cũng hợp lệ; trường `client_date_vn` string\|optional CHỈ để log
 đối chiếu lệch ngày, server KHÔNG dùng tính toán).
 
-Logic server (BẤT BIẾN, BE-1 code đúng như này — mô phỏng gieo cỏ thi đơn giản hóa):
-mỗi hào (6 hào, dưới→trên): `r = random_int(1,100)`; r≤44 → 7 (dương tĩnh); r≤88 → 8 (âm
-tĩnh); r≤94 → 9 (dương động); else → 6 (âm động). `changing_lines` = vị trí 1-based mang
-giá trị 6 hoặc 9. Quẻ gốc: hào dương (7|9)=1, âm (6|8)=0 → bitmask 6 bit dưới→trên, tra
-`hexagrams.lines` khớp 1-1 (64 pattern unique, đã verify). Nếu có hào động, luận vẫn trả
-theo quẻ gốc MVP (quẻ biến = nội dung sóng 2, chưa mở endpoint). Ghi `draws` (unique
-C-01 chặn trùng), trả 201.
+### 3.1 Thuật toán roller — 3 đồng xu chuẩn (C-09, THAY thuật toán cỏ-thi 44/88/94 bản cũ)
+
+Mỗi hào trong 6 hào (dưới→trên) gieo **3 đồng xu độc lập**: sấp = 2 điểm, ngửa = 3 điểm.
+Tổng 3 xu → giá trị hào:
+
+| Tổng | Hào | Ý nghĩa | Số tổ hợp xu | Xác suất |
+|---|---|---|---|---|
+| 6 | `6` | âm **động** (老陰) | xấp xỉ 1 (2+2+2) | 1/8 = **12.5%** |
+| 7 | `7` | dương tĩnh (少陽) | 3 (2+2+3 hoán vị) | 3/8 = **37.5%** |
+| 8 | `8` | âm tĩnh (少陰) | 3 (3+3+2 hoán vị) | 3/8 = **37.5%** |
+| 9 | `9` | dương **động** (老陽) | 1 (3+3+3) | 1/8 = **12.5%** |
+
+Đủ 8 mẫu đồng khả năng (liệt kê kiểm chứng tổ hợp): `222→6`, `223/232/322→7`,
+`332/323/233→8`, `333→9`. Tổng = 1.0. Đây là phân phối 3 xu chuẩn — KHÔNG còn mô phỏng
+cỏ thi 44/88/94 (lệch cũ bản SPEC-01, boss chốt quay về 3 xu ngày 31/08).
+
+Cài đặt BE (bất biến, BE-1 code đúng như này):
+- Mỗi xu: `random_int(2, 3)` (CSPRNG, hai mặt đồng đều). 1 hào = 3 lần `random_int(2,3)`
+  cộng lại; hoặc tương đương `6 hào × 3 xu = 18` lần `random_int(2,3)` cho 1 quẻ — mỗi lần
+  gọi ĐỘC LẬP, không reuse kết quả.
+- CẤM: `rand()/mt_rand()` không CSPRNG; seed theo timestamp; mọi bảng tra "dịch" phân phối.
+- `changing_lines` = vị trí 1-based mang giá trị 6 hoặc 9. Quẻ gốc: hào dương (7|9)=1,
+  âm (6|8)=0 → bitmask 6 bit dưới→trên, tra `hexagrams.lines` khớp 1-1 (64 pattern unique,
+  đã verify). Quẻ biến (đổi các hào động) vẫn TÍNH và LƯU nội bộ nhưng không trả qua API
+  MVP, không vào prompt AI (xem 01-overview §4bis).
+- Ghi `draws` (unique C-01 chặn trùng), trả 201.
 
 Response 201 — `data`:
 
@@ -97,6 +126,7 @@ Response 201 — `data`:
 |---|---|---|
 | `data.draw` | draw §3.2 | id hexagram_id drawn_date lines_rolled changing_lines created_at |
 | `data.hexagram` | object | như §2 `data` (đủ 16 field, đã kiểm schema) |
+| `data.hao_texts` | object[] | **SPEC-3XU**: 1 phần tử / hào động, xếp sơ→thượng: `{vi:int(1..6), hao:str (Sơ cửu...), han, quoc_am, nghia}` — nguồn bảng `hexagram_hao_texts` (02-db §4b). Rỗng `[]` khi 0 hào động. FE S3 render trực tiếp, KHÔNG tự tra. |
 | `data.already_drawn` | bool | luôn false ở 201 |
 
 ### 3.2 `draw` object (dùng chung ở #1 #3 #10)
@@ -104,7 +134,7 @@ Response 201 — `data`:
 `{ "id": int, "hexagram_id": int, "drawn_date": "YYYY-MM-DD", "lines_rolled": int[6] (mỗi pt ∈ {6,7,8,9}), "changing_lines": int[] (1-based ⊆1..6), "created_at": RFC3339 }`
 
 ```json
-{"data":{"draw":{"id":42,"hexagram_id":11,"drawn_date":"2026-08-30","lines_rolled":[7,8,7,7,7,7],"changing_lines":[2],"created_at":"2026-08-30T02:15:00Z"},"hexagram":{"id":11,"han":"泰","ten":"Địa Thiên Thái","...":"..."},"already_drawn":false}}
+{"data":{"draw":{"id":42,"hexagram_id":11,"drawn_date":"2026-08-30","lines_rolled":[7,6,7,7,7,9],"changing_lines":[2,6],"created_at":"2026-08-30T02:15:00Z"},"hexagram":{"id":11,"han":"泰","ten":"Địa Thiên Thái","...":"..."},"hao_texts":[{"vi":2,"hao":"Lục nhị","han":"六二：包荒，用馮河，不遐遺。","quoc_am":"Lục nhị: bao hoang, dụng bằng hà, bất di di, bằng vong, đắc thượng vu trung hành.","nghia":"..."},{"vi":6,"hao":"Thượng lục","han":"上六：城復于隍，勿用師。","quoc_am":"Thượng lục: thành phục vu hoàng, vật dụng sư...","nghia":"..."}],"already_drawn":false}}
 ```
 
 Lỗi: 409 `DRAW_LIMIT_REACHED` (C-01, `details.next_draw_at` = 0h VN kế tiếp). Không có lỗi
@@ -206,8 +236,8 @@ mỗi lần refetch. 200 không điều kiện.
 | Màn (04-ui) | Endpoint | FE đọc field |
 |---|---|---|
 | Home | #1 | `today_draw, entitlements, server_date_vn` |
-| Draw | #3 | `data.draw, data.hexagram.free_content` |
-| Detail 3 ngôi | #3 cache + #2 | `free_content.{congViec,tinhDuyen,taiLoc}`, `changing_lines` |
+| Draw | #3 | `data.draw, data.hexagram.free_content, data.hao_texts` |
+| Detail 3 ngôi | #3 cache + #2 | `free_content.{congViec,tinhDuyen,taiLoc}`, `changing_lines`, `hao_texts` (hào động, 04-ui S3) |
 | Paywall | #7 → #9 | `qr_data, confirm_url` → poll `status` |
 | Deep AI | #5 → #6 | `job_uuid` → `result` |
 | Library | #4 | `data[]` |

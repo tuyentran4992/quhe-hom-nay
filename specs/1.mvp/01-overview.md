@@ -28,7 +28,7 @@ cấu trúc 3 ngôi) đặt 1 chỗ: `app/Domain/Rules.php` (hằng số) + serv
 Browser (Vue SPA)
    │ fetch /api/*  (cookie session, SameSite=Lax)
    ▼
-Laravel API ──► MariaDB (7 bảng, xem 02-db)
+Laravel API ──► MariaDB (8 bảng, xem 02-db)
    │  dispatch job 'interpret'
    ▼
 queue:work --database ──► AI-Box HTTP ──► kết quả ghi ai_jobs.result
@@ -45,14 +45,16 @@ quhe-hom-nay/
 │   │   ├── Http/Controllers/   # Draw, Hexagram, Interpretation, Payment, Me
 │   │   ├── Http/Middleware/    # EnsureDeviceSession, IdempotencyKey
 │   │   ├── Jobs/RunAiBoxJob.php
-│   │   ├── Models/             # Eloquent: User Device Session Hexagram Draw Payment AiJob
+│   │   ├── Models/             # Eloquent: User Device Session Hexagram HexagramHaoText Draw Payment AiJob
 │   │   └── Services/           # DrawService InterpretationService PaymentService
-│   ├── database/migrations/    # 7 bảng theo 02-db, tên file 0001..0007
+│   ├── database/migrations/    # 8 bảng theo 02-db, tên file 0001..0008
 │   ├── database/data/
-│   │   └── hexagrams.json      # content 64 quẻ đã QV-chốt, canSoi đã strip ✓ đã commit (sha256 76cfc11f…)
+│   │   ├── hexagrams.json      # content 64 quẻ đã QV-chốt, canSoi đã strip ✓ đã commit (sha256 76cfc11f…) — CẤM sửa (SPEC-3XU)
+│   │   └── hao_texts.json      # SPEC-3XU: 64×6 từ hào, ghép từ research hao_texts_part1..4 (seed riêng, xem 02-db §9)
 │   ├── database/seeders/
-│   │   ├── DatabaseSeeder.php  # gọi HexagramSeeder (idempotent)
-│   │   └── HexagramSeeder.php  # đọc ../data/hexagrams.json
+│   │   ├── DatabaseSeeder.php  # gọi HexagramSeeder + HaoTextSeeder (đều idempotent)
+│   │   ├── HexagramSeeder.php  # đọc ../data/hexagrams.json
+│   │   └── HaoTextSeeder.php   # đọc ../data/hao_texts.json (SPEC-3XU)
 │   ├── routes/api.php
 │   └── .env.example            # đủ biến mục 5, không có giá trị thật
 ├── frontend/                   # Vue 3 + Vite + Tailwind
@@ -69,13 +71,24 @@ quhe-hom-nay/
 
 1. Khách lạ vào → middleware gán device (`POST /api/devices` ẩn trong EnsureDeviceSession:
    cookie `qhn_device` + row `devices`; Laravel session cookie riêng để sweep) → `GET /api/me`.
-2. `POST /api/draws` (gieo quẻ): server random 6 hào (CSPRNG), tra `hexagrams`, ghi `draws`,
+2. `POST /api/draws` (gieo quẻ): server gieo 6 hào bằng **3 đồng xu chuẩn** (mỗi hào 3 xu
+   độc lập, sấp=2 ngửa=3, tổng ∈ {6,7,8,9}; CSPRNG — thuật toán chốt ở 03-api §3.1, C-09),
+   tra `hexagrams`, ghi `draws`,
    trả quẻ + luận 3 ngôi (content tĩnh, KHÔNG qua AI). Limit: 1 quẻ/ngày (C-01).
 3. Khách bấm "Xin luận sâu" → `POST /api/ai/interpretations` (chủ đề duyên|tai_loc|
    xuat_hanh) → 402 nếu chưa unlock; đã unlock hoặc sau khi payOS webhook OK thì tạo
    `ai_jobs` pending, worker gọi AI-Box, client poll `GET /api/ai/jobs/{job_uuid}` (2s/lần).
 4. Thanh toán: `POST /api/payments/create` (stub, PAY-01 đổ code thật) → VietQR → webhook
    → entitlement ghi vào `payments.status=paid` → unlock cho device đó, chủ đề đã mua, vô hạn.
+
+### 4bis. Luật "luận" SPEC-3XU (boss chốt 31/08 — áp dụng S3 + prompt AI)
+
+- 0 hào động → luận theo ĐẠI Ý quẻ gốc (`dai_ci`).
+- ≥1 hào động → ĐẠI Ý quẻ gốc + TỪ HÀO của từng hào động (xếp sơ→thượng, nguồn
+  `hexagram_hao_texts`, 02-db §4b).
+- Quẻ biến vẫn tính + lưu DB (nghiên cứu sau), NHƯNG không hiển thị UI và không đưa vào
+  prompt AI-Box. Prompt #5 chỉ gồm: đại ý quẻ gốc + các từ hào động + topic + free_content
+  liên quan.
 
 ## 5. Env (`.env.example` phải đủ — điền là chạy)
 
@@ -99,8 +112,8 @@ giá 29000đ) KHÔNG nằm trong env — nằm trong `Domain/Rules.php` theo 03-
 
 C-01 free 1 quẻ/device/ngày · C-03 cooldown xin lại luận sâu 90 giây/device (CHỐT: là 90
 GIÂY thời gian, không phải 90 lần; đây là điểm lệch bản cũ) · C-04 job AI timeout 120 giây,
-retry 3 lần · C-06 cap toàn cục 90 job AI/giờ · C-05 giá unlock 29.000đ one-time.
-Magic sequence FE tối thiểu 1.5 giây (04-ui).
+retry 3 lần · C-06 cap toàn cục 90 job AI/giờ · C-05 giá unlock 29.000đ one-time · C-09 gieo
+mỗi hào = 3 đồng xu (sấp 2 / ngửa 3). Magic sequence FE tối thiểu 1.5 giây (04-ui).
 
 ## 7. Phân kỳ & quyền merge
 
