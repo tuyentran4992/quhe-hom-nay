@@ -174,3 +174,32 @@ npm run build         # ok → backend/public/app
 # .../ac4-s3-tu-hao.png                                        (Luận hôm nay: Đại ý + Cửu nhị 九二：包荒… đủ 4 dòng)
 # tool: outbox/t_463d700d/shot_server.py + shot_ac4.py
 ```
+
+---
+
+## F7 — Thẻ chia sẻ (share card) — card t_2e969791
+
+Nguồn: SPEC-THE §1/§3, MOCKUP-CARD, F7-CONTRACT §5 (7 testid), METRICS V1–V4.
+
+### S3 — nút mở overlay (DetailView)
+| selector | nơi | ghi chú |
+|---|---|---|
+| `data-testid="share-card-open"` | chip paper2 cạnh "Xin luận sâu", cuối S3 | `<button type="button">` nhãn "Chia sẻ thẻ quẻ"; CHỈ xuất hiện trong `template v-else` sau khi #3/#2 render xong (loading/error → không nút, không popup); click → `/share-card?draw={id}` |
+
+### Overlay `/share-card` (ShareCardView)
+| selector | nơi | ghi chú |
+|---|---|---|
+| `data-testid="share-card-open"` | root overlay `fixed inset-0` | mount là bắn V1 `share_card_open` {draw_id, hexagram_id, has_dynamic_line} |
+| `data-testid="share-card-image"` | `<img>` PNG canvas thật (dataUrl) | chỉ tồn tại khi render OK; đổi theo khung đang chọn |
+| `data-testid="share-card-fallback"` | thẻ HTML tối giản (E1) | xuất hiện KHI `renderFrame` throw → kèm V3 `share_card_error` {draw_id, reason}; Copy link vẫn chạy |
+| `data-testid="share-card-frame-9x16"` | toggle story (mặc định on) | `aria-pressed` true/false; đổi khung → renderFrame lần đầu khung đó bắn V2 `share_card_created` {draw_id, frame:"9x16"\|"1x1", render_ms} |
+| `data-testid="share-card-frame-1x1"` | toggle feed | cùng cơ chế V2 với frame:"1x1" |
+| `data-testid="share-card-download"` | nút Tải ảnh | disabled khi chưa có shot; PNG tên `que-{token}.png`; success → V4 `share_card_done` {draw_id, method:"download", token} |
+| `data-testid="share-card-copy-link"` | nút Copy link | 9:16 = NGUYÊN URL `/s/{token}`; 1:1 = `CAPTION_1X1 + "\n" + URL` (CAP-THE §4); clipboard success → V4 method:"copy" |
+| `data-testid="share-card-native"` | nút Chia sẻ (Web Share) | `navigator.share({files:[PNG], text: CAPTION_NATIVE render tên quẻ})`; success → V4 method:"native"; E2 cancel/unsupported → IM LẶNG, không done, không alert |
+| `data-testid="share-card-close"` | chữ "Đóng" đáy overlay | router.replace về detail |
+
+- Link fail (BE F7 chưa merge / 503): thẻ VẪN vẽ, url dự phòng `{origin}/que/{id}`, token null, KHÔNG bắn `share_card_error` (không chặn UX).
+- API mới: `api.shareLinks(draw_id)` POST `/api/share-links` {draw_id}; `api.shareCard(token)` GET `/api/share-links/{token}` (client chỉ khai báo route; view /s/{token} Blade do lane khác).
+- Renderer: `src/utils/shareCardCanvas.js` canvas 2D TỰ VẼ (không html2canvas), đơn vị 1080, safe-area story 250/310; logic content `src/utils/shareCard.js` (TH1 hào động đầu tiên → TH2 vế đầu dai_ci → E6 tối giản; hook ≤80, text_1x1 ≤60, clip tại ranh giới câu/từ, không cắt giữa từ).
+- Tracking: `src/utils/track.js` fire-and-forget POST `/api/track`, fail im lặng, tên V1–V4 NGUYÊN VĂN không prefix (F7-CONTRACT §1).

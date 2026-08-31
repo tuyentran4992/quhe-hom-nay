@@ -10,7 +10,7 @@ export default { name: 'DetailView' }
 //  - deep-link quẻ KHÁC ngày: contract không có GET /draws/{id} → resolve draw
 //    qua #4 history (limit 50), rồi #2 theo hexagram_id. Không thấy → detail-error.
 import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { api } from '../api/client.js'
 import { useDevice } from '../composables/useDeviceApi.js'
 import { useHexagrams } from '../composables/useHexagrams.js'
@@ -21,6 +21,7 @@ import TopicGate from '../components/TopicGate.vue'
 import { changingLabel } from '../utils/format.js'
 
 const route = useRoute()
+const router = useRouter()
 const d = useDevice()
 const hxlib = useHexagrams()
 const haolib = useHaoTexts()
@@ -170,12 +171,22 @@ const topicForTab = computed(() => ({ congViec: 'xuat_hanh', tinhDuyen: 'duyen',
         </div>
       </section>
 
-      <!-- vùng luận sâu (3 nhánh §2.S3) -->
-      <TopicGate
-        v-if="draw"
-        :draw-id="draw.id"
-        :topic="topicForTab"
-      />
+      <!-- F7 S3 (SPEC-THE §1): nút "Chia sẻ thẻ quẻ" — chip paper2 cạnh "Xin luận sâu",
+           nằm TRONG template v-else → chỉ hiện SAU khi #3/#2 render xong; KHÔNG popup
+           giữa reveal. Bút true (type=button, a11y) → router.push /share-card?draw={id} (testid §5). -->
+      <div class="mt-8 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          data-testid="share-card-open"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-card bg-paper2 text-ink font-medium"
+          @click="router.push({ name: 'share-card', query: { draw: String(draw.id) } })"
+        >Chia sẻ thẻ quẻ</button>
+        <TopicGate
+          v-if="draw"
+          :draw-id="draw.id"
+          :topic="topicForTab"
+        />
+      </div>
     </template>
   </div>
 </template>

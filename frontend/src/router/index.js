@@ -8,6 +8,8 @@ export const routes = [
   { path: '/que/:drawId', name: 'detail', component: () => import('../views/DetailView.vue') },
   { path: '/mo-khoa/:topic', name: 'paywall', component: () => import('../views/PaywallView.vue') },
   { path: '/cua-ban', name: 'library', component: () => import('../views/LibraryView.vue') },
+  // F7 overlay thẻ chia sẻ (SPEC-THE §1) — fullscreen, query ?draw={id}
+  { path: '/share-card', name: 'share-card', component: () => import('../views/ShareCardView.vue') },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]
 

@@ -10,9 +10,9 @@ function makeRouter() {
 describe('router 04-ui §2', () => {
   const paths = routes.filter((r) => r.path !== '/:pathMatch(.*)*').map((r) => r.path)
 
-  it('đủ 5 route S1..S5 đúng path spec', () => {
-    expect(paths).toEqual(expect.arrayContaining(['/', '/draw', '/que/:drawId', '/mo-khoa/:topic', '/cua-ban']))
-    expect(paths.length).toBe(5)
+  it('đủ 5 route S1..S5 + overlay F7 /share-card đúng path spec', () => {
+    expect(paths).toEqual(expect.arrayContaining(['/', '/draw', '/que/:drawId', '/mo-khoa/:topic', '/cua-ban', '/share-card']))
+    expect(paths.length).toBe(6)
   })
 
   it('có catchall redirect về home', () => {
