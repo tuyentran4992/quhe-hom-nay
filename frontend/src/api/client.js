@@ -70,6 +70,10 @@ export const api = {
   paymentStatus: (code) => req('GET', `/api/payments/${code}/status`),
   // #10 đọc nhanh hôm nay
   today: () => req('GET', '/api/me/today'),
+  // #11 F7 tạo link chia sẻ thẻ (idempotent per device+draw — F7-CONTRACT §2)
+  shareLinks: (draw_id) => req('POST', '/api/share-links', { draw_id }),
+  // #12 F7 payload công khai thẻ /s/{token}
+  shareCard: (token) => req('GET', `/api/share-links/${encodeURIComponent(token)}`),
 }
 
 export { uuid8 }
