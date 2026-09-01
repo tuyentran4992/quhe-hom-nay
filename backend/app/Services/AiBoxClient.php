@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Domain\RouterPrompt;
 use App\Domain\Rules;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 
 /**
@@ -16,11 +17,20 @@ class AiBoxClient
     /**
      * LUAN-V3 (SPEC §5.2, ADR-V3-01) — bước ROUTER danh mục: call NHỎ chạy trước
      * bước luận trong RunAiBoxJob. Cùng client/base_url/key, model riêng
-     * (aibox.router_model, rỗng → fallback model luận), temperature 0, max_tokens 8,
-     * timeout RIÊNG 10s. LỖI/mạng/JSON rác → trả NULL nội bộ — TUYỆT ĐỐI không
+     * (aibox.router_model, rỗng → Rules::AI_ROUTER_MODEL non-reasoning),
+     * temperature 0, max_tokens Rules::AI_ROUTER_MAX_TOKENS, timeout RIÊNG 10s.
+     * LỖI/mạng/JSON rác → trả NULL nội bộ — TUYỆT ĐỐI không
      * throw, không làm fail job luận (worker đi nhánh fallback T-D).
      * Nợ ghi nhận (§5.3): model router đổi về sau → replay lý thuyết lệch; MVP
      * không replay nên chấp nhận.
+     *
+     * BUG-V3-1 (card t_05d92158) — đường cũ `router_model ?: model luận` là hố
+     * tử thần: model luận deploy = deepseek-v4-flash (reasoning) → lý lẽ ăn hết
+     * 8 token, content='' → route null → 100% bài rơi T-D im lặng. Fallback mới
+     * về Rules::AI_ROUTER_MODEL; CẤM fallback model luận khi router_model rỗng.
+     * BUG-V3-3 — log aibox.router.sent đếm-mù (ghi trước parse, request 200 kể
+     * cả khi nhãn bị cắt) thay bằng aibox.router.result SAU parse: route = giá
+     * trị thật (label|null|UNCLEAR) + finish_reason để giám sát không mù.
      */
     public function routeTopic(string $question): ?string
     {
@@ -29,7 +39,7 @@ class AiBoxClient
         if ($key === '') {
             return null; // chưa cấu hình = router lỗi → fallback im lặng CÓ chủ đích (T-D)
         }
-        $model = (string) (config('aibox.router_model') ?: config('aibox.model'));
+        $model = trim((string) config('aibox.router_model')) ?: Rules::AI_ROUTER_MODEL;
 
         try {
             $res = Http::timeout(Rules::AI_ROUTER_TIMEOUT_SECONDS)
@@ -38,7 +48,7 @@ class AiBoxClient
                     'model' => $model,
                     'messages' => [['role' => 'user', 'content' => RouterPrompt::forQuestion($question)]],
                     'temperature' => 0,
-                    'max_tokens' => 8,
+                    'max_tokens' => Rules::AI_ROUTER_MAX_TOKENS,
                 ]);
         } catch (\Throwable $e) {
             logger()->warning('aibox.router.failed', ['err' => $e->getMessage()]);
@@ -52,16 +62,24 @@ class AiBoxClient
             return null;
         }
         $text = (string) $res->json('choices.0.message.content', '');
+        $route = trim($text) === '' ? null : RouterPrompt::parse($text);
 
-        // log ĐẾM ĐƯỢC cho AC-1 (§5.2): phân biệt với aibox.request.sent của bước luận.
-        logger()->info('aibox.router.sent', ['model' => $model]);
+        // ĐẾM ĐƯỢC cả THÀNH CÔNG lẫn GIÁ TRỊ (AC-1 + BUG-V3-3): 1 dòng = 1 call
+        // THẬT có parse xong; route=null + finish=length = đúng chữ bệnh BUG-V3-1.
+        // question KHÔNG bao giờ vào log (§5.2).
+        logger()->info('aibox.router.result', [
+            'model' => $model,
+            'route' => $route,
+            'finish' => $res->json('choices.0.finish_reason'),
+        ]);
 
-        return trim($text) === '' ? null : RouterPrompt::parse($text);
+        return $route;
     }
 
     /**
      * @param  array{role:string,content:string}  $messages
      * @return string văn bản trả về
+     *
      * @throws AiBoxException AI_TIMEOUT | AI_UPSTREAM
      */
     public function complete(array $messages): string
@@ -80,7 +98,7 @@ class AiBoxClient
                     'messages' => $messages,
                     'temperature' => 0.7,
                 ]);
-        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+        } catch (ConnectionException $e) {
             // cURL 28 = "Operation timed out" — message khác nhau theo driver, bắt cả hai
             $m = strtolower($e->getMessage());
             $code = (str_contains($m, 'timeout') || str_contains($m, 'timed out')) ? 'AI_TIMEOUT' : 'AI_UPSTREAM';

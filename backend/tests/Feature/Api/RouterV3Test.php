@@ -2,14 +2,15 @@
 
 namespace Tests\Feature\Api;
 
-use App\Domain\Hexagram;
 use App\Domain\PromptBuilder;
+use App\Domain\Rules;
 use App\Jobs\RunAiBoxJob;
 use App\Models\AiJob;
 use App\Models\Device;
 use App\Models\Draw;
 use App\Services\AiBoxClient;
 use Database\Seeders\HaoTextSeeder;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -232,7 +233,7 @@ class RouterV3Test extends Be2TestCase
     /** T26 — router LỖI (mạng) → job vẫn done với prompt T-D, attempts không tăng thêm. */
     public function test_worker_router_loi_khong_bao_gio_lam_fail_job(): void
     {
-        $this->routerQueue[] = new \Illuminate\Http\Client\ConnectionException('connection refused');
+        $this->routerQueue[] = new ConnectionException('connection refused');
         $job = $this->runWorker('duyen', 'bao giờ em có người yêu');
 
         $this->assertSame(AiJob::ST_DONE, $job->status, 'router lỗi tuyệt đối không fail job luận');
@@ -281,8 +282,13 @@ class RouterV3Test extends Be2TestCase
         $this->assertSame(hash('sha256', $draw->id.'|duyen|bao giờ có người yêu'), $hashes[0]);
     }
 
-    /** Router model: config mới khai báo, default rỗng → fallback model luận (§5.2). */
-    public function test_config_router_model_fallback(): void
+    /**
+     * Router model (BUG-V3-1 card t_05d92158 đổi hợp đồng): router_model rỗng →
+     * Rules::AI_ROUTER_MODEL non-reasoning, KHÔNG fallback model luận nữa — model
+     * luận deploy là reasoning, fallback = router chết im lặng (content='' vì lý
+     * lẽ ăn hết max_tokens). Khai báo tường minh vẫn thắng.
+     */
+    public function test_config_router_model_rong_ve_non_reasoning(): void
     {
         $this->assertArrayHasKey('router_model', config('aibox'));
         config(['aibox.router_model' => '']);
@@ -292,9 +298,14 @@ class RouterV3Test extends Be2TestCase
         $calls = $this->sentCalls();
         $routerModel = $calls[0]['model'];
         $luanModel = $calls[1]['model'];
-        $this->assertNotSame('', $routerModel);
-        $this->assertSame($luanModel, $routerModel, 'router_model rỗng → fallback đúng AIBOX_MODEL');
+        $this->assertSame(Rules::AI_ROUTER_MODEL, $routerModel, 'rỗng → model router mặc định non-reasoning');
+        $this->assertNotSame($luanModel, $routerModel, 'cấm router dùng lại model luận reasoning');
         config(['aibox.router_model' => 'router-small']);
-        $this->assertSame('router-small', (string) config('aibox.router_model'));
+        $this->routerQueue[] = 'duyen';
+        $this->runWorker('duyen', 'abc duyen 2');
+        $calls = $this->sentCalls();
+        // lần 2: calls = [router1, luan1, router2, luan2] — router thứ 2 ở index 2
+        $this->assertCount(4, $calls);
+        $this->assertSame('router-small', $calls[2]['model'], 'khai báo tường minh vẫn thắng mặc định');
     }
 }

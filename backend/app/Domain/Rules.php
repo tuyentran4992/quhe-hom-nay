@@ -20,10 +20,29 @@ final class Rules
 
     /** C-04: 1 job AI chết sau 120s, tối đa 3 lần thử. */
     public const AI_TIMEOUT_SECONDS = 120;
+
     public const AI_MAX_ATTEMPTS = 3;
 
     /** LUAN-V3 §5.2: timeout RIÊNG bước router danh mục = 10s (Rules không đổi logic cap/cooldown). */
     public const AI_ROUTER_TIMEOUT_SECONDS = 10;
+
+    /**
+     * BUG-V3-1 (card t_05d92158): model router danh mục —single source of truth.
+     * BẮT BUỘC non-reasoning phía content: model reasoning (deepseek-v4-flash)
+     * nhét toàn bộ output SAU reasoning → budget 8 token bị lý lẽ ăn hết,
+     * content='' vĩnh viễn (probe thật 01/09: mt=64/192 vẫn length/cắt).
+     * qwen3.6-flash: 4/4 nhãn nguyên văn đúng whitelist ở mt=8, 3.0–5.8s (<10s).
+     */
+    public const AI_ROUTER_MODEL = 'qwen3.6-flash';
+
+    /**
+     * BUG-V3-1: budget router phát động qua constant (trước là magic number 8
+     * nằm trong AiBoxClient). Giữ 8 vì model mặc định non-reasoning — nếu vận
+     * hành đổi sang model reasoning, PHẢI tăng kèm (≥192 theo probe) hoặc router
+     * chết im lặng trở lại; log aibox.router.result (finish=length, route=null)
+     * là tín hiệu bắt bệnh.
+     */
+    public const AI_ROUTER_MAX_TOKENS = 8;
 
     /** C-05: giá one-time / chủ đề, đơn vị đồng (VND chẵn). */
     public const PRICE_UNLOCK_VND = 29000;
@@ -33,12 +52,11 @@ final class Rules
 
     /** C-07: khoảng tiền "Lễ tùy tâm" (đồng). */
     public const DONATE_MIN_VND = 1000;
+
     public const DONATE_MAX_VND = 500000;
 
     /** C-08: FE tối thiểu cho animation gieo quẻ — BE không enforce. */
     public const MAGIC_SEQUENCE_MS = 1500;
 
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 }
