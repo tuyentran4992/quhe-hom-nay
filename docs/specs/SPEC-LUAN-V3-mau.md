@@ -1,4 +1,10 @@
-# BÀI MẪU LUAN-V3 (demo giọng cổ — anh Tuyền duyệt mắt, chưa code)
+> ## [BỊ LOẠI 01/09 — lưu tham khảo, không phải chuẩn]
+> Verdict anh Tuyền 16:0x qua HEAD-GATE t_91b1cac2: "thôi giữ cách viết cũ, đọc bản này a ko hiểu gì".
+> Giọng cổ trong bài này KHÔNG phải chuẩn. Văn phong hiệu lực = V2 @ eaced06 (SPEC-LUAN-V3 amended §1).
+> Chuẩn duyệt mắt mới = 4 bài mẫu router văn phong V2 trên card preview t_06244320.
+> Giữ nguyên nội dung bên dưới để lưu dấu vết quyết định (case dữ liệu id31 vẫn tham chiếu được).
+
+# BÀI MẪU LUAN-V3 (demo giọng cổ — anh Tuyền duyệt mắt, chưa code) — ĐÃ BỊ LOẠI, xem header
 
 Case dựng sẵn theo router V2: khách ngồi tab **Tài lộc**, gõ "người ấy nghĩ gì về em".
 Router → `duyen` (nhánh cross-tab). Quẻ: id31 **Trạch Sơn Hàm** 咸, hào 4 động (case 1 — luật chọn lời: hào từ Cửu Tứ, BianRule.php:57).
