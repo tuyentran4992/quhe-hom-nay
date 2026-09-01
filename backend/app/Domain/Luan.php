@@ -32,7 +32,7 @@ final class Luan
      * LUAN-V2 §6.1 — từ hào theo DANH SÁCH VỊ TRÍ chủ động: case 4/5 luật chọn lời
      * là hào TĨNH (không phải changing_lines) → worker tách vị trí qua đây.
      *
-     * @param int[] $vi vị trí 1-based, trả về sắp xếp sơ→thượng
+     * @param  int[]  $vi  vị trí 1-based, trả về sắp xếp sơ→thượng
      * @return array<int, array{vi:int,hao:string,han:string,quoc_am:string,nghia:string}>
      */
     public function haoTextsForPositions(int $hexagramId, array $vi): array
@@ -84,11 +84,11 @@ final class Luan
     /** Block nội dung luận (dòng cuối user prompt — 02-db §8, BẤT BIẾN định vị). */
     public function block(Hexagram $hexagram, array $haoTexts): string
     {
-        $out = 'LUAN (' . $hexagram->id . ' ' . $hexagram->han . ' ' . $hexagram->ten . '): '
-            . trim((string) $hexagram->dai_ci);
+        $out = 'LUAN ('.$hexagram->id.' '.$hexagram->han.' '.$hexagram->ten.'): '
+            .trim((string) $hexagram->dai_ci);
         foreach ($haoTexts as $h) {
-            $out .= "\n- " . $h['hao'] . ': ' . trim($h['han'])
-                . ' | ' . trim($h['quoc_am']) . ' | ' . trim($h['nghia']);
+            $out .= "\n- ".$h['hao'].': '.trim($h['han'])
+                .' | '.trim($h['quoc_am']).' | '.trim($h['nghia']);
         }
 
         return $out;
@@ -97,7 +97,7 @@ final class Luan
     /** Bản đồ hexagram_id → toàn bộ 6 từ hào (#4 history — tránh N+1; FE lọc theo
      * changing_lines từng draw, đúng tinh thần "FE render trực tiếp").
      *
-     * @param int[] $hexagramIds
+     * @param  int[]  $hexagramIds
      * @return array<int, array<int, array{vi:int,hao:string,han:string,quoc_am:string,nghia:string}>>
      */
     public function mapForHexagrams(array $hexagramIds): array

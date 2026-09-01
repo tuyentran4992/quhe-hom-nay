@@ -19,16 +19,16 @@ namespace App\Domain;
 final class PromptBuilder
 {
     /**
-     * @param array $hex 1 row bảng hexagrams (snake_case) — quẻ GỐC
-     * @param int[] $changingLines vị trí 1-based (hào động)
-     * @param array[] $haoTexts các hào luật Biện quẻ CHỌN (§6.1: case 4/5 là hào
-     *        TĨNH — worker lọc bằng Luan::haoTextsForPositions, không phải
-     *        changing_lines): {vi,hao,han,quoc_am,nghia}. RỖNG khi 0 động.
-     * @param string|null $question câu hỏi khách ĐÃ normalize (trim, null nếu rỗng)
-     * @param array|null $rule kết quả BianRule::quiTrinh(); null → tự tính
-     * @param array|null $bien row quẻ BIẾN (hexagrams, snake_case) — CHỈ được dùng
-     *        khi $rule['can_loi_bien'] (case 3/6); truyền vào mà rule cấm → bỏ qua.
-     * @param array|null $dungChan lời DỤNG hào (Luan::dungHaoFor) cho case 6 Càn/Khôn.
+     * @param  array  $hex  1 row bảng hexagrams (snake_case) — quẻ GỐC
+     * @param  int[]  $changingLines  vị trí 1-based (hào động)
+     * @param  array[]  $haoTexts  các hào luật Biện quẻ CHỌN (§6.1: case 4/5 là hào
+     *                             TĨNH — worker lọc bằng Luan::haoTextsForPositions, không phải
+     *                             changing_lines): {vi,hao,han,quoc_am,nghia}. RỖNG khi 0 động.
+     * @param  string|null  $question  câu hỏi khách ĐÃ normalize (trim, null nếu rỗng)
+     * @param  array|null  $rule  kết quả BianRule::quiTrinh(); null → tự tính
+     * @param  array|null  $bien  row quẻ BIẾN (hexagrams, snake_case) — CHỈ được dùng
+     *                            khi $rule['can_loi_bien'] (case 3/6); truyền vào mà rule cấm → bỏ qua.
+     * @param  array|null  $dungChan  lời DỤNG hào (Luan::dungHaoFor) cho case 6 Càn/Khôn.
      */
     public static function userPrompt(
         array $hex,
@@ -63,7 +63,7 @@ final class PromptBuilder
             'Đại ý: '.($hex['dai_ci'] ?? ''),
             'Từ khóa: '.implode(', ', (array) $kw),
             'Luận hôm nay: '.($hex['luan_nay'] ?? ''),
-            'Góc nhìn sẵn có về '.$topicLabel.': '.($free[static::freeKey($topic)] ?? '—'),
+            'Góc nhìn sẵn có về '.$topicLabel.': '.($free[self::freeKey($topic)] ?? '—'),
             $lines !== '' ? "Hào động (1-based từ dưới lên): {$lines}" : 'Không có hào động.',
             'Luật Biện quẻ (số hào động: '.$rule['n_dong'].'): '.$rule['loi_luan'],
         ];
@@ -123,7 +123,5 @@ final class PromptBuilder
         };
     }
 
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 }

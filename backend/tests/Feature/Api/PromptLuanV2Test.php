@@ -25,7 +25,7 @@ class PromptLuanV2Test extends Be2TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        (new HaoTextSeeder())->run();
+        (new HaoTextSeeder)->run();
     }
 
     /** Draw mới (device mới → không dính cooldown) đổi cả 3 topic, changing tùy ý. */

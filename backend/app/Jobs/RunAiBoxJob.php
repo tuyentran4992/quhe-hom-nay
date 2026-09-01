@@ -60,7 +60,7 @@ class RunAiBoxJob implements ShouldQueue
             // case 4/5 dẫn hào TĨNH luật chọn (không phải changing_lines), case 3/6
             // MỞ nội dung quẻ biến (D2), question đã normalize đưa vào dòng hoàn cảnh.
             // Các case khác quẻ biến VẪN không bao giờ vào prompt (F10 QA giữ nguyên).
-            $luan ??= new Luan();
+            $luan ??= new Luan;
             $changing = $draw->changing_lines ?? [];
             $hexId = (int) $draw->hexagram_id;
             $rule = BianRule::quiTrinh($changing, $hexId);

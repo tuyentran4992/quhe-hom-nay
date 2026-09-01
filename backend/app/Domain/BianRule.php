@@ -36,7 +36,7 @@ final class BianRule
         $changing = array_values(array_map(intval(...), $changingLines));
         foreach ($changing as $pos) {
             if ($pos < 1 || $pos > 6) {
-                throw new \InvalidArgumentException("vị trí hào động ngoài 1..6: ".var_export($pos, true));
+                throw new \InvalidArgumentException('vị trí hào động ngoài 1..6: '.var_export($pos, true));
             }
         }
         if (count($changing) !== count(array_unique($changing))) {
@@ -66,10 +66,8 @@ final class BianRule
                 'can_quese_goc' => true, 'can_loi_bien' => true,
                 'loi_luan' => 'Luận theo quẻ từ cả GỐC và BIẾN: gốc làm chủ (việc đang hỏi), biến làm ứng (chiều hướng kết cục — không phải định sẵn).',
             ],
-            4 => self::theoTinh($changing, 'dưới', static fn (array $tinh) =>
-                "4 hào động — theo luật động nhiều theo tĩnh: luận theo hào từ 2 hào TĨNH ({$tinh[0]}, {$tinh[1]}); hào DƯỚI (hào {$tinh[0]}) làm chủ. KHÔNG dẫn lời quẻ biến."),
-            5 => self::theoTinh($changing, 'tinh', static fn (array $tinh) =>
-                "5 hào động — luận theo hào từ của hào TĨNH duy nhất (hào {$tinh[0]}). KHÔNG dẫn lời quẻ biến."),
+            4 => self::theoTinh($changing, 'dưới', static fn (array $tinh) => "4 hào động — theo luật động nhiều theo tĩnh: luận theo hào từ 2 hào TĨNH ({$tinh[0]}, {$tinh[1]}); hào DƯỚI (hào {$tinh[0]}) làm chủ. KHÔNG dẫn lời quẻ biến."),
+            5 => self::theoTinh($changing, 'tinh', static fn (array $tinh) => "5 hào động — luận theo hào từ của hào TĨNH duy nhất (hào {$tinh[0]}). KHÔNG dẫn lời quẻ biến."),
             6 => self::sauDong($hexagramId),
         };
     }
@@ -91,7 +89,7 @@ final class BianRule
     /** Case 6 — Càn/Khôn: lời DỤNG hào; quẻ thường: quẻ từ QUẺ BIẾN (D2 mở). */
     private static function sauDong(?int $hexagramId): array
     {
-        $row = $hexagramId !== null ? static::rowById($hexagramId) : null;
+        $row = $hexagramId !== null ? self::rowById($hexagramId) : null;
         $dung = $row['dungHao'] ?? null;
 
         if ($dung !== null) {
@@ -105,7 +103,7 @@ final class BianRule
 
         $tenBien = '';
         if ($row !== null) {
-            $bien = static::rowByBitmask(array_map(static fn (int $b) => $b ^ 1, static::bitmaskOf($row['id'])));
+            $bien = self::rowByBitmask(array_map(static fn (int $b) => $b ^ 1, self::bitmaskOf($row['id'])));
             $tenBien = isset($bien['ten']) ? ' ('.$bien['ten'].')' : '';
         }
 
@@ -123,7 +121,7 @@ final class BianRule
         static $byId = null;
         if ($byId === null) {
             $byId = [];
-            foreach (static::patterns() as $pat => $row) {
+            foreach (self::patterns() as $pat => $row) {
                 $byId[$row['id']] = array_map(intval(...), explode(',', $pat));
             }
         }
@@ -134,7 +132,7 @@ final class BianRule
     /** @return array{id:int,ten:string,dungHao:?array}|null */
     private static function rowById(int $id): ?array
     {
-        foreach (static::patterns() as $row) {
+        foreach (self::patterns() as $row) {
             if ($row['id'] === $id) {
                 return $row;
             }
@@ -146,7 +144,7 @@ final class BianRule
     /** @param  int[]  $bitmask  6 hào (dưới→trên) @return array{id:int,ten:string,dungHao:?array}|null */
     private static function rowByBitmask(array $bitmask): ?array
     {
-        return static::patterns()[implode(',', $bitmask)] ?? null;
+        return self::patterns()[implode(',', $bitmask)] ?? null;
     }
 
     /** Lazy-load pattern "b,d,e,f,g,h" => {id,ten,dungHao} từ file seed tĩnh. */
@@ -183,7 +181,5 @@ final class BianRule
         self::$patterns = null;
     }
 
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 }

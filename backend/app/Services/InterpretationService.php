@@ -9,6 +9,7 @@ use App\Jobs\RunAiBoxJob;
 use App\Models\AiJob;
 use App\Models\Device;
 use App\Models\Payment;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 /**
@@ -83,7 +84,7 @@ class InterpretationService
         $last = AiJob::query()->where('device_id', $device->device_id)
             ->max('requested_at');
         if ($last !== null) {
-            $elapsed = now()->diffInSeconds(\Illuminate\Support\Carbon::parse($last), true);
+            $elapsed = now()->diffInSeconds(Carbon::parse($last), true);
             if ($elapsed < Rules::AI_COOLDOWN_SECONDS) {
                 throw InterpretationException::cooldown(
                     (int) ceil(Rules::AI_COOLDOWN_SECONDS - $elapsed)

@@ -98,7 +98,7 @@ class BianRuleTest extends TestCase
         $this->assertTrue($k['can_loi_bien']);
         $this->assertStringContainsString('dụng', mb_strtolower($k['loi_luan']));
 
-        // Quẻ thường (id30 Ly Vi Hỏa): 6 động → luận theo quẻ từ QUẺ BIẾN (id30 → Khôn id1... 
+        // Quẻ thường (id30 Ly Vi Hỏa): 6 động → luận theo quẻ từ QUẺ BIẾN (id30 → Khôn id1...
         // Càn=1 [1,1,1,1,1,1] 6 dong → bien Khôn=2; Ly=30 lines [1,0,1,1,0,1] → bien [0,1,0,0,1,0]=id2 Khôn)
         $c = BianRule::quiTrinh($all, 30);
         $this->assertTrue($c['can_quese_goc'], 'case 6 quẻ thường: có block quẻ (của BIẾN)');

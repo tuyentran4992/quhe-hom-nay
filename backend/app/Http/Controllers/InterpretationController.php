@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Middleware\EnsureDeviceSession;
 use App\Models\AiJob;
 use App\Models\Device;
 use App\Services\InterpretationException;
@@ -17,9 +16,7 @@ use Illuminate\Http\Request;
  */
 class InterpretationController extends Controller
 {
-    public function __construct(private readonly InterpretationService $service)
-    {
-    }
+    public function __construct(private readonly InterpretationService $service) {}
 
     /** #5 — 202 queued | 200 khi job trả về đã done (idempotency replay hoặc cache AC-2). */
     public function store(Request $request): JsonResponse
