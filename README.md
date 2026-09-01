@@ -18,6 +18,8 @@ cd frontend && npm ci && NODE_OPTIONS=--max-old-space-size=1024 npm run build
 ```
 
 ## Deploy checklist pilot 02/09 (FREE_DEEP_PREVIEW)
+**SHA deploy = `main` (UI-POLISH t_fc6387df đã merge @ a00db70 01/09 — preview boss
+duyệt trên Cloudflare CHÍNH LÀ code main, không còn branch lẻ cần hợp nhất trước deploy).**
 Flag gate luận sâu: `backend/config/preview.php` đọc `FREE_DEEP_PREVIEW` (mặc định
 `false` = paywall 29k). Pilot 02/09 chạy FREE (CEO chốt t_3a656b1b, luật anh Tuyền 31/08)
 → **set TRUE**, không có bước này = vô tình bật paywall.
