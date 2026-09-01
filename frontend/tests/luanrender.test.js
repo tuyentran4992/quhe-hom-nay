@@ -65,3 +65,68 @@ describe('§6c parseLuan — marker → heading, không lộ ngoặc vuông', ()
     expect(blocks[0].text).toBe('abc')
   })
 })
+
+// BUG-V3-2 (QA card t_b8a95f0a, card fix t_127a3094): 2/6 bài THẬT (ai_jobs 50/51)
+// model trả heading kèm prefix markdown "### [Hoàn cảnh]" / "## [Hoàn cảnh]" —
+// regex cũ không khớp → cả bài thành 1 khối heading '' → người dùng thấy nguyên
+// văn "### [Hoàn cảnh]" + ngoặc vuông. Hợp đồng §6c "marker KHÔNG lọt text" bắt
+// FE dung hòa biến thể này; BE siết prompt song song (không được assume).
+describe('BUG-V3-2 parseLuan — marker có prefix markdown ###', () => {
+  it('DB_50 thật: 3 marker "### [X]" → 3 khối heading sạch, không dòng nào còn #', () => {
+    const raw = [
+      '### [Hoàn cảnh]',
+      'Quẻ vẽ khung cảnh vướng.',
+      '',
+      '### [Vì sao khuyên vậy]',
+      'Hào nhị nói cắn thịt mềm.',
+      '',
+      '### [Việc nên làm cụ thể tuần này]',
+      '- **Chủ động bắt chuyện trong 3 ngày tới.**',
+    ].join('\n')
+    const blocks = parseLuan(raw)
+    expect(blocks.map((b) => b.heading)).toEqual(LUAN_HEADINGS)
+    for (const b of blocks) {
+      expect(b.text).not.toMatch(/^#{1,4}\s/m)
+      expect(b.text).not.toMatch(/[\[\]]/)
+    }
+    expect(blocks[0].text).toBe('Quẻ vẽ khung cảnh vướng.')
+    expect(blocks[2].text).toContain('- **Chủ động bắt chuyện trong 3 ngày tới.**')
+  })
+
+  it('DB_51 thật: "## [X]" 2 dấu thăng + dòng trống sau heading → vẫn 3 khối', () => {
+    const raw = [
+      '## [Hoàn cảnh]',
+      '',
+      'Đứng trước dòng nước.',
+      '## [Vì sao khuyên vậy]',
+      'Sơ lục ướt đuôi.',
+      '## [Việc nên làm cụ thể tuần này]',
+      'Quan sát nhiều hơn.',
+    ].join('\n')
+    const blocks = parseLuan(raw)
+    expect(blocks.map((b) => b.heading)).toEqual(LUAN_HEADINGS)
+    expect(blocks[0].text).toBe('Đứng trước dòng nước.')
+  })
+
+  it('biên dao động: # đơn, #### 4 thăng, marker không ngoặc "### Hoàn cảnh —" vẫn nhận', () => {
+    expect(parseLuan('# Hoàn cảnh\nabc')[0].heading).toBe('Hoàn cảnh')
+    expect(parseLuan('#### [Việc nên làm cụ thể tuần này — tối đa 3 gạch]\nabc')[0].heading).toBe('Việc nên làm cụ thể tuần này')
+    const b = parseLuan('### [Hoàn cảnh] — bạn phân vân.\ntiếp')
+    expect(b[0].heading).toBe('Hoàn cảnh')
+    expect(b[0].text).toBe('bạn phân vân.\ntiếp')
+  })
+
+  it('regression 100% ca cũ: marker sạch DB_52..55 (không #) vẫn ra 3 khối như V2', () => {
+    const raw = ['[Hoàn cảnh]  ', 'thân 1', '', '[Vì sao khuyên vậy]  ', 'thân 2',
+      '', '[Việc nên làm cụ thể tuần này – tối đa 3 gạch đầu dòng]  ', '- làm'].join('\n')
+    const blocks = parseLuan(raw)
+    expect(blocks.map((b) => b.heading)).toEqual(LUAN_HEADINGS)
+  })
+
+  it('# đứng đầu dòng thường (không phải marker) KHÔNG bị ăn mất chữ', () => {
+    const blocks = parseLuan('#10 người hỏi hôm nay\nabc')
+    expect(blocks).toHaveLength(1)
+    expect(blocks[0].heading).toBe('')
+    expect(blocks[0].text).toBe('#10 người hỏi hôm nay\nabc')
+  })
+})
