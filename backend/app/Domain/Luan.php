@@ -24,15 +24,30 @@ final class Luan
     public function haoTextsForDraw(Draw $draw): array
     {
         $changing = array_values(array_map(intval(...), $draw->changing_lines ?? []));
-        if ($changing === []) {
+
+        return $this->haoTextsForPositions($draw->hexagram_id, $changing);
+    }
+
+    /**
+     * LUAN-V2 §6.1 — từ hào theo DANH SÁCH VỊ TRÍ chủ động: case 4/5 luật chọn lời
+     * là hào TĨNH (không phải changing_lines) → worker tách vị trí qua đây.
+     *
+     * @param int[] $vi vị trí 1-based, trả về sắp xếp sơ→thượng
+     * @return array<int, array{vi:int,hao:string,han:string,quoc_am:string,nghia:string}>
+     */
+    public function haoTextsForPositions(int $hexagramId, array $vi): array
+    {
+        $vi = array_values(array_unique(array_map(intval(...), $vi)));
+        if ($vi === []) {
             return [];
         }
+        sort($vi);
 
         return HaoText::query()
-            ->where('hexagram_id', $draw->hexagram_id)
+            ->where('hexagram_id', $hexagramId)
             ->orderBy('vi')
             ->get()
-            ->whereIn('vi', $changing)
+            ->whereIn('vi', $vi)
             ->map(static fn (HaoText $h): array => [
                 'vi' => (int) $h->vi,
                 'hao' => (string) $h->hao,
@@ -42,6 +57,28 @@ final class Luan
             ])
             ->values()
             ->all();
+    }
+
+    /**
+     * LUAN-V2 §3.3 (pitfall) — lời DỤNG hào: bảng hexagram_hao_texts CHỈ có vi 1..6,
+     * nguồn duy nhất là hexagrams.ban_goc JSON key dungHao — chỉ tồn tại ở id1 (用九)
+     * và id2 (用六). null = quẻ thường không có dụng hào.
+     *
+     * @return array{han:string,am:string,nghia:string}|null
+     */
+    public function dungHaoFor(int $hexagramId): ?array
+    {
+        $banGoc = Hexagram::query()->whereKey($hexagramId)->value('ban_goc');
+        $dung = (is_array($banGoc) ? $banGoc : json_decode((string) $banGoc, true))['dungHao'] ?? null;
+        if (! is_array($dung) || trim((string) ($dung['han'] ?? '')) === '') {
+            return null;
+        }
+
+        return [
+            'han' => trim((string) $dung['han']),
+            'am' => trim((string) ($dung['am'] ?? '')),
+            'nghia' => trim((string) ($dung['nghia'] ?? '')),
+        ];
     }
 
     /** Block nội dung luận (dòng cuối user prompt — 02-db §8, BẤT BIẾN định vị). */
