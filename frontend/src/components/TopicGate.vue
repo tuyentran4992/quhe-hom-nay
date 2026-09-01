@@ -3,6 +3,8 @@
 // 1) chưa unlock → CTA mở S4; 2) cooldown 429 → đếm ngược retry_after_seconds, nút disabled;
 // 3) đã unlock → #5→#6 poll 2s, skeleton 3 đoạn; failed → "bàn cờ im tiếng" + thử lại key mới.
 import { ref, computed, watch, onBeforeUnmount } from 'vue'
+// LUAN-V2 §6c (t_dec9349a): lane render-chính-thức — cắt marker thô.
+import { parseLuan } from '../utils/luanRender'
 import { useRouter } from 'vue-router'
 import { api } from '../api/client.js'
 import { useCountdown } from '../composables/useCountdown.js'
@@ -41,6 +43,9 @@ const normalizedQuestion = computed(() => question.value.trim() || undefined)
 // §7.4.4: dòng hỏi hiển thị = snapshot đã trim lúc gửi, hoặc field question của job
 // (kênh phụ tương lai) — rỗng/whitespace → null → không render (test chốt).
 const displayedQuestion = computed(() => (askedQuestion.value || jobQuestion.value || '').trim() || null)
+// LUAN-V2 §6c (t_dec9349a): bài luận (raw hoặc JSON envelope {result}) → cắt marker
+// thô [Hoàn cảnh]/[Vì sao]/[Việc nên làm] thành heading + body sạch.
+const luanBlocks = computed(() => parseLuan(result.value))
 
 function stopPoll() {
   if (pollTimer) clearTimeout(pollTimer)
@@ -218,7 +223,14 @@ watch(unlocked, (u) => {
           data-testid="gate-result-question"
           class="text-small text-muted mb-2"
         >Bạn hỏi: {{ displayedQuestion }}</p>
-        <div class="prose-quhe text-body text-ink whitespace-pre-wrap">{{ result }}</div>
+        <!-- §6c: mỗi marker → heading + body, marker KHÔNG lọt text; khối trước
+             marker đầu tiên (model dẫn thừa) → heading rỗng, không mất chữ. -->
+        <div data-testid="luan-rendered">
+          <template v-for="(b, i) in luanBlocks" :key="i">
+            <h4 v-if="b.heading" data-testid="luan-heading" class="han text-h2 font-semibold text-ink mt-4 mb-1">{{ b.heading }}</h4>
+            <p v-if="b.text" data-testid="luan-body" class="prose-quhe text-body text-ink whitespace-pre-wrap">{{ b.text }}</p>
+          </template>
+        </div>
       </article>
     </template>
   </section>

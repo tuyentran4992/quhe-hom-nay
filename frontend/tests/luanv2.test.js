@@ -36,6 +36,24 @@ function mountGate(topic = 'duyen') {
   return wrapper
 }
 
+// §7.4.4 + §6c (t_dec9349a) dùng chung: bấm xin luận → advance poll → done với payload.
+const DONE_BODY = { job_uuid: 'j-1', status: 'done', result: 'bài luận A' }
+
+async function driveToDone(w, donePayload = DONE_BODY) {
+  client.api.aiJob.mockResolvedValue({ data: donePayload })
+  vi.useFakeTimers()
+  // phase 'failed' → đường bấm là gate-retry (key mới); phase 'idle' → gate-ask
+  const btn = w.find('[data-testid="gate-ask"]').exists()
+    ? w.find('[data-testid="gate-ask"]')
+    : w.find('[data-testid="gate-retry"]')
+  await btn.trigger('click')
+  await vi.advanceTimersByTimeAsync(10) // poll đầu sau AI_POLL_MS=2000 — advance đủ 2s
+  await vi.advanceTimersByTimeAsync(2000)
+  await flushPromises()
+  vi.useRealTimers()
+  return w
+}
+
 beforeEach(async () => {
   vi.clearAllMocks()
   _resetDeviceForTests()
@@ -156,23 +174,6 @@ describe('LUAN-V2 §7.3 + D4 — gửi question qua requestInterpretation', () =
 // QuestionCacheTest phía BE còn CHỐNG lọt field này — giữ nguyên tắc ẩn PII F7).
 // Nếu dev-lead duyệt thêm field sau, poll fallback `j.question` cho job cache-hit.
 describe('LUAN-V2 §7.4.4 — dòng "Bạn hỏi: …" trên đầu gate-result', () => {
-  const DONE_BODY = { job_uuid: 'j-1', status: 'done', result: 'bài luận A' }
-
-  async function driveToDone(w, donePayload = DONE_BODY) {
-    client.api.aiJob.mockResolvedValue({ data: donePayload })
-    vi.useFakeTimers()
-    // phase 'failed' → đường bấm là gate-retry (key mới); phase 'idle' → gate-ask
-    const btn = w.find('[data-testid="gate-ask"]').exists()
-      ? w.find('[data-testid="gate-ask"]')
-      : w.find('[data-testid="gate-retry"]')
-    await btn.trigger('click')
-    await vi.advanceTimersByTimeAsync(10) // poll đầu sau AI_POLL_MS=2000 — advance đủ 2s
-    await vi.advanceTimersByTimeAsync(2000)
-    await flushPromises()
-    vi.useRealTimers()
-    return w
-  }
-
   it('có question → gate-result render dòng "Bạn hỏi: <nguyên văn đã trim>" TRƯỚC bài luận', async () => {
     const w = mountGate()
     await flushPromises()
@@ -221,5 +222,47 @@ describe('LUAN-V2 §7.4.4 — dòng "Bạn hỏi: …" trên đầu gate-result'
     // người dùng KHÔNG gõ gì ở lượt này (job replay từ cache, question chỉ có trong payload)
     await driveToDone(w, { ...DONE_BODY, question: 'câu từ payload job' })
     expect(w.find('[data-testid="gate-result-question"]').text()).toBe('Bạn hỏi: câu từ payload job')
+  })
+})
+
+// §6(c) lane render-chính-thức (card t_dec9349a) — hợp nhất patch preview-only
+// topicgate-marker-render.patch + bản 12f28e3 thành MỘT chỗ. Contract: marker thô
+// của PromptBuilder không bao giờ lộ; dòng "Bạn hỏi" (§7.4.4) vẫn đứng đầu bài.
+describe('LUAN-V2 §6c — gate-result render 3 khối heading, 0 marker thô rò', () => {
+  const MARKED = {
+    job_uuid: 'j-1',
+    status: 'done',
+    result: '[Hoàn cảnh]\nHai người trái chiều.\n\n[Vì sao khuyên vậy]\nHào 9 giữ vững thì không lỗi.\n\n[Việc nên làm cụ thể tuần này — tối đa 3 gạch đầu dòng]\n- Nói rõ mong muốn mỗi tối.',
+  }
+
+  it('bài có marker → 3 heading sạch (data-testid=luan-heading), không còn "[" "]" trong text', async () => {
+    const w = mountGate()
+    await flushPromises()
+    await w.find('[data-testid="gate-question"]').setValue('bao giờ em có người')
+    await driveToDone(w, MARKED)
+    const root = w.find('[data-testid="gate-result"]')
+    expect(root.text()).not.toMatch(/[\[\]]/)
+    const heads = w.findAll('[data-testid="luan-heading"]')
+    expect(heads.map((h) => h.text())).toEqual(['Hoàn cảnh', 'Vì sao khuyên vậy', 'Việc nên làm cụ thể tuần này'])
+    expect(root.text()).toContain('Hai người trái chiều.')
+    expect(root.text()).toContain('- Nói rõ mong muốn mỗi tối.')
+  })
+
+  it('"Bạn hỏi" vẫn là dòng ĐẦU, trước heading khối 1 (§7.4.4 không hồi quy)', async () => {
+    const w = mountGate()
+    await flushPromises()
+    await w.find('[data-testid="gate-question"]').setValue('năm sau tài lộc ra sao')
+    await driveToDone(w, MARKED)
+    const root = w.find('[data-testid="gate-result"]')
+    expect(root.text().trim().startsWith('Bạn hỏi: năm sau tài lộc ra sao')).toBe(true)
+  })
+
+  it('bài trơn không marker (model lệch lệnh) → vẫn render nguyên văn, không khối mồ côi', async () => {
+    const w = mountGate()
+    await flushPromises()
+    await driveToDone(w, { job_uuid: 'j-1', status: 'done', result: 'Bài luận không marker.\nHai dòng.' })
+    const root = w.find('[data-testid="gate-result"]')
+    expect(root.text()).toContain('Bài luận không marker.')
+    expect(w.findAll('[data-testid="luan-heading"]').length).toBe(0)
   })
 })
