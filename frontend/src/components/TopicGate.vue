@@ -7,7 +7,7 @@ import { useRouter } from 'vue-router'
 import { api } from '../api/client.js'
 import { useCountdown } from '../composables/useCountdown.js'
 import { useDevice } from '../composables/useDeviceApi.js'
-import { AI_POLL_MS, AI_POLL_MAX_MS, TOPIC_LABELS } from '../constants.js'
+import { AI_POLL_MS, AI_POLL_MAX_MS, TOPIC_LABELS, QUESTION_MAX, QUESTION_SUGGESTIONS } from '../constants.js'
 
 const props = defineProps({ drawId: { type: Number, required: true }, topic: { type: String, required: true } })
 const router = useRouter()
@@ -16,11 +16,20 @@ const cd = useCountdown()
 
 const phase = ref('idle') // idle | queued | running | done | failed | cooldown | cap
 const result = ref('')
+// LUAN-V2 §7 (card t_b13fd2b9): ô "Bạn đang vướng chuyện gì?" — tùy chọn, tối đa
+// QUESTION_MAX ký tự. Ref sống độc lập với phase → retry/fail không mất nội dung.
+const question = ref('')
 let pollTimer = null
 let pollStart = 0
 
 const unlocked = computed(() => device.entitlements.value.includes(props.topic))
 const label = computed(() => TOPIC_LABELS[props.topic] || props.topic)
+// D3: chip = gói gợi ý text cho topic của TAB hiện tại, chỉ điền vào ô — không đổi topic API.
+const chips = computed(() => QUESTION_SUGGESTIONS[props.topic] || [])
+const questionLen = computed(() => [...question.value].length) // đếm unicode như BE mb_strlen
+// LUAN-V2 D4 (§4.1): trim TRƯỚC khi gửi — rỗng → undefined để client.js KHÔNG dựng key
+// `question` (giữ nhánh cache question-NULL phía BE). BE hash trên giá trị đã trim.
+const normalizedQuestion = computed(() => question.value.trim() || undefined)
 
 function stopPoll() {
   if (pollTimer) clearTimeout(pollTimer)
@@ -36,6 +45,8 @@ async function askFresh() {
       draw_id: props.drawId,
       topic: props.topic,
       idempotency_key: crypto.randomUUID().replace(/-/g, '').slice(0, 16), // key mới mỗi lần thử lại
+      question: normalizedQuestion.value, // LUAN-V2 D4: trim sẵn ở component; rỗng → undefined,
+      // client.js không dựng key — payload sạch kể cả đường mock/test contract.
     })
     pollStart = Date.now()
     phase.value = r.data.status || 'queued'
@@ -127,6 +138,41 @@ watch(unlocked, (u) => {
 
     <!-- nhánh 3: đã unlock -->
     <template v-else>
+      <!-- LUAN-V2 §7.1–7.2 (t_b13fd2b9): ô vướng + chip gợi ý — ĐỨNG TRƯỚC CTA
+           "Xin luận sâu" (CTA vẫn là phần tử có trọng lượng thị giác cao nhất màn).
+           Chip theo D3: chỉ điền text, không đổi topic API. -->
+      <div v-if="phase === 'idle'" class="mb-4">
+        <label for="gate-question-input" class="block text-body text-ink mb-1">
+          Bạn đang vướng chuyện gì?
+        </label>
+        <textarea
+          id="gate-question-input"
+          v-model="question"
+          :maxlength="QUESTION_MAX"
+          placeholder="Bạn đang vướng chuyện gì? (không bắt buộc)"
+          rows="3"
+          data-testid="gate-question"
+          class="w-full rounded-card border border-gold/40 bg-paper px-3 py-2 text-body text-ink placeholder:text-muted/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+        ></textarea>
+        <div class="flex items-center justify-between gap-3 mt-1">
+          <div role="group" aria-label="Gợi ý câu hỏi" class="flex flex-wrap gap-2">
+            <button
+              v-for="c in chips"
+              :key="c"
+              type="button"
+              data-testid="gate-question-chip"
+              class="chip-status text-muted hover:border-cinnabar hover:text-cinnabar focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+              @click="question = c"
+            >{{ c }}</button>
+          </div>
+          <span
+            data-testid="gate-question-counter"
+            class="shrink-0 text-small tabular-nums"
+            :class="questionLen >= QUESTION_MAX ? 'text-cinnabar' : 'text-muted'"
+            aria-live="polite"
+          >{{ questionLen }}/{{ QUESTION_MAX }}</span>
+        </div>
+      </div>
       <button
         v-if="phase === 'idle'"
         type="button"
