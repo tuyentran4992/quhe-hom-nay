@@ -12,6 +12,9 @@ export function useDevice() {
   const todayDraw = computed(() => state.me?.today_draw ?? null)
   const entitlements = computed(() => state.me?.entitlements ?? [])
   const serverDateVn = computed(() => state.me?.server_date_vn ?? '')
+  // [F8-FE C1] signal "luận sâu đang FREE" — CHỈ tin key top-level free_deep từ #1/#10,
+  // KHÔNG suy từ entitlements (device trả 29k cũng đủ 3 topic). Thiếu key → false.
+  const freeDeep = computed(() => state.me?.free_deep === true)
 
   async function load(force = false) {
     if (state.me && !force) return state.me
@@ -34,7 +37,7 @@ export function useDevice() {
     state.me = { ...(state.me || { device_id: '', is_new_device: false }), ...r.data }
     return state.me
   }
-  return { me: computed(() => state.me), todayDraw, entitlements, serverDateVn, loading, error, load, refresh }
+  return { me: computed(() => state.me), todayDraw, entitlements, serverDateVn, freeDeep, loading, error, load, refresh }
 }
 
 export function _resetDeviceForTests() {
