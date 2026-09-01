@@ -72,12 +72,14 @@ DRAW_LIMIT_REACHED (409) → replace về `/` + `?toast=draw_limit` → S1 rende
 | `gate-result` | đã unlock + OK | đoạn AI, `{br}` → `<br>`, nút `gate-ask` "Xin luận sâu" còn dùng |
 | `gate-retry` | 429/500 | nút thử lại |
 | `gate-failed` | backend fail | "Câu hỏi hơi hóc. Thử lại nhé." (F-03 — KHÔNG bịa nội dung) |
+| `donate-cta-open` | `#1 free_deep===true` SAU khi luận render xong (F8-FE C3) | chip paper2 `inline-flex ... bg-paper2 text-ink` y hệt `share-card-open`, nhãn "Lễ tùy tâm ủng hộ", đặt SAU TopicGate trong footer mt-8; click → track `donate_cta_click` {topic tab hiện hành} + push `/mo-khoa/{topic}?mode=donate`. Flag false/absence → KHÔNG render, KHÔNG bắn `donate_cta_shown` (kể cả entitlements đủ 3 topic — C1: FE không suy từ entitlements) |
 
 ## S4 Mở khóa `/mo-khoa/:topic` — PaywallView.vue
 | testid | khi nào | nội dung |
 |---|---|---|
-| `pay-price` | luôn | "29.000đ" — one-time theo device (C-05); KHÔNG đồng hồ đếm ngược / "còn N suất" |
-| `pay-unlock-btn` | luôn | nút 1: POST #7 order → render QR |
+| `pay-mode-donate` | `query.mode==='donate'` VÀ `#1 free_deep===true` (F8-FE C4) | root div của màn donateMode. donateMode: h1 = "Lễ tùy tâm", `pay-unlock-btn` + `pay-price` + dòng "Trả một lần…" ẤN (CẤM mọi wording 29k/unlock khi free); block donate giữ nguyên. Flag OFF → phớt lờ query, paywall 29k nguyên bản |
+| `pay-price` | luôn (trừ donateMode) | "29.000đ" — one-time theo device (C-05); KHÔNG đồng hồ đếm ngược / "còn N suất" |
+| `pay-unlock-btn` | luôn (trừ donateMode) | nút 1: POST #7 order → render QR |
 | `pay-qr` | có order | QR PNG render client-side bằng lib qrcode (qr_data VietQR, dynamic import) |
 | `pay-confirm-link` | `confirm_url` có | stub "tôi đã chuyển" (PAY-01 chưa webhook — QA bấm 1 lần) |
 | `pay-status` | sau khi poll | "Chờ thanh toán…" / "Đã nhận được lễ — đang mở…" (poll #9 mỗi 3s, timeout 5') |

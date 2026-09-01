@@ -9,7 +9,7 @@ export default { name: 'DetailView' }
 //    (prime từ #3 khi đi từ S2 → zero-fetch; refresh thì ensure #2).
 //  - deep-link quẻ KHÁC ngày: contract không có GET /draws/{id} → resolve draw
 //    qua #4 history (limit 50), rồi #2 theo hexagram_id. Không thấy → detail-error.
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { api } from '../api/client.js'
 import { useDevice } from '../composables/useDeviceApi.js'
@@ -85,6 +85,23 @@ const linesForChart = computed(() => draw.value?.lines_rolled || hx.value?.lines
 // tab ngôi (04-ui) map topic luận sâu C-02: công việc→xuất hành (khởi sự, đi lại),
 // tình duyên→duyen, tài lộc→tai_loc. Đây là ánh xạ hiển thị S3; QA đối chiếu 04-ui §2.S3.
 const topicForTab = computed(() => ({ congViec: 'xuat_hanh', tinhDuyen: 'duyen', taiLoc: 'tai_loc' })[tab.value])
+
+// ===== [F8-FE C3] t_03424b76 — CTA "Lễ tùy tâm ủng hộ" (chip paper2, chỉ khi free_deep) =====
+// Nút render = luận đã tải xong (hx có trong template v-else) VÀ d.freeDeep (key C1, không suy từ entitlements).
+const donateCtaVisible = computed(() => !!hx.value && !!draw.value && d.freeDeep.value)
+function openDonateCta() {
+  api.track({ name: 'donate_cta_click', props: { topic: topicForTab.value } }).catch(() => {}) // fire-and-forget (C2)
+  router.push({ name: 'paywall', params: { topic: topicForTab.value }, query: { mode: 'donate' } })
+}
+// donate_cta_shown: ĐÚNG 1 lần khi nút THỰC SỰ render (C3) — flag OFF → không bắn; reload data
+// trong cùng mount không bắn lại (bắn theo nút, không theo tab).
+let donateShownFired = false
+watch(donateCtaVisible, (v) => {
+  if (v && !donateShownFired) {
+    donateShownFired = true
+    api.track({ name: 'donate_cta_shown', props: { topic: topicForTab.value } }).catch(() => {})
+  }
+}, { immediate: true })
 </script>
 
 <template>
@@ -186,6 +203,15 @@ const topicForTab = computed(() => ({ congViec: 'xuat_hanh', tinhDuyen: 'duyen',
           :draw-id="draw.id"
           :topic="topicForTab"
         />
+        <!-- [F8-FE C3] t_03424b76 — CTA "Lễ tùy tâm ủng hộ": chip y hệt share-card-open,
+             SAU TopicGate, chỉ khi freeDeep; click → donate_cta_click + S4 ?mode=donate. -->
+        <button
+          v-if="donateCtaVisible"
+          type="button"
+          data-testid="donate-cta-open"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-card bg-paper2 text-ink font-medium"
+          @click="openDonateCta"
+        >Lễ tùy tâm ủng hộ</button>
       </div>
     </template>
   </div>

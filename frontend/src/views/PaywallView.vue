@@ -19,6 +19,9 @@ const d = useDevice()
 const toasts = useToasts()
 const topic = computed(() => route.params.topic)
 const label = computed(() => TOPIC_LABELS[topic.value] || topic.value)
+// [F8-FE C4] t_03424b76 — donateMode = query AND flag. URL do user sửa được → flag OFF
+// thì PHỚT LỜ query, giữ paywall 29k nguyên bản đã QA (chống giả mạo).
+const donateMode = computed(() => route.query.mode === 'donate' && d.freeDeep.value)
 
 const phase = ref('form') // form | qr | donated | error
 const order = ref(null)
@@ -107,15 +110,16 @@ onBeforeUnmount(() => clearTimeout(pollTimer))
 </script>
 
 <template>
-  <div class="wrap mx-auto max-w-xl px-gutter pt-6">
-    <h1 class="han text-h1 font-semibold">Mở khóa luận sâu · {{ label }}</h1>
-    <p data-testid="pay-price" class="text-h2 font-semibold text-cinnabar mt-2">{{ PRICE_LABEL }}</p>
-    <p class="text-small text-muted mt-1">Trả một lần, đọc mãi trên thiết bị này.</p>
+  <div class="wrap mx-auto max-w-xl px-gutter pt-6" :data-testid="donateMode ? 'pay-mode-donate' : undefined">
+    <h1 class="han text-h1 font-semibold">{{ donateMode ? 'Lễ tùy tâm' : `Mở khóa luận sâu · ${label}` }}</h1>
+    <p v-if="!donateMode" data-testid="pay-price" class="text-h2 font-semibold text-cinnabar mt-2">{{ PRICE_LABEL }}</p>
+    <p v-if="!donateMode" class="text-small text-muted mt-1">Trả một lần, đọc mãi trên thiết bị này.</p>
 
     <p v-if="payErr && phase === 'error'" data-testid="pay-error" class="text-small text-cinnabar mt-4">{{ payErr }}</p>
 
     <div v-if="phase === 'form'" class="mt-6 space-y-6">
-      <button type="button" data-testid="pay-unlock-btn" class="btn-cinnabar w-full" @click="unlock">
+      <!-- donateMode: ẨN nút unlock + mọi wording giá (C4 — CẤM 29k/unlock khi free) -->
+      <button v-if="!donateMode" type="button" data-testid="pay-unlock-btn" class="btn-cinnabar w-full" @click="unlock">
         Mở khóa 29.000đ
       </button>
 
