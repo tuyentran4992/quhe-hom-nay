@@ -17,6 +17,27 @@ cd backend && php artisan migrate:fresh --seed && php artisan serve --port=8000
 cd frontend && npm ci && NODE_OPTIONS=--max-old-space-size=1024 npm run build
 ```
 
+## Deploy checklist pilot 02/09 (FREE_DEEP_PREVIEW)
+Flag gate luận sâu: `backend/config/preview.php` đọc `FREE_DEEP_PREVIEW` (mặc định
+`false` = paywall 29k). Pilot 02/09 chạy FREE (CEO chốt t_3a656b1b, luật anh Tuyền 31/08)
+→ **set TRUE**, không có bước này = vô tình bật paywall.
+
+```bash
+# 1. .env trên máy deploy: thêm dòng (cả app chạy queue worker cũng phải thấy env này)
+echo 'FREE_DEEP_PREVIEW=true' >> backend/.env
+# 2. Dump lại config (env đọc lúc config:cache, sửa .env không cache lại = flag không đổi)
+cd backend && php artisan config:cache && php artisan queue:restart   # restart worker ăn config mới
+# 3. Verify GET /me — kỳ vọng entitlements = đủ 3 topic duyen,tai_loc,xuat_hanh
+curl -sc /tmp/deploy.jar https://<host>/api/me | jq '.entitlements'
+# 4. Verify 1 luận sâu KHÔNG bị 402 (lệnh đầu = 202 queued là ĐẠT; 200 = replay/done.
+#    draw_id lấy từ POST /draws bằng cùng cookie jar; cooldown C-03 90s giữa 2 lần gọi)
+curl -sb /tmp/deploy.jar -X POST https://<host>/api/draws -H 'Content-Type: application/json' -d '{}' | jq '.data.draw.id'
+curl -sb /tmp/deploy.jar -o /dev/null -w '%{http_code}\n' -X POST https://<host>/api/ai/interpretations \
+  -H 'Content-Type: application/json' -d '{"draw_id":<id>,"topic":"duyen","idempotency_key":"deploy-check-1"}'
+# 5. Sau pilot tắt flag: đặt FREE_DEEP_PREVIEW=false → config:cache → queue:restart (QA lại bản 29k)
+```
+Cả 4 lệnh verify phải khớp kỳ vọng trước khi báo CEO khép chuỗi deploy.
+
 ## Luật cộng tác trong repo này
 - Branch per card: `card/<id>` từ `main`; **chỉ dev-lead merge main**.
 - be-dev ghi `backend/**`, fe-dev ghi `frontend/**`; không cross.
