@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Domain\RouterPrompt;
 use App\Domain\Rules;
 use Illuminate\Support\Facades\Http;
 
@@ -12,6 +13,52 @@ use Illuminate\Support\Facades\Http;
  */
 class AiBoxClient
 {
+    /**
+     * LUAN-V3 (SPEC §5.2, ADR-V3-01) — bước ROUTER danh mục: call NHỎ chạy trước
+     * bước luận trong RunAiBoxJob. Cùng client/base_url/key, model riêng
+     * (aibox.router_model, rỗng → fallback model luận), temperature 0, max_tokens 8,
+     * timeout RIÊNG 10s. LỖI/mạng/JSON rác → trả NULL nội bộ — TUYỆT ĐỐI không
+     * throw, không làm fail job luận (worker đi nhánh fallback T-D).
+     * Nợ ghi nhận (§5.3): model router đổi về sau → replay lý thuyết lệch; MVP
+     * không replay nên chấp nhận.
+     */
+    public function routeTopic(string $question): ?string
+    {
+        $base = rtrim((string) config('aibox.base_url'), '/');
+        $key = (string) config('aibox.api_key');
+        if ($key === '') {
+            return null; // chưa cấu hình = router lỗi → fallback im lặng CÓ chủ đích (T-D)
+        }
+        $model = (string) (config('aibox.router_model') ?: config('aibox.model'));
+
+        try {
+            $res = Http::timeout(Rules::AI_ROUTER_TIMEOUT_SECONDS)
+                ->withToken($key)
+                ->post($base.'/chat/completions', [
+                    'model' => $model,
+                    'messages' => [['role' => 'user', 'content' => RouterPrompt::forQuestion($question)]],
+                    'temperature' => 0,
+                    'max_tokens' => 8,
+                ]);
+        } catch (\Throwable $e) {
+            logger()->warning('aibox.router.failed', ['err' => $e->getMessage()]);
+
+            return null;
+        }
+
+        if (! $res->successful()) {
+            logger()->warning('aibox.router.failed', ['status' => $res->status()]);
+
+            return null;
+        }
+        $text = (string) $res->json('choices.0.message.content', '');
+
+        // log ĐẾM ĐƯỢC cho AC-1 (§5.2): phân biệt với aibox.request.sent của bước luận.
+        logger()->info('aibox.router.sent', ['model' => $model]);
+
+        return trim($text) === '' ? null : RouterPrompt::parse($text);
+    }
+
     /**
      * @param  array{role:string,content:string}  $messages
      * @return string văn bản trả về

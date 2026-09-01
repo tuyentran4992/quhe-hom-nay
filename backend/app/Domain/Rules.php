@@ -22,6 +22,9 @@ final class Rules
     public const AI_TIMEOUT_SECONDS = 120;
     public const AI_MAX_ATTEMPTS = 3;
 
+    /** LUAN-V3 §5.2: timeout RIÊNG bước router danh mục = 10s (Rules không đổi logic cap/cooldown). */
+    public const AI_ROUTER_TIMEOUT_SECONDS = 10;
+
     /** C-05: giá one-time / chủ đề, đơn vị đồng (VND chẵn). */
     public const PRICE_UNLOCK_VND = 29000;
 
