@@ -16,7 +16,7 @@ import { useDevice } from '../composables/useDeviceApi.js'
 import { useHexagrams } from '../composables/useHexagrams.js'
 import { useHaoTexts } from '../composables/useHaoTexts.js'
 import LineChart from '../components/LineChart.vue'
-import HaoDongBlock from '../components/HaoDongBlock.vue'
+import LuanHomNay from '../components/LuanHomNay.vue'
 import TopicGate from '../components/TopicGate.vue'
 import { changingLabel } from '../utils/format.js'
 
@@ -112,13 +112,19 @@ watch(donateCtaVisible, (v) => {
     <p v-else-if="!hx" data-testid="detail-loading" class="text-muted mt-8">Đang mở bảng giải…</p>
 
     <template v-else>
-      <header class="flex items-baseline justify-between">
-        <h1 data-testid="detail-hexagram-name" class="han font-semibold text-h2">
-          {{ hx.symbol }} {{ hx.ten }} <span class="text-muted text-body">{{ hx.han }}</span>
+      <!-- [UI-POLISH t_fc6387df] Nhịp đọc: tên quẻ DISPLAY serif (token han/text-h1)
+           tách khỏi hàng chip trạng thái — mọi chip cùng 1 kiểu thẻ `chip-status`. -->
+      <header class="mt-2">
+        <h1 data-testid="detail-hexagram-name" class="han text-h1 font-semibold text-ink leading-tight">
+          {{ hx.symbol }} {{ hx.ten }} <span class="text-gold">{{ hx.han }}</span>
         </h1>
-        <span v-if="draw && changingLabel(draw.changing_lines)" data-testid="detail-changing-lines" class="text-cinnabar font-semibold text-small">
-          {{ changingLabel(draw.changing_lines) }}
-        </span>
+        <div class="mt-3 flex flex-wrap items-center gap-2">
+          <span data-testid="detail-chip-index" class="chip-status text-muted">Chỉ mục {{ hx.id }}</span>
+          <span v-if="draw && changingLabel(draw.changing_lines)" data-testid="detail-changing-lines" class="chip-status text-cinnabar">
+            {{ changingLabel(draw.changing_lines) }}
+          </span>
+          <span v-if="d.freeDeep.value" data-testid="detail-chip-free" class="chip-status text-bamboo">Luận sâu miễn phí hôm nay</span>
+        </div>
       </header>
 
       <!-- bảng hào trên cùng -->
@@ -151,17 +157,9 @@ watch(donateCtaVisible, (v) => {
         <div class="card p-3"><dt class="text-small text-muted">Từ khóa</dt><dd data-testid="detail-keywords" class="text-body">{{ (hx.keywords || []).join(' · ') }}</dd></div>
       </dl>
 
-      <!-- LUẬN HÔM NAY — FE-3XU (04-ui §S3): Đại ý quẻ gốc luôn có; ≥1 hào động
-           → khối TỪ HÀO (label·chữ Hán·Quốc âm·nghĩa) xếp sơ→thượng; 0 hào động
-           = trạng thái hợp lệ, KHÔNG khung trống. Quẻ biến không tồn tại ở FE
-           (gate t_04394e77) — không có bất kỳ element nào về "biến". -->
-      <section data-testid="luan-hom-nay" class="mt-6">
-        <h2 class="font-semibold text-h2 text-ink">Luận hôm nay</h2>
-        <p data-testid="luan-dai-y" class="text-body mt-2">{{ hx.dai_ci }}</p>
-        <div data-testid="luan-hao-list" class="mt-3 space-y-3">
-          <HaoDongBlock v-for="t in haoDong" :key="t.vi" :text="t" />
-        </div>
-      </section>
+      <!-- LUẬN HÔM NAY — FE-3XU (04-ui §S3) + [UI-POLISH t_fc6387df] tách component
+           (>250 dòng chống god-file): nhịp tiểu dẫn — đại ý — kicker "Từ hào" — kết. -->
+      <LuanHomNay :dai-ci="hx.dai_ci" :hao-dong="haoDong" />
 
       <!-- accordion Bản gốc -->
       <section v-if="bg" class="mt-6">
@@ -188,14 +186,21 @@ watch(donateCtaVisible, (v) => {
         </div>
       </section>
 
-      <!-- F7 S3 (SPEC-THE §1): nút "Chia sẻ thẻ quẻ" — chip paper2 cạnh "Xin luận sâu",
-           nằm TRONG template v-else → chỉ hiện SAU khi #3/#2 render xong; KHÔNG popup
-           giữa reveal. Bút true (type=button, a11y) → router.push /share-card?draw={id} (testid §5). -->
-      <div class="mt-8 flex flex-wrap items-center gap-3">
+      <!-- [UI-POLISH t_fc6387df] Hàng hành động phân cấp 2 bậc (SOUL finish-gate):
+           BẬC 1 — "Lễ tùy tâm ủng hộ": btn-cinnabar (ấn ngo + hover/focus-visible/disabled
+           qua class nền styles.css) = phần tử nổi bật nhất row, testid donate-cta-open giữ.
+           BẬC 2 — "Chia sẻ thẻ quẻ" outline + TopicGate "Xin luận sâu" (giáng cấp qua
+           scoped CSS khi row có has-donate-cta — CTA trả phí KHÔNG bị yếu khi donate ẩn).
+           F7 (SPEC-THE §1): nút share vẫn trong template v-else, click → /share-card?draw=. -->
+      <div
+        data-testid="detail-actions"
+        class="mt-8 flex flex-wrap items-center gap-3"
+        :class="{ 'has-donate-cta': donateCtaVisible }"
+      >
         <button
           type="button"
           data-testid="share-card-open"
-          class="inline-flex items-center gap-2 px-4 py-2 rounded-card bg-paper2 text-ink font-medium"
+          class="btn-outline inline-flex items-center gap-2 px-4 py-2 rounded-card font-medium"
           @click="router.push({ name: 'share-card', query: { draw: String(draw.id) } })"
         >Chia sẻ thẻ quẻ</button>
         <TopicGate
@@ -203,16 +208,31 @@ watch(donateCtaVisible, (v) => {
           :draw-id="draw.id"
           :topic="topicForTab"
         />
-        <!-- [F8-FE C3] t_03424b76 — CTA "Lễ tùy tâm ủng hộ": chip y hệt share-card-open,
-             SAU TopicGate, chỉ khi freeDeep; click → donate_cta_click + S4 ?mode=donate. -->
+        <!-- [F8-FE C3] t_03424b76 + polish: CTA donate BẬC 1 — btn-cinnabar + hover/
+             focus-visible/disabled; click → donate_cta_click + S4 ?mode=donate (flow C2 giữ). -->
         <button
           v-if="donateCtaVisible"
           type="button"
           data-testid="donate-cta-open"
-          class="inline-flex items-center gap-2 px-4 py-2 rounded-card bg-paper2 text-ink font-medium"
+          class="btn-cinnabar inline-flex items-center gap-2 px-5 py-2.5 font-semibold shadow-lift hover:brightness-110 hover:shadow-lift focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold disabled:opacity-50 disabled:cursor-not-allowed"
           @click="openDonateCta"
         >Lễ tùy tâm ủng hộ</button>
       </div>
     </template>
   </div>
 </template>
+
+<style scoped>
+/* Nhịp đọc đồng bộ (t_fc6387df): hàng nút chỉ BẰNG NHAU khi donate thật sự hiện
+   (freeDeep) — đây là hàng hành động DONATE, CTA donate phải nhất quán nổi bật.
+   Khi donate ẩn, CTA 29k của TopicGate giữ NGUYÊN trọng lượng (không giáng cấp
+   paywall logic — ngoài phạm vi card). */
+.has-donate-cta :deep([data-testid="gate-ask"]),
+.has-donate-cta :deep([data-testid="gate-cta-paywall"]) {
+  @apply inline-flex items-center gap-2 px-4 py-2 rounded-card font-medium bg-transparent text-ink border border-cinnabar/50 shadow-none;
+}
+.has-donate-cta :deep([data-testid="gate-ask"]:hover),
+.has-donate-cta :deep([data-testid="gate-cta-paywall"]:hover) {
+  @apply bg-cinnabar/5;
+}
+</style>

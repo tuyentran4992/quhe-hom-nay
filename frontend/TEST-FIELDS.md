@@ -50,8 +50,10 @@ DRAW_LIMIT_REACHED (409) → replace về `/` + `?toast=draw_limit` → S1 rende
 |---|---|---|
 | `detail-loading` / `detail-error` | đang resolve draw/#2 / không tìm thấy draw (deep-link quẻ lạ, id hết hiệu lực) hoặc lỗi mạng | trạng thái, không trắng màn; `detail-error` có link "Về trang chính". FE-1: draw hôm nay → từ #1; quẻ quá khứ → resolve qua #4 (limit 50) rồi #2 — contract KHÔNG có GET /draws/{id} |
 | `detail-linechart` | có dữ liệu | LineChart 6 hào; `data-line="0\|1"` trên→dưới = hào 6→1; `data-position="1..6"`; hào động (6/9) thêm chấm `dot` + chữ "động" + **outline cinnabar quanh `.ln-bar`** (fix t_c09526c3). Cấu trúc mới: mỗi row `[data-line]` = `.ln-bar` (width definite `w-16/24/40` theo size, chứa `.ln-seg` 1 dương/2 âm) + `.ln-aside` (`w-20`, chứa dot+nhãn). QA đo: `bar.getBoundingClientRect().width` phải = 64/96/160px, seg âm mỗi cái ≈ (bar−gap)/2 > 0 |
-| `detail-hexagram-name` | có dữ liệu | `ten` + `han` + symbol |
-| `detail-changing-lines` | `changing_lines` != [] | "Hào N động — quẻ biến: {biếnTen}" |
+| `detail-hexagram-name` | có dữ liệu | `ten` + `han` + symbol — [UI-POLISH t_fc6387df] cỡ DISPLAY `text-h1` font serif `.han`, nổi nhất header |
+| `detail-chip-index` | luôn | [UI-POLISH t_fc6387df] chip "Chỉ mục {id}" — class `chip-status` (kiểu thẻ đồng nhất) |
+| `detail-changing-lines` | `changing_lines` != [] | "Hào N động — quẻ biến: {biếnTen}" — [UI-POLISH t_fc6387df] nằm trong `chip-status text-cinnabar` (cùng kiểu thẻ với chip chỉ mục) |
+| `detail-chip-free` | `#1 free_deep===true` | [UI-POLISH t_fc6387df] chip "Luận sâu miễn phí hôm nay" — `chip-status text-bamboo` |
 | `detail-tabs` | luôn | hàng 3 tab |
 | `detail-tab-{cong-viec,tinh-duyen,tai-loc}` | luôn | đổi tab = đổi `detail-free-slot` (free_content, KHÔNG paywall) |
 | `detail-free-slot` | có tab chọn | đoạn luận ngôi đang chọn |
@@ -72,7 +74,7 @@ DRAW_LIMIT_REACHED (409) → replace về `/` + `?toast=draw_limit` → S1 rende
 | `gate-result` | đã unlock + OK | đoạn AI, `{br}` → `<br>`, nút `gate-ask` "Xin luận sâu" còn dùng |
 | `gate-retry` | 429/500 | nút thử lại |
 | `gate-failed` | backend fail | "Câu hỏi hơi hóc. Thử lại nhé." (F-03 — KHÔNG bịa nội dung) |
-| `donate-cta-open` | `#1 free_deep===true` SAU khi luận render xong (F8-FE C3) | chip paper2 `inline-flex ... bg-paper2 text-ink` y hệt `share-card-open`, nhãn "Lễ tùy tâm ủng hộ", đặt SAU TopicGate trong footer mt-8; click → track `donate_cta_click` {topic tab hiện hành} + push `/mo-khoa/{topic}?mode=donate`. Flag false/absence → KHÔNG render, KHÔNG bắn `donate_cta_shown` (kể cả entitlements đủ 3 topic — C1: FE không suy từ entitlements) |
+| `donate-cta-open` | `#1 free_deep===true` SAU khi luận render xong (F8-FE C3) | [UI-POLISH t_fc6387df] ĐỔI HỢP ĐỒNG: KHÔNG còn "chip y hệt share-card-open" — donate là CTA monetization BẬC 1 `btn-cinnabar` (nền đỏ chữ trắng, nổi bật nhất hàng hành động); share GIÁNG xuống `btn-outline` (viền, không nền độn). Row mang class `has-donate-cta` khi donate hiện → nút TopicGate cũng về outline đồng bộ (donate độc tôn đỏ). Nhãn "Lễ tùy tâm ủng hộ", đặt SAU TopicGate trong footer `detail-actions`; click → track `donate_cta_click` {topic tab hiện hành} + push `/mo-khoa/{topic}?mode=donate`. Flag false/absence → KHÔNG render, KHÔNG bắn `donate_cta_shown` (kể cả entitlements đủ 3 topic — C1: FE không suy từ entitlements) |
 
 ## S4 Mở khóa `/mo-khoa/:topic` — PaywallView.vue
 | testid | khi nào | nội dung |
@@ -153,9 +155,10 @@ NODE_OPTIONS=--max-old-space-size=1024 npm run build   # → backend/public/app/
 ### S3 — vùng "Luận hôm nay" (04-ui §S3, nguồn #3 prime / #2b fetch)
 | selector | nơi | ghi chú |
 |---|---|---|
-| `data-testid="luan-hom-nay"` | `<section>` cả vùng | heading "Luận hôm nay" nằm trong; QA grep nguyên văn nhãn |
-| `data-testid="luan-dai-y"` | dòng Đại ý dưới heading | ≥1 hào động: Đại ý + đủ N khối từ hào; 0 hào động: CHỈ Đại ý |
-| `data-testid="luan-hao-list"` | wrapper danh sách khối | đếm con == số `changing_lines` (0 hào động = list rỗng, không khung trống) |
+| `luan-hom-nay` | `<section>` cả vùng | heading "Luận hôm nay" nằm trong; QA grep nguyên văn nhãn. [UI-POLISH t_fc6387df] render qua `LuanHomNay.vue` — nhịp 3 tầng: đại ý (tiểu dẫn) → kicker "TỪ HÀO" → khối từ hào (kết) |
+| `luan-dai-y` | dòng Đại ý dưới heading | ≥1 hào động: Đại ý + đủ N khối từ hào; 0 hào động: CHỈ Đại ý |
+| `luan-hao-label` | kicker chỉ khi ≥1 hào động | [UI-POLISH t_fc6387df] nhãn "Từ hào" hoa + giãn chữ (`.chip-kicker`, text-muted đạt AA), tách nhịp giữa đại ý và khối hào; 0 hào động → KHÔNG render |
+| `luan-hao-list` | wrapper danh sách khối | đếm con == số `changing_lines` (0 hào động = list rỗng, không khung trống) |
 | `data-testid="hao-dong-block"` | card 1 khối / hào động | `:data-vi` = vị trí (1..6), sắp xếp sơ→thượng |
 | `data-testid="hao-dong-label"` | nhãn hào | "Sơ cửu/Cửu nhị/…/Thượng lục" (trường `hao`) |
 | `data-testid="hao-dong-han"` | chữ Hán | nguyên văn `han` |
@@ -186,7 +189,8 @@ Nguồn: SPEC-THE §1/§3, MOCKUP-CARD, F7-CONTRACT §5 (7 testid), METRICS V1�
 ### S3 — nút mở overlay (DetailView)
 | selector | nơi | ghi chú |
 |---|---|---|
-| `data-testid="share-card-open"` | chip paper2 cạnh "Xin luận sâu", cuối S3 | `<button type="button">` nhãn "Chia sẻ thẻ quẻ"; CHỈ xuất hiện trong `template v-else` sau khi #3/#2 render xong (loading/error → không nút, không popup); click → `/share-card?draw={id}` |
+| `data-testid="share-card-open"` | chip `btn-outline` (BẬC 2 — nhẹ hơn donate một bậc, [UI-POLISH t_fc6387df]), cuối S3 trong `detail-actions` | `<button type="button">` nhãn "Chia sẻ thẻ quẻ"; CHỈ xuất hiện trong `template v-else` sau khi #3/#2 render xong (loading/error → không nút, không popup); click → `/share-card?draw={id}` |
+| `data-testid="detail-actions"` | có dữ liệu | [UI-POLISH t_fc6387df] hàng hành động cuối S3; mang class `has-donate-cta` khi donate hiện (freeDeep) — QA đo: đúng 1 nút `btn-cinnabar` trong hàng khi class có mặt |
 
 ### Overlay `/share-card` (ShareCardView)
 | selector | nơi | ghi chú |

@@ -20,6 +20,23 @@
   .btn-cinnabar {
     @apply inline-block text-center font-semibold text-paper bg-cinnabar border border-gold/60 rounded-card px-5 py-3 shadow-card active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed;
   }
+  /* [UI-POLISH t_fc6387df] nút bậc 2 outline — nhẹ hơn btn-cinnabar MỘT BẠC,
+     cùng bo góc/padding hệ; state hover/focus-visible đủ. */
+  .btn-outline {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-card font-medium text-ink bg-transparent border border-gold/50 hover:bg-gold/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  /* [UI-POLISH t_fc6387df] chip trạng thái ĐỒNG NHẤT 1 kiểu thẻ (header S3):
+     chỉ mục · hào động · trạng thái miễn phí — nền giấy, viền đồng mảnh, chữ nhỏ. */
+  .chip-status {
+    @apply inline-flex items-center gap-1 rounded-sm border border-gold/40 bg-paper2/70 px-2.5 py-0.5 text-small font-medium;
+  }
+  /* [UI-POLISH t_fc6387df] `.han` là class thật 8 SFC đang dùng nhưng từ trước tới nay
+     CHƯA từng định nghĩa → mọi chữ Hán/tên quẻ âm thầm rơi về sans-serif (mất bản sắc
+     Đông — anti-generic gate). Định nghĩa lại đúng token font-han đã duyệt (04-ui §1),
+     KHÔNG tự chế font mới. */
+  .han {
+    @apply font-han;
+  }
   .card {
     @apply bg-paper2 rounded-card border border-gold/40 shadow-card;
   }
