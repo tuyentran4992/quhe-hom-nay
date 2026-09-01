@@ -148,3 +148,78 @@ describe('LUAN-V2 §7.3 + D4 — gửi question qua requestInterpretation', () =
     expect(payload.question).toBe('em có nên đổi việc')
   })
 })
+
+// BUG-LUANV2-01 (card t_d4cfddea) — SPEC-LUAN-V2 §7.4 mục 4: kết quả hiển thị PHẢI
+// lặp lại câu hỏi của khách thành 1 dòng nhỏ "Bạn hỏi: …" trên ĐẦU bài luận.
+// Nguồn dữ liệu: snapshot bản đã TRIM lúc bấm gửi (khớp nguyên văn payload #5 — D4).
+// FE-local: không cần BE đưa `question` vào payload #6 (03-api §6 chốt 7 field;
+// QuestionCacheTest phía BE còn CHỐNG lọt field này — giữ nguyên tắc ẩn PII F7).
+// Nếu dev-lead duyệt thêm field sau, poll fallback `j.question` cho job cache-hit.
+describe('LUAN-V2 §7.4.4 — dòng "Bạn hỏi: …" trên đầu gate-result', () => {
+  const DONE_BODY = { job_uuid: 'j-1', status: 'done', result: 'bài luận A' }
+
+  async function driveToDone(w, donePayload = DONE_BODY) {
+    client.api.aiJob.mockResolvedValue({ data: donePayload })
+    vi.useFakeTimers()
+    // phase 'failed' → đường bấm là gate-retry (key mới); phase 'idle' → gate-ask
+    const btn = w.find('[data-testid="gate-ask"]').exists()
+      ? w.find('[data-testid="gate-ask"]')
+      : w.find('[data-testid="gate-retry"]')
+    await btn.trigger('click')
+    await vi.advanceTimersByTimeAsync(10) // poll đầu sau AI_POLL_MS=2000 — advance đủ 2s
+    await vi.advanceTimersByTimeAsync(2000)
+    await flushPromises()
+    vi.useRealTimers()
+    return w
+  }
+
+  it('có question → gate-result render dòng "Bạn hỏi: <nguyên văn đã trim>" TRƯỚC bài luận', async () => {
+    const w = mountGate()
+    await flushPromises()
+    await w.find('[data-testid="gate-question"]').setValue('  bao giờ em có người  ')
+    await driveToDone(w)
+    expect(w.find('[data-testid="gate-result"]').exists()).toBe(true)
+    const line = w.find('[data-testid="gate-result-question"]')
+    expect(line.exists()).toBe(true)
+    expect(line.text()).toBe('Bạn hỏi: bao giờ em có người')
+    // vị trí: dòng hỏi đứng TRƯỚC thân bài trong vùng gate-result
+    expect(w.find('[data-testid="gate-result"]').text().trim().startsWith('Bạn hỏi:')).toBe(true)
+  })
+
+  it('KHÔNG question (bỏ trống ô) → không có dòng "Bạn hỏi", bài luận vẫn render', async () => {
+    const w = mountGate()
+    await flushPromises()
+    await driveToDone(w)
+    expect(w.find('[data-testid="gate-result"]').exists()).toBe(true)
+    expect(w.find('[data-testid="gate-result-question"]').exists()).toBe(false)
+    expect(w.find('[data-testid="gate-result"]').text()).toContain('bài luận A')
+  })
+
+  it('question whitespace-only (không gửi theo D4) → KHÔNG hiện dòng hỏi', async () => {
+    const w = mountGate()
+    await flushPromises()
+    await w.find('[data-testid="gate-question"]').setValue('   \n ')
+    await driveToDone(w)
+    expect(w.find('[data-testid="gate-result-question"]').exists()).toBe(false)
+  })
+
+  it('failed → retry giữ dòng hỏi: lần 1 fail, lần 2 done → gate-result có "Bạn hỏi"', async () => {
+    client.api.requestInterpretation.mockRejectedValueOnce({ code: 'SERVER', status: 500 })
+    const w = mountGate()
+    await flushPromises()
+    await w.find('[data-testid="gate-question"]').setValue('năm sau tài lộc ra sao')
+    await w.find('[data-testid="gate-ask"]').trigger('click')
+    await flushPromises()
+    expect(w.find('[data-testid="gate-failed"]').exists()).toBe(true)
+    await driveToDone(w)
+    expect(w.find('[data-testid="gate-result-question"]').text()).toBe('Bạn hỏi: năm sau tài lộc ra sao')
+  })
+
+  it('fallback API: job cache-hit có field question (tương lai nếu dev-lead duyệt #6) → hiện dòng hỏi', async () => {
+    const w = mountGate()
+    await flushPromises()
+    // người dùng KHÔNG gõ gì ở lượt này (job replay từ cache, question chỉ có trong payload)
+    await driveToDone(w, { ...DONE_BODY, question: 'câu từ payload job' })
+    expect(w.find('[data-testid="gate-result-question"]').text()).toBe('Bạn hỏi: câu từ payload job')
+  })
+})

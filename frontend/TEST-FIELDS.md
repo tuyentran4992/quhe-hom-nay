@@ -71,7 +71,8 @@ DRAW_LIMIT_REACHED (409) → replace về `/` + `?toast=draw_limit` → S1 rende
 | `gate-locked` + `gate-cta-paywall` | chưa unlock (C-03) | blurb 1 câu + nút → `/mo-khoa/{topic}` |
 | `gate-ask` (disabled) + `gate-cooldown` | sau 429 TOPIC_COOLDOWN | đếm ngược `mm:ss` từ `retry_after_seconds`, nút disabled (90s, C-01). Hết đồng hồ → `gate-cooldown` BIẾN MẤT, `gate-ask` enable lại nhãn "Xin luận sâu" (fix E5 t_0285ac01 — QA không còn thấy "— 00:00" vĩnh viễn) |
 | `gate-cap` | hết lượt ngày | "Hôm nay hết lượt luận, quay lại sau 0h." (cap ngày) |
-| `gate-result` | đã unlock + OK | đoạn AI, `{br}` → `<br>`, nút `gate-ask` "Xin luận sâu" còn dùng |
+| `gate-result` | đã unlock + OK | vùng bài luận: dòng `gate-result-question` (nếu có) + thân bài `{br}` → `<br>`, nút `gate-ask` "Xin luận sâu" còn dùng |
+| `gate-result-question` | `phase done` VÀ có câu hỏi đã gửi (LUAN-V2 §7.4.4, t_d4cfddea) | 1 dòng nhỏ `text-small text-muted` ĐẦU bài: `"Bạn hỏi: <nguyên văn đã trim>"`. Nguồn = snapshot câu hỏi lúc bấm gửi (FE-local — payload #6 cố ý KHÔNG có field question, xem QuestionCacheTest chống-leak phía BE). Bỏ trống ô / whitespace-only → KHÔNG render dòng này (kể cả khi khách gõ lại chữ vào ô sau khi gửi). Retry (gate-retry) giữ đúng dòng hỏi của bản gửi đi. |
 | `gate-retry` | 429/500 | nút thử lại |
 | `gate-failed` | backend fail | "Câu hỏi hơi hóc. Thử lại nhé." (F-03 — KHÔNG bịa nội dung) |
 | `gate-question` | `phase idle` (LUAN-V2 t_b13fd2b9) | `<textarea>` ô "Bạn đang vướng chuyện gì?" — placeholder "Bạn đang vướng chuyện gì? (không bắt buộc)", `maxlength=200`, `rows=3`, đặt TRƯỚC nút `gate-ask` trong DOM. Rỗng/whitespace sau trim → payload #5 KHÔNG chứa key `question` (D4 — giữ nhánh cache question-NULL phía BE). Có text → gửi nguyên văn ĐÃ TRIM. Nội dung sống độc lập phase → `gate-retry` giữ nguyên text đã nhập |
