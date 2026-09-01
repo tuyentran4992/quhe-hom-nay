@@ -218,11 +218,20 @@ export function drawShareCard(ctx, model, opts = {}) {
     const qr = opts.qrImage
     if (qr) {
       const q = 220
-      ctx.drawImage(qr, cx - q - 60, H - SAFE_BOTTOM + 45, q, q)
+      const qrX = cx - q - 60
+      const qrY = H - SAFE_BOTTOM + 45
+      ctx.drawImage(qr, qrX, qrY, q, q)
       ctx.font = `400 34px ${SANS}`
       ctx.fillStyle = TOKENS.muted
       ctx.textAlign = 'left'
-      ctx.fillText(shortUrl(model.url), cx - q + 40, H - SAFE_BOTTOM + 45 + q / 2 + 12)
+      // BUG-F7-UX1 (t_cf7e69e9): URL từng vẽ tại cx-q+40=360 ĐÈ mép phải QR (phải=480,
+      // ký tự đầu nằm trong cột module ngoài cùng — QA-R2 t_414aee5e soi pixel 3/3 ảnh
+      // 9x16). Fix: URL đứng SANG PHẢI ảnh QR, gap 20px ≥1 module (PNG QR đã ngậm
+      // margin:1 module bên trong — không được chạm mép ảnh). Dài quá chỗ còn lại →
+      // cắt theo ký tự + '…' (chỉ ảnh hiển thị; link copy/QR text không đổi).
+      const urlX = qrX + q + 20
+      const urlMax = W - PAD_X - urlX
+      ctx.fillText(clipUrl(shortUrl(model.url), urlMax, (t) => textW(ctx, t)), urlX, qrY + q / 2 + 12)
       ctx.textAlign = 'center'
     }
   }
@@ -259,6 +268,24 @@ export function quantizeImageData(imageData, bits = PNG_QUANT_BITS) {
 /** URL hiển thị dưới QR — cắt scheme cho gọn, KHÔNG đổi link copy. */
 function shortUrl(url) {
   return String(url || '').replace(/^https?:\/\//, '')
+}
+
+/**
+ * BUG-F7-UX1: kẹp chuỗi URL vừa chỗ còn lại bên phải QR (đo bằng ctx thật). Cắt theo
+ * ký tự + '…' (đếm cả dấu ba chấm vào width). Trả nguyên bản khi vừa. CHỈ ảnh hiển thị —
+ * qr_text/link clipboard không qua hàm này.
+ */
+export function clipUrl(text, maxWidth, measure) {
+  const s = String(text ?? '')
+  if (measure(s) <= maxWidth) return s
+  let lo = 0
+  let hi = s.length
+  while (lo < hi) {
+    const mid = Math.ceil((lo + hi) / 2)
+    if (measure(`${s.slice(0, mid)}…`) <= maxWidth) lo = mid
+    else hi = mid - 1
+  }
+  return lo > 0 ? `${s.slice(0, lo)}…` : '…'
 }
 
 /**

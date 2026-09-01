@@ -161,6 +161,44 @@ describe('drawShareCard khung 9:16', () => {
     expect(texts(ctx.calls).some((t) => t.includes('quhehomnay'))).toBe(true)
   })
 
+  // BUG-F7-UX1 (t_cf7e69e9): QA-R2 t_414aee5e soi pixel TH1/TH2 9x16 — chuỗi URL muted
+  // ĐÈ mép phải QR (ký tự đầu nằm trong vùng module + quiet zone). Bất biến: URL đứng
+  // SANG PHẢI ảnh QR với gap ≥1 module; QR giữ nguyên vị trí (chỉ đạo card).
+  it('BUG-F7-UX1: URL không đè QR — mép trái text ≥ mép phải ảnh QR + 1 module', () => {
+    const ctx = mkCtx()
+    drawShareCard(ctx, MODEL, { frame: FRAME_9X16, qrImage: QR_IMG })
+    const qr = kind(ctx.calls, 'drawImage')[0] // [img, dx, dy, dw, dh]
+    const [, , dx, dy, dw, dh] = qr
+    const urlCall = kind(ctx.calls, 'fillText').find((c) => String(c[1]).includes('quhehomnay'))
+    expect(urlCall).toBeTruthy()
+    const [, t, x, y] = urlCall
+    // PNG QR đã chứa margin:1 module BÊN TRONG ảnh → cấm text chạm mép ảnh QR
+    expect(x).toBeGreaterThanOrEqual(dx + dw)
+    // ≥1 module dự phòng ngoài ảnh QR: v3 (220px/31module ≈ 7,1px) → 16px an toàn mọi version
+    expect(x - (dx + dw)).toBeGreaterThanOrEqual(16)
+    // thẳng hàng dọc vùng QR (không nhảy xuống/xout ngoài đáy)
+    expect(y).toBeGreaterThan(dy)
+    expect(y).toBeLessThanOrEqual(dy + dh + 20)
+    // không tràn mép phải an toàn (unit 1080 − PAD_X 84; mock measure 13px/ký)
+    expect(x + ctx.measureText(t).width).toBeLessThanOrEqual(1080 - 84)
+  })
+
+  it('BUG-F7-UX1: URL dài quá chỗ còn lại → cắt dấu … , KHÔNG tràn mép phải', () => {
+    const ctx = mkCtx()
+    const model = { ...MODEL, url: 'https://que.today/s/' + 'x'.repeat(60) } // shortUrl → 73 ký
+    drawShareCard(ctx, model, { frame: FRAME_9X16, qrImage: QR_IMG })
+    const urlCall = kind(ctx.calls, 'fillText').find((c) => String(c[1]).startsWith('que.today'))
+    expect(urlCall).toBeTruthy()
+    const [, t, x] = urlCall
+    expect(t.endsWith('…')).toBe(true)
+    expect(x + ctx.measureText(t).width).toBeLessThanOrEqual(1080 - 84)
+    // URL ngắn bình thường KHÔNG bị cắt
+    const ctx2 = mkCtx()
+    drawShareCard(ctx2, MODEL, { frame: FRAME_9X16, qrImage: QR_IMG })
+    const t2 = texts(ctx2.calls).find((s) => s.includes('quhehomnay'))
+    expect(t2).toBe('quhehomnay.vn/s/Ab3dE9fGh1')
+  })
+
   it('đủ nội dung: symbol, tên, ngày, hook, 4 chips, disclaimer', () => {
     const ctx = mkCtx()
     drawShareCard(ctx, MODEL, { frame: FRAME_9X16, qrImage: QR_IMG })
