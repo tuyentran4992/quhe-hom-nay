@@ -47,8 +47,15 @@ class InterpretationService
             ]);
         }
 
-        // idempotency TRƯỚC mọi gate (F6: same key same body = same job, không nhân row):
-        $hash = hash('sha256', $draw->id.'|'.$topic->value);
+        // LUAN-V2 §4.1: question đã strip/trim ở controller — đây là chốt cuối
+        // (service có thể gọi thẳng từ test/CLI): rỗng sau trim → null. DB lưu BẢN TRIM.
+        $question = trim((string) ($body['question'] ?? ''));
+        $question = $question !== '' ? $question : null;
+
+        // idempotency TRƯỚC mọi gate (F6: same key same body = same job, không nhân row).
+        // LUAN-V2 D1: hash 3 thành phần — cùng key cũ + thêm question → lệch hash → 409
+        // có chủ đích (question đổi bài luận, không phải cùng body).
+        $hash = hash('sha256', $draw->id.'|'.$topic->value.'|'.($question ?? ''));
         if ($key = trim((string) ($body['idempotency_key'] ?? ''))) {
             $existing = AiJob::query()->where('device_id', $device->device_id)
                 ->where('idempotency_key', $key)->first();
@@ -96,13 +103,18 @@ class InterpretationService
             'device_id' => $device->device_id,
             'draw_id' => $draw->id,
             'topic' => $topic->value,
+            'question' => $question,
             'status' => AiJob::ST_QUEUED,
             'requested_at' => now(),
             'idempotency_key' => $key ?: null,
             'result_key_hash' => $hash,
         ]);
 
-        $cached = $this->findCacheHit($draw->hexagram_id, $topic->value, $job->id);
+        // LUAN-V2 §5.2 (D1): job CÓ question LUÔN bỏ qua cache — không ăn bài của
+        // người khác (bài luận không hỏi ≠ bài luận có vướng mắc riêng).
+        $cached = $question === null
+            ? $this->findCacheHit($draw->hexagram_id, $topic->value, $job->id)
+            : null;
         if ($cached !== null) {
             // AC-2 cache: SAME QUẺ + SAME CHỦ ĐỀ → done ngay, không đụng provider.
             $job->forceFill([
@@ -120,12 +132,14 @@ class InterpretationService
         return $job;
     }
 
-    /** Job done gần nhất cùng hexagram+topic KHÁC chính nó — nguồn cache DB (AC-2). */
+    /** Job done gần nhất cùng hexagram+topic KHÁC chính nó — nguồn cache DB (AC-2).
+     * LUAN-V2 §5: chỉ job question NULL được làm nguồn (bài luận không hỏi). */
     public function findCacheHit(int $hexagramId, string $topic, int $excludeJobId): ?AiJob
     {
         return AiJob::query()
             ->where('status', AiJob::ST_DONE)
             ->where('topic', $topic)
+            ->whereNull('question')
             ->where('id', '!=', $excludeJobId)
             ->whereIn('draw_id', function ($q) use ($hexagramId) {
                 $q->select('id')->from('draws')->where('hexagram_id', $hexagramId);
