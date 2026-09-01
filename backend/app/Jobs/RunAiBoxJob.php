@@ -107,6 +107,12 @@ class RunAiBoxJob implements ShouldQueue
 
             $text = $client->complete($messages);
 
+            // BUG-V3-4 (card t_fc8a8953): normalize `**` MOT CHO ben BE truoc khi
+            // luu — hop dong BUG-V3-2 voi FE (luanRender.js giu nguyen `**`, chi
+            // xu ly marker + `#`). Dat TRUOC violations() de AI_FILTERED soi dung
+            // noi dung se luu (cam `**bùa**` van phai catch sau khi doi chu).
+            $text = Wordguard::stripBoldMarkers($text);
+
             // 05 E4: output vi phạm wording → failed AI_FILTERED, KHÔNG lưu bài bẩn.
             $hits = Wordguard::violations($text);
             if ($hits !== []) {

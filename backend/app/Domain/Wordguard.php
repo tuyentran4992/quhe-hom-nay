@@ -49,6 +49,28 @@ TXT;
         return self::violations($text) === [];
     }
 
+    /**
+     * BUG-V3-4 (card t_fc8a8953) — normalize markdown bold MOT CHO duoi quyen BE
+     * (hop dong 1-cho-duy-nhat BUG-V3-2, ghi ro trong FE luanRender.js: "BE
+     * normalize mot cho truoc khi luu result — CAM ca hai noi cung lam").
+     *
+     * Chi mat literal `**`: TopicGate render whitespace-pre-wrap, khong co markdown
+     * renderer → moi `**` deu la marker tho den mat khach (bang chung QA: DB_162
+     * cap dong, DB_50/51 3 dong/bai). Van prose tieng Viet hop le CHUA BAO GIO
+     * chua `**`, nen doi `**x**` -> `x` bang strip toan bo `**` la du mat nghiem
+     * nghiem cua card:
+     *  - CAM an nham ky tu thuong: moi dau `*` le (italic don cuoi bai, tich nhan
+     *    "2*3"), chu, dau câu, unicode giu NGUYEN ven — str_replace khong overlapping
+     *    bien `***x***` -> `*x*` (con giu italic), khong them cat bot gi khac.
+     *  - `**` khong dong cap: cung la marker tho → strip het → bao dam bien
+     *    acceptance QA "grep ** tren result = 0".
+     *  - Idempotent: ket qua sau chay khong con `**` → chay tiep = khong doi.
+     */
+    public static function stripBoldMarkers(string $text): string
+    {
+        return str_replace('**', '', $text);
+    }
+
     private function __construct()
     {
     }
