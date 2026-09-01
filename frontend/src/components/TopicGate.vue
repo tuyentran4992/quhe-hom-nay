@@ -19,6 +19,14 @@ const result = ref('')
 // LUAN-V2 §7 (card t_b13fd2b9): ô "Bạn đang vướng chuyện gì?" — tùy chọn, tối đa
 // QUESTION_MAX ký tự. Ref sống độc lập với phase → retry/fail không mất nội dung.
 const question = ref('')
+// BUG-LUANV2-01 §7.4.4 (card t_d4cfddea): bản ĐÃ TRIM của câu hỏi lúc bấm gửi —
+// snapshot để lặp lại "Bạn hỏi: …" trên đầu bài. FE-local, cố ý: 03-api §6 chốt
+// payload #6 đúng 7 field và QuestionCacheTest phía BE CHỐNG lọt question ra API
+// (ẩn PII, cùng nguyên tắc F7) — nên nguồn là state của chính người vừa hỏi.
+// jobQuestion = kênh phụ: nếu dev-lead duyệt thêm field `question` vào #6 sau này
+// (job cache-hit/replay), poll nhặt về mà không phải đổi gì thêm ở tầng render.
+const askedQuestion = ref('')
+const jobQuestion = ref('')
 let pollTimer = null
 let pollStart = 0
 
@@ -30,6 +38,9 @@ const questionLen = computed(() => [...question.value].length) // đếm unicode
 // LUAN-V2 D4 (§4.1): trim TRƯỚC khi gửi — rỗng → undefined để client.js KHÔNG dựng key
 // `question` (giữ nhánh cache question-NULL phía BE). BE hash trên giá trị đã trim.
 const normalizedQuestion = computed(() => question.value.trim() || undefined)
+// §7.4.4: dòng hỏi hiển thị = snapshot đã trim lúc gửi, hoặc field question của job
+// (kênh phụ tương lai) — rỗng/whitespace → null → không render (test chốt).
+const displayedQuestion = computed(() => (askedQuestion.value || jobQuestion.value || '').trim() || null)
 
 function stopPoll() {
   if (pollTimer) clearTimeout(pollTimer)
@@ -40,6 +51,11 @@ onBeforeUnmount(stopPoll)
 async function askFresh() {
   stopPoll()
   result.value = ''
+  // §7.4.4: snapshot BẢN GỬI ĐI (đã trim qua normalizedQuestion — D4) ngay lúc bấm —
+  // whitespace-only → '' → không hiện dòng hỏi kể cả khi khách gõ lại sau đó.
+  // Lượt mới = ý định mới: xóa kênh phụ của job lượt trước, chống giá trị cũ.
+  askedQuestion.value = normalizedQuestion.value ?? ''
+  jobQuestion.value = ''
   try {
     const r = await api.requestInterpretation({
       draw_id: props.drawId,
@@ -75,6 +91,9 @@ async function poll(uuid) {
   try {
     const r = await api.aiJob(uuid)
     const j = r.data
+    // kênh phụ §7.4.4: nếu #6 có trả `question` (chưa — 03-api §6 chốt 7 field),
+    // nhặt về hiển thị cho job replay/cache-hit; field vắng → giữ snapshot local.
+    if (typeof j.question === 'string') jobQuestion.value = j.question
     if (j.status === 'done') {
       phase.value = 'done'
       result.value = j.result || ''
@@ -191,8 +210,15 @@ watch(unlocked, (u) => {
         <p class="text-body text-muted mb-2">Hôm nay bàn cờ im tiếng, thử lại nhé.</p>
         <button type="button" class="btn-cinnabar" data-testid="gate-retry" @click="askFresh">Thử lại</button>
       </div>
-      <article v-else-if="phase === 'done'" data-testid="gate-result" class="prose-quhe text-body text-ink whitespace-pre-wrap">
-        {{ result }}
+      <article v-else-if="phase === 'done'" data-testid="gate-result">
+        <!-- LUAN-V2 §7.4.4 (t_d4cfddea): câu hỏi lặp lại 1 dòng NHỎ trên đầu bài —
+             token có sẵn (text-small/text-muted như counter/chip), CẤM style mới. -->
+        <p
+          v-if="displayedQuestion"
+          data-testid="gate-result-question"
+          class="text-small text-muted mb-2"
+        >Bạn hỏi: {{ displayedQuestion }}</p>
+        <div class="prose-quhe text-body text-ink whitespace-pre-wrap">{{ result }}</div>
       </article>
     </template>
   </section>
