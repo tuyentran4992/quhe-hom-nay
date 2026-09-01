@@ -29,6 +29,9 @@ class MeController extends Controller
             'today_draw' => $today?->toApi(),
             'entitlements' => $this->entitlements($device),
             'server_date_vn' => $this->draws->serverDateVn(now()),
+            // F8-BE (C1): tín hiệu "luận sâu đang FREE" — FE CHỈ tin key này,
+            // không suy từ entitlements (device trả 29k cũng đủ 3 topic).
+            'free_deep' => (bool) config('preview.free_deep'),
         ]);
     }
 
@@ -42,6 +45,7 @@ class MeController extends Controller
             'today_draw' => $this->draws->todayDraw($device)?->toApi(),
             'entitlements' => $this->entitlements($device),
             'server_date_vn' => $this->draws->serverDateVn(now()),
+            'free_deep' => (bool) config('preview.free_deep'), // F8-BE C1 — cùng nguồn #1
         ]]);
     }
 

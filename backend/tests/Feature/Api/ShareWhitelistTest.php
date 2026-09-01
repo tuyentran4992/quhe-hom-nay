@@ -25,15 +25,40 @@ class ShareWhitelistTest extends ApiTestCase
         'share_referred_draw',
     ];
 
+    /** 2 tên F8 donate-CTA — thêm CUỐI, donate_open giữ nguyên vị trí (C2). */
+    public const DONATE_CTA = ['donate_cta_shown', 'donate_cta_click'];
+
     public function test_model_whitelist_contains_exactly_f2_plus_seven_share_names(): void
     {
-        // Merge F7 (t_a2ef281b): danh sách đầy đủ 10 name = F2(2) + MKT-F6-fix(1) + F7(7),
-        // đúng thứ tự thêm của Event::NAME_WHITELIST — 1 nguồn sự thật.
+        // F8-BE (t_03424b76 C2): danh sách đầy đủ 12 name = F2(2) + MKT-F6-fix(1)
+        // + F7(7) + F8 donate_cta(2), đúng thứ tự thêm của Event::NAME_WHITELIST
+        // — 1 nguồn sự thật; donate_open GIỮ vị trí cũ.
         $this->assertSame(
-            ['landing_visit', 'cta_gieo_que', 'donate_open', ...self::SEVEN],
+            ['landing_visit', 'cta_gieo_que', 'donate_open', ...self::SEVEN, ...self::DONATE_CTA],
             Event::NAME_WHITELIST,
-            'whitelist = 3 tên F2/F6 + 7 tên F7 nguyên văn, đúng thứ tự thêm'
+            'whitelist = 3 tên F2/F6 + 7 tên F7 + 2 tên F8 nguyên văn, đúng thứ tự thêm'
         );
+    }
+
+    /** C5: 2 event donate_cta_* qua /api/track → 204 + row, props {topic} giữ nguyên. */
+    public function test_donate_cta_events_trackable_via_api(): void
+    {
+        $dev = $this->deviceId();
+        $this->asDevice($dev);
+
+        foreach (self::DONATE_CTA as $name) {
+            $this->postJson('/api/track', ['name' => $name, 'props' => ['topic' => 'congViec']])
+                ->assertStatus(204, "event '{$name}' phải 204");
+        }
+
+        $rows = DB::table('events')->where('device_id', $dev)->whereIn('name', self::DONATE_CTA)->pluck('name')->all();
+        sort($rows);
+        $expect = self::DONATE_CTA;
+        sort($expect);
+        $this->assertSame($expect, $rows, 'đủ 2 row events tên thô');
+
+        $props = json_decode((string) DB::table('events')->where('name', 'donate_cta_shown')->value('props'), true);
+        $this->assertSame(['topic' => 'congViec'], $props, 'props {topic} lưu nguyên văn');
     }
 
     /** 7 events vào /api/track qua pipeline F2: 204 + row events name thô (không qhn_). */
