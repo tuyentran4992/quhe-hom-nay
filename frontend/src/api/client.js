@@ -52,9 +52,15 @@ export const api = {
   createDraw: () => req('POST', '/api/draws', {}),
   // #4 sổ cá nhân
   history: (limit = 20) => req('GET', `/api/draws/history?limit=${limit}`),
-  // #5 xin luận sâu — key tự sinh nếu caller không đưa
-  requestInterpretation: ({ draw_id, topic, idempotency_key }) =>
-    req('POST', '/api/ai/interpretations', { draw_id, topic, idempotency_key: idempotency_key || uuid8() }),
+  // #5 xin luận sâu — key tự sinh nếu caller không đưa.
+  // LUAN-V2 D4 (§4.1, card t_b13fd2b9): question rỗng/whitespace sau trim → KHÔNG gửi
+  // key `question` (KHÔNG gửi chuỗi rỗng/null) — giữ nguyên nhánh cache question NULL cũ.
+  requestInterpretation: ({ draw_id, topic, idempotency_key, question }) => {
+    const body = { draw_id, topic, idempotency_key: idempotency_key || uuid8() }
+    const q = typeof question === 'string' ? question.trim() : ''
+    if (q) body.question = q
+    return req('POST', '/api/ai/interpretations', body)
+  },
   // #6 poll job
   aiJob: (uuid) => req('GET', `/api/ai/jobs/${uuid}`),
   // #7 tạo đơn (unlock | donate)

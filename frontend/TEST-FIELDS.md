@@ -74,6 +74,9 @@ DRAW_LIMIT_REACHED (409) → replace về `/` + `?toast=draw_limit` → S1 rende
 | `gate-result` | đã unlock + OK | đoạn AI, `{br}` → `<br>`, nút `gate-ask` "Xin luận sâu" còn dùng |
 | `gate-retry` | 429/500 | nút thử lại |
 | `gate-failed` | backend fail | "Câu hỏi hơi hóc. Thử lại nhé." (F-03 — KHÔNG bịa nội dung) |
+| `gate-question` | `phase idle` (LUAN-V2 t_b13fd2b9) | `<textarea>` ô "Bạn đang vướng chuyện gì?" — placeholder "Bạn đang vướng chuyện gì? (không bắt buộc)", `maxlength=200`, `rows=3`, đặt TRƯỚC nút `gate-ask` trong DOM. Rỗng/whitespace sau trim → payload #5 KHÔNG chứa key `question` (D4 — giữ nhánh cache question-NULL phía BE). Có text → gửi nguyên văn ĐÃ TRIM. Nội dung sống độc lập phase → `gate-retry` giữ nguyên text đã nhập |
+| `gate-question-chip` | cùng block idle, 3 cái | [D3] gói gợi ý text theo topic của TAB hiện hành (`QUESTION_SUGGESTIONS` trong constants.js, style `chip-status`) — bấm CHỈ điền text vào `gate-question`, KHÔNG gọi API, KHÔNG đổi topic payload. QA assert: topic trong body #5 luôn == tab đang chọn |
+| `gate-question-counter` | cạnh chip | `"{len}/200"` đếm unicode (khớp mb_strlen BE §4.1), `aria-live="polite"`, đổi màu cinnabar khi chạm trần 200 |
 | `donate-cta-open` | `#1 free_deep===true` SAU khi luận render xong (F8-FE C3) | [UI-POLISH t_fc6387df] ĐỔI HỢP ĐỒNG: KHÔNG còn "chip y hệt share-card-open" — donate là CTA monetization BẬC 1 `btn-cinnabar` (nền đỏ chữ trắng, nổi bật nhất hàng hành động); share GIÁNG xuống `btn-outline` (viền, không nền độn). Row mang class `has-donate-cta` khi donate hiện → nút TopicGate cũng về outline đồng bộ (donate độc tôn đỏ). Nhãn "Lễ tùy tâm ủng hộ", đặt SAU TopicGate trong footer `detail-actions`; click → track `donate_cta_click` {topic tab hiện hành} + push `/mo-khoa/{topic}?mode=donate`. Flag false/absence → KHÔNG render, KHÔNG bắn `donate_cta_shown` (kể cả entitlements đủ 3 topic — C1: FE không suy từ entitlements) |
 
 ## S4 Mở khóa `/mo-khoa/:topic` — PaywallView.vue
