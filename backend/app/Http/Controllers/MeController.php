@@ -54,6 +54,11 @@ class MeController extends Controller
      */
     private function entitlements(Device $device): array
     {
+        // PREVIEW FLAG (không tồn tại ở main): mở luận sâu free → FE coi như đã unlock
+        // cả 3 topic để vào thẳng vùng hỏi, không đẩy sang màn paywall.
+        if (config('preview.free_deep')) {
+            return \App\Domain\Rules::TOPICS;
+        }
         $paid = \Illuminate\Support\Facades\Schema::hasTable('payments')
             ? \Illuminate\Support\Facades\DB::table('payments')
                 ->where('device_id', $device->device_id)
