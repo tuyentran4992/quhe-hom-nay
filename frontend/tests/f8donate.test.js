@@ -76,15 +76,19 @@ beforeEach(() => {
 
 // ================= Slice 2 — C3: DetailView nút "Lễ tùy tâm ủng hộ" =================
 describe('DetailView CTA donate (C3)', () => {
-  it('freeDeep true → hiện nút donate-cta-open, nhãn "Lễ tùy tâm ủng hộ", button thật, SAU TopicGate, class chip y hệt share-card-open', async () => {
+  it('freeDeep true → hiện nút donate-cta-open, nhãn "Lễ tùy tâm ủng hộ", button thật, SAU TopicGate; [UI-POLISH t_fc6387df] donate = btn-cinnabar NỔI BẬT NHẤT, share nhẹ hơn một bậc (không còn chip y hệt)', async () => {
     client.api.me.mockResolvedValue(me({ free_deep: true }))
     const { w } = await mountView(mkRoutes(), '/que/42')
     const btn = w.find('[data-testid="donate-cta-open"]')
     expect(btn.exists()).toBe(true)
     expect(btn.text()).toContain('Lễ tùy tâm ủng hộ')
     expect(btn.attributes('type')).toBe('button')
-    // class y hệt share-card-open (chip paper2 — C3)
-    expect(btn.attributes('class')).toBe(w.find('[data-testid="share-card-open"]').attributes('class'))
+    // CTA donate là phần tử nổi bật nhất hàng hành động (SOUL finish-gate)
+    expect(btn.attributes('class')).toContain('btn-cinnabar')
+    // share KHÔNG còn giống hệt donate — nhẹ hơn một bậc (outline)
+    const share = w.find('[data-testid="share-card-open"]')
+    expect(btn.attributes('class')).not.toBe(share.attributes('class'))
+    expect(share.attributes('class')).not.toContain('btn-cinnabar')
     // vị trí: SAU TopicGate trong cùng footer
     const html = w.html()
     expect(html.indexOf('data-testid="topic-gate"')).toBeLessThan(html.indexOf('data-testid="donate-cta-open"'))
