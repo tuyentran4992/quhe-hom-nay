@@ -25,6 +25,9 @@ class Event extends Model
         'share_link_view',
         'share_link_cta_click',
         'share_referred_draw',
+        // F8-BE (t_03424b76 C2) — donate CTA telemetry, thêm CUỐI (donate_open giữ chỗ):
+        'donate_cta_shown',
+        'donate_cta_click',
     ];
 
     public $timestamps = false;
