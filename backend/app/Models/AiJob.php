@@ -13,8 +13,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class AiJob extends Model
 {
     public const ST_QUEUED = 'queued';
+
     public const ST_RUNNING = 'running';
+
     public const ST_DONE = 'done';
+
     public const ST_FAILED = 'failed';
 
     private const ALLOWED_TRANSITIONS = [
@@ -25,7 +28,7 @@ class AiJob extends Model
     ];
 
     protected $fillable = [
-        'job_uuid', 'device_id', 'draw_id', 'topic', 'status', 'attempts',
+        'job_uuid', 'device_id', 'draw_id', 'topic', 'question', 'status', 'attempts',
         'result', 'error_code', 'requested_at', 'finished_at',
         'idempotency_key', 'result_key_hash',
     ];

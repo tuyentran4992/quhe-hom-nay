@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Domain\BianRule;
 use App\Domain\Luan;
 use App\Domain\PromptBuilder;
 use App\Domain\Rules;
@@ -55,14 +56,32 @@ class RunAiBoxJob implements ShouldQueue
 
         try {
             $draw = $job->draw()->with('hexagram')->firstOrFail();
-            // SPEC-3XU §4bis: từ hào các hào động (han+quốc âm+nghĩa) vào prompt,
-            // xếp sơ→thượng; 0 hào động → mảng rỗng, chỉ đại ý quẻ gốc. Quẻ biến
-            // KHÔNG bao giờ xuất hiện (lưu DB nội bộ — F10 QA).
+            // LUAN-V2 §6 (card t_c86f3954): khối chỉ dẫn chọn lời từ BianRule —
+            // case 4/5 dẫn hào TĨNH luật chọn (không phải changing_lines), case 3/6
+            // MỞ nội dung quẻ biến (D2), question đã normalize đưa vào dòng hoàn cảnh.
+            // Các case khác quẻ biến VẪN không bao giờ vào prompt (F10 QA giữ nguyên).
+            $luan ??= new Luan;
+            $changing = $draw->changing_lines ?? [];
+            $hexId = (int) $draw->hexagram_id;
+            $rule = BianRule::quiTrinh($changing, $hexId);
+            // LUAN-V2 §6.1 case 4/5: dẫn lời hào TĨNH; các case còn lại dẫn hào động
+            // như cũ (§4bis) — case 0/3/6 không có/không cần block hào.
+            $positions = in_array($rule['n_dong'], [4, 5], true)
+                ? array_values(array_diff(range(1, 6), $changing))
+                : $changing;
+            $bien = ($rule['can_loi_bien'] && $draw->bien_hexagram_id)
+                ? DB::table('hexagrams')->where('id', $draw->bien_hexagram_id)->first()
+                : null;
+            $dungChan = $rule['n_dong'] === 6 ? $luan->dungHaoFor($hexId) : null;
+            $question = ($job->question !== null && trim((string) $job->question) !== '') ? trim((string) $job->question) : null;
             $messages = [
                 ['role' => 'system', 'content' => Wordguard::SYSTEM_PROMPT],
                 ['role' => 'user', 'content' => PromptBuilder::userPrompt(
-                    $draw->hexagram->toArray(), $job->topic, $draw->changing_lines ?? [],
-                    ($luan ?? new Luan())->haoTextsForDraw($draw) // container inject; fallback cho test cũ gọi 1 tham số
+                    $draw->hexagram->toArray(), $job->topic, $changing,
+                    $luan->haoTextsForPositions($hexId, $positions), // container inject; fallback cho test cũ gọi 1 tham số
+                    $question, $rule,
+                    $bien !== null ? (array) $bien : null,
+                    $dungChan
                 )],
             ];
 

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Middleware\EnsureDeviceSession;
 use App\Models\AiJob;
 use App\Models\Device;
 use App\Services\InterpretationException;
@@ -17,9 +16,7 @@ use Illuminate\Http\Request;
  */
 class InterpretationController extends Controller
 {
-    public function __construct(private readonly InterpretationService $service)
-    {
-    }
+    public function __construct(private readonly InterpretationService $service) {}
 
     /** #5 — 202 queued | 200 khi job trả về đã done (idempotency replay hoặc cache AC-2). */
     public function store(Request $request): JsonResponse
@@ -38,6 +35,20 @@ class InterpretationController extends Controller
         }
         if (! preg_match('/^.{8,64}$/', (string) ($body['idempotency_key'] ?? ''))) {
             $errors['idempotency_key'] = ['idempotency_key bắt buộc 8–64 ký tự.'];
+        }
+        // LUAN-V2 §4.1: question tùy chọn — strip ký tự điều khiển, trim, ≤200 SAU trim
+        // (đếm unicode mb_strlen). null/rỗng → null do Service normalize (global
+        // middleware TrimStrings+ConvertEmptyStringsToNull đã biến whitespace → null).
+        if (array_key_exists('question', $body) && $body['question'] !== null) {
+            if (! is_string($body['question'])) {
+                $errors['question'] = ['question phải là chuỗi.'];
+            } else {
+                $q = trim(preg_replace('/[\x00-\x1F\x7F]/u', '', $body['question']) ?? '');
+                if (mb_strlen($q) > 200) {
+                    $errors['question'] = ['Câu hỏi tối đa 200 ký tự.'];
+                }
+                $body['question'] = $q; // gửi xuống Service BẢN ĐÃ normalize — hash cùng giá trị
+            }
         }
         if ($errors !== []) {
             return InterpretationException::validation($errors)->toResponse();

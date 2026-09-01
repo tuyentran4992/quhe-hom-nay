@@ -11,6 +11,15 @@ export const PAY_POLL_MS = 3000 // #9 poll 3s
 export const PAY_POLL_TIMEOUT_MS = 300000 // timeout 5 phút
 export const TOPICS = ['duyen', 'tai_loc', 'xuat_hanh'] // C-02
 export const TOPIC_LABELS = { duyen: 'Tình duyên', tai_loc: 'Tài lộc', xuat_hanh: 'Xuất hành' }
+// ── LUAN-V2 (SPEC §7, D3/D4, card t_b13fd2b9) — ô "Bạn đang vướng chuyện gì?" ──
+// 200 = trần SAU trim đếm unicode, khớp validation BE §4.1 (mb_strlen → 422).
+export const QUESTION_MAX = 200
+// D3: chip là GÓI GỢI Ý TEXT điền vào ô — KHÔNG đổi topic API (topic vẫn theo tab).
+export const QUESTION_SUGGESTIONS = {
+  duyen: ['chuyện tình cảm của em', 'bao giờ em có người', 'người ấy nghĩ gì về em'],
+  tai_loc: ['chuyện tiền bạc của em dạo này', 'em có nên đầu tư lúc này', 'khi nào tài chính đỡ hơn'],
+  xuat_hanh: ['em có nên đổi việc', 'chuyện công việc đang vướng', 'đi xa tuần này có ổn không'],
+}
 export const DISCLAIMER_TEXT =
   'Sản phẩm giải trí, tham khảo văn hoá — không phải nghiên cứu hay tư vấn số mệnh.'
 export const PRICE_LABEL = '29.000đ' // format vn của C-05
