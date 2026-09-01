@@ -107,7 +107,9 @@ class QuestionCacheTest extends Be2TestCase
         $second = $this->interpret($b, $drawB->id, 'duyen', null, 202); // MISS → queued
         $this->assertSame('queued', $second['http']['status']);
 
-        Http::assertSentCount(2, 'nguồn question!=null phải bị loại → provider call lần 2');
+        // LUAN-V3 §5.3: job A có question → thêm 1 call router (2 call); job B
+        // question NULL + cache MISS → KHÔNG router, đúng 1 call luận → tổng 3.
+        Http::assertSentCount(3, 'nguồn question!=null phải bị loại → provider call luận lần 2 (+1 router job A)');
     }
 
     /** T12 — job mới CÓ question: LUÔN MISS bất kể có job NULL-done trước đó. */
@@ -124,7 +126,8 @@ class QuestionCacheTest extends Be2TestCase
         $r = $this->interpret($b, $this->drawFor($b, 11)->id, 'duyen', 'x', 202);
         $this->assertSame('queued', $r['http']['status']);
         $this->assertSame('x', $r['job']->refresh()->question);
-        Http::assertSentCount(2);
+        // LUAN-V3 §5.3: A question NULL → 1 call luận; B có question → router + luận = 2.
+        Http::assertSentCount(3);
     }
 
     /** T13 — regression AC-2 cũ: cả hai phía question NULL → vẫn HIT, 1 call. */

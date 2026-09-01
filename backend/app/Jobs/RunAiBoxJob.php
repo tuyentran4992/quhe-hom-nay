@@ -74,18 +74,44 @@ class RunAiBoxJob implements ShouldQueue
                 : null;
             $dungChan = $rule['n_dong'] === 6 ? $luan->dungHaoFor($hexId) : null;
             $question = ($job->question !== null && trim((string) $job->question) !== '') ? trim((string) $job->question) : null;
+
+            // ── LUAN-V3 (SPEC §5.3, ADR-V3-01): bước ROUTER danh mục ──────────────
+            // CHỈ chạy khi có question. route='UNCLEAR' → questionForPrompt=null về
+            // luồng cũ (câu hỏi vẫn lưu DB, FE vẫn hiển thị "Bạn hỏi:"); route=null
+            // (lỗi mạng/timeout) → T-D fallback tự xử — KHÔNG throw, KHÔNG fail job.
+            // Cross-tab KHÔNG đụng entitlement: khách mua tab nào trả tiền tab đó,
+            // ai_jobs.topic giữ nguyên tab — router chỉ đổi prompt content (quyết
+            // định nghiệp vụ anh Tuyền chốt §5.3). Cache D1 không đổi: job có question
+            // vốn không ăn cache (InterpretationService:114-117).
+            $route = null;
+            $questionForPrompt = $question;
+            if ($question !== null) {
+                $route = $client->routeTopic($question);
+                if ($route === 'UNCLEAR') {
+                    $questionForPrompt = null;
+                }
+            }
+            $routedTopic = in_array($route, ['duyen', 'tai_loc', 'xuat_hanh', 'KHONG_THUOC_NAO'], true) ? $route : null;
+
             $messages = [
                 ['role' => 'system', 'content' => Wordguard::SYSTEM_PROMPT],
                 ['role' => 'user', 'content' => PromptBuilder::userPrompt(
                     $draw->hexagram->toArray(), $job->topic, $changing,
                     $luan->haoTextsForPositions($hexId, $positions), // container inject; fallback cho test cũ gọi 1 tham số
-                    $question, $rule,
+                    $questionForPrompt, $rule,
                     $bien !== null ? (array) $bien : null,
-                    $dungChan
+                    $dungChan,
+                    $routedTopic
                 )],
             ];
 
             $text = $client->complete($messages);
+
+            // BUG-V3-4 (card t_fc8a8953): normalize `**` MOT CHO ben BE truoc khi
+            // luu — hop dong BUG-V3-2 voi FE (luanRender.js giu nguyen `**`, chi
+            // xu ly marker + `#`). Dat TRUOC violations() de AI_FILTERED soi dung
+            // noi dung se luu (cam `**bùa**` van phai catch sau khi doi chu).
+            $text = Wordguard::stripBoldMarkers($text);
 
             // 05 E4: output vi phạm wording → failed AI_FILTERED, KHÔNG lưu bài bẩn.
             $hits = Wordguard::violations($text);

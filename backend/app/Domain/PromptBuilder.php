@@ -29,6 +29,11 @@ final class PromptBuilder
      * @param  array|null  $bien  row quẻ BIẾN (hexagrams, snake_case) — CHỈ được dùng
      *                            khi $rule['can_loi_bien'] (case 3/6); truyền vào mà rule cấm → bỏ qua.
      * @param  array|null  $dungChan  lời DỤNG hào (Luan::dungHaoFor) cho case 6 Càn/Khôn.
+     * @param  string|null  $routedTopic  LUAN-V3 (SPEC §3): kết quả router — 1 trong
+     *                           duyen/tai_loc/xuat_hanh (T-A khớp tab / T-B tráo label),
+     *                           'KHONG_THUOC_NAO' (T-C xóa 2 dòng danh mục), hoặc null
+     *                           KÈM question = router LỖI (T-D +1 dòng tự xử cuối tail).
+     *                           null + không question = luồng V2 nguyên trạng.
      */
     public static function userPrompt(
         array $hex,
@@ -39,12 +44,21 @@ final class PromptBuilder
         ?array $rule = null,
         ?array $bien = null,
         ?array $dungChan = null,
+        ?string $routedTopic = null,
     ): string {
-        $topicLabel = match ($topic) {
+        // §3: effectiveTopic = routedTopic ?? topic — T-B tráo label + freeKey theo
+        // route; router chỉ đổi prompt content, KHÔNG đổi ai_jobs.topic (quyết định
+        // nghiệp vụ anh Tuyền chốt, §5.3). Cross-tab không đụng entitlement.
+        $known = in_array($routedTopic, ['duyen', 'tai_loc', 'xuat_hanh'], true);
+        $noneOfTheAbove = $routedTopic === 'KHONG_THUOC_NAO';
+        // T-D: router lỗi = routedTopic null mà khách CÓ hỏi.
+        $routerFailed = $routedTopic === null && $question !== null;
+        $effective = $known ? $routedTopic : $topic;
+        $topicLabel = match ($effective) {
             'duyen' => 'tình duyên',
             'tai_loc' => 'tài lộc',
             'xuat_hanh' => 'xuất hành',
-            default => $topic,
+            default => $effective,
         };
         $rule ??= BianRule::quiTrinh($changingLines, isset($hex['id']) ? (int) $hex['id'] : null);
         $question = ($question !== null && trim($question) !== '') ? trim($question) : null;
@@ -57,16 +71,33 @@ final class PromptBuilder
 
         // §6 header cũ giữ nguyên 5 dòng + dòng hào động; THAY câu "ưu tiên luận theo
         // tượng hào động" bằng khối (b) chỉ dẫn chọn lời của BianRule.
-        $head = [
-            "Chủ đề luận sâu: {$topicLabel}.",
+        // LUAN-V3 §3: T-C xóa dòng 61 ('Chủ đề luận sâu…') + dòng 66 ('Góc nhìn sẵn
+        // có…') — thay bằng 2 dòng Việc khách hỏi/Ràng buộc; T-B giữ đủ 8 dòng nhưng
+        // label+free dựng từ routed topic + chèn 1 dòng NGAY SAU dòng 61.
+        $head = [];
+        if ($noneOfTheAbove) {
+            $head[] = 'Việc khách hỏi: "'.($question ?? '').'" — hỏi gì đáp nấy.';
+            $head[] = 'Ràng buộc: mọi điều khuyên phải bám đúng lời quẻ/hào từ đã dẫn ở trên; cấm suy diễn sang chuyện tài chính, tình cảm, xuất hành nếu khách không hỏi.';
+        } else {
+            $head[] = "Chủ đề luận sâu: {$topicLabel}.";
+            if ($routerFailed === false && $known && $routedTopic !== $topic) {
+                // T-B cross-tab — dòng chỉ dẫn chống lái bài về chủ đề tab (không phải lỗi router)
+                $head[] = 'Khách hỏi thẳng điều này — luận đúng chuyện khách hỏi, đừng lái về chủ đề khác.';
+            }
+        }
+        $head = array_merge($head, [
             'Quẻ gốc (Hán: '.($hex['han'] ?? '').', tên: '.($hex['ten'] ?? '').'): '.($hex['symbol'] ?? ''),
             'Đại ý: '.($hex['dai_ci'] ?? ''),
             'Từ khóa: '.implode(', ', (array) $kw),
             'Luận hôm nay: '.($hex['luan_nay'] ?? ''),
-            'Góc nhìn sẵn có về '.$topicLabel.': '.($free[self::freeKey($topic)] ?? '—'),
+        ]);
+        if (! $noneOfTheAbove) {
+            $head[] = 'Góc nhìn sẵn có về '.$topicLabel.': '.($free[self::freeKey($effective)] ?? '—');
+        }
+        $head = array_merge($head, [
             $lines !== '' ? "Hào động (1-based từ dưới lên): {$lines}" : 'Không có hào động.',
             'Luật Biện quẻ (số hào động: '.$rule['n_dong'].'): '.$rule['loi_luan'],
-        ];
+        ]);
 
         // (a) dòng hoàn cảnh — chỉ khi có question.
         if ($question !== null) {
@@ -100,15 +131,25 @@ final class PromptBuilder
         }
 
         // (c) bố cục BẮT BUỘC 3 phần + (d) điều cấm khi không có question.
+        // LUAN-V3 §3: T-C ([Hoàn cảnh] bỏ hậu tố 'cho chủ đề {label}' — không còn
+        // trục danh mục) + đổi ĐUÔI dòng cấm (:111) thành 'Chỉ luận đúng điều khách
+        // hỏi, bám lời quẻ.'; T-D thêm 1 dòng tự xử cuối tail. Marker 3 khối V2 y nguyên.
         $tail = [
             'Bố cục BẮT BUỘC 3 phần, đúng thứ tự, không thêm phần ngoài 3 phần:',
-            '[Hoàn cảnh] — khung tình huống quẻ chỉ ra cho chủ đề '.$topicLabel.'.',
+            $noneOfTheAbove
+                ? '[Hoàn cảnh] — khung tình huống quẻ chỉ ra.'
+                : '[Hoàn cảnh] — khung tình huống quẻ chỉ ra cho chủ đề '.$topicLabel.'.',
             '[Vì sao khuyên vậy] — dẫn lời quẻ/hào từ mà luật Biện quẻ ở trên đã chọn, giải thích lý do.',
             '[Việc nên làm cụ thể tuần này — tối đa 3 gạch đầu dòng] — hành động đời thường, không nghi lễ.',
             'Giữ 200–400 từ, tiếng Việt, văn phong tham khảo văn hoá.',
         ];
         if ($question === null) {
             $tail[] = 'CẤM bịa hoặc đoán hoàn cảnh riêng của khách. Không có câu hỏi nào được nêu — chỉ luận thế quẻ chung cho chủ đề.';
+        } elseif ($noneOfTheAbove) {
+            $tail[] = 'CẤM bịa hoặc đoán hoàn cảnh riêng của khách. Chỉ luận đúng điều khách hỏi, bám lời quẻ.';
+        }
+        if ($routerFailed) {
+            $tail[] = 'Nếu câu hỏi của khách không thuộc chủ đề đã nêu, cứ thẳng thắn đáp đúng câu hỏi ấy theo lời quẻ; không cứng nhắc kéo về chủ đề.';
         }
 
         return implode("\n", array_merge($head, $yaoBlock, $bienBlock, $tail));

@@ -28,6 +28,15 @@ abstract class Be2TestCase extends TestCase
     /** Hàng đợi nội dung provider trả về qua fakeAi()/fakeAiSeq(). */
     protected array $aiQueue = [];
 
+    /**
+     * LUAN-V3 (SPEC §5.2/§8) — hàng đợi riêng cho bước ROUTER. Nhận diện call
+     * router trong fake: body có `max_tokens` (chỉ router gửi, =8) — KHÔNG
+     * phân biệt theo model vì router_model mặc định fallback đúng model luận.
+     * Hết hàng đợi → trả 'duyen': khớp tab duyen của mọi test cũ → router ra
+     * T-A, prompt y nguyên V2 → các assertion cũ không đổi màu (regression baseline).
+     */
+    protected array $routerQueue = [];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -38,7 +47,16 @@ abstract class Be2TestCase extends TestCase
         config(['queue.default' => 'database', 'queue.connections.database.table' => 'jobs']);
         // Fake MỘT lần duy nhất: closure đọc hàng đợi nội dung — nhiều lần fakeAi
         // không thể đè stub cũ vì Factory::fake chỉ merge stubCallbacks (pitfall BE-2).
-        Http::fake(['*chat/completions' => function () {
+        Http::fake(['*chat/completions' => function ($request) {
+            $body = json_decode((string) $request->body(), true) ?: [];
+            if (array_key_exists('max_tokens', $body)) { // call ROUTER (LUAN-V3 §5.2, max_tokens=8)
+                $next = array_shift($this->routerQueue) ?? 'duyen';
+                if ($next instanceof \Throwable) {
+                    throw $next;
+                }
+
+                return Http::response(['choices' => [['message' => ['role' => 'assistant', 'content' => $next]]]]);
+            }
             $next = array_shift($this->aiQueue) ?? $this->cleanMd;
             if ($next instanceof \Throwable) {
                 throw $next;

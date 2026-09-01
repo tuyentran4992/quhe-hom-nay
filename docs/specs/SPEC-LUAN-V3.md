@@ -199,7 +199,7 @@ Câu hỏi: "{question}"
 - Model: env MỚI `AIBOX_ROUTER_MODEL` (config/aibox.php thêm key `router_model`, default `''` → fallback về `AIBOX_MODEL` hiện hành — cùng 1 base_url/key, OpenAI-compatible). Temperature `0` (khác 0.7 của bước luận, AiBoxClient.php:34), `max_tokens: 8`, không retry riêng.
 - Sửa lỗi đếm ở bản 056beba: prompt ghi "sáu khả năng" nhưng whitelist liệt kê 5 giá trị — bản amended chốt **5** (`test_router_prompt_parse_5_gia_tri`). Đây là bug số học, không phải thay đổi hành vi router.
 - Parse: `trim` + uppercase-insensitive match whitelist đúng 5 giá trị §5.2; DƯ THỪA văn bản → coi như UNCLEAR. Không dùng JSON mode (ràng buộc vào tính năng provider, model nhỏ không ổn định bằng plain token).
-- Chi phí: input ~180 token + output ~1 token/câu. Câu có question là minority (§5.3 của V2 đo ~70% người KHÔNG hỏi, mục tiêu 800 user/tuần → ~560 router calls/tuần ≈ 105K token input/tuần — nhỏ hơn 1 bài luận, bỏ qua được trong C-06 vì cap đếm theo JOB tạo mới, router không tạo job). Log riêng `aibox.router.sent` để AC-1 đếm được từng loại call.
+- Chi phí: input ~180 token + output ~1 token/câu. Câu có question là minority (§5.3 của V2 đo ~70% người KHÔNG hỏi, mục tiêu 800 user/tuần → ~560 router calls/tuần ≈ 105K token input/tuần — nhỏ hơn 1 bài luận, bỏ qua được trong C-06 vì cap đếm theo JOB tạo mới, router không tạo job). Log riêng `aibox.router.result` (BUG-V3-3, card t_05d92158: ghi SAU parse, chứa giá trị route) để AC-1 đếm được từng loại call.
 
 ### 5.3 Vị trí kiến trúc: chạy TRONG worker, trước bước luận (không đổi API, không sync HTTP)
 
