@@ -66,7 +66,9 @@ class InterpretationService
             ->where('device_id', $device->device_id)
             ->where('kind', 'unlock')->where('topic', $topic->value)
             ->where('status', Payment::ST_PAID)->exists();
-        if (! $paid) {
+        // PREVIEW FLAG (không tồn tại ở main): boss tạm mở luận sâu free — bỏ qua 402,
+        // GIỮ cooldown/cap/idempotency. Tắt bằng FREE_DEEP_PREVIEW=false.
+        if (! $paid && ! config('preview.free_deep')) {
             throw InterpretationException::unlockRequired($topic->value);
         }
 
