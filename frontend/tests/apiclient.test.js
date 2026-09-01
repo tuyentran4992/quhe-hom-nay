@@ -47,6 +47,23 @@ describe('api client theo 03-api', () => {
     expect(JSON.parse(opt.body)).toEqual({ draw_id: 42, topic: 'duyen', idempotency_key: 'k12345678' })
   })
 
+  // LUAN-V2 D4 (§4.1, card t_b13fd2b9): question rỗng/whitespace → KHÔNG có key trong body
+  // JSON thật (không chuỗi rỗng, không null) — giữ nhánh cache question-NULL phía BE.
+  it('#5 question whitespace-only → body JSON KHÔNG chứa key question', async () => {
+    globalThis.fetch = mockFetch(202, { data: { job_uuid: 'u', status: 'queued' } })
+    await api.requestInterpretation({ draw_id: 42, topic: 'duyen', idempotency_key: 'k12345678', question: '  \n ' })
+    const body = JSON.parse(globalThis.fetch.mock.calls[0][1].body)
+    expect('question' in body).toBe(false)
+  })
+
+  it('#5 question có text → gửi nguyên văn ĐÃ TRIM đúng field', async () => {
+    globalThis.fetch = mockFetch(202, { data: { job_uuid: 'u', status: 'queued' } })
+    await api.requestInterpretation({ draw_id: 42, topic: 'duyen', idempotency_key: 'k12345678', question: '  khi nào em khá lên  ' })
+    const body = JSON.parse(globalThis.fetch.mock.calls[0][1].body)
+    expect(body.question).toBe('khi nào em khá lên')
+    expect(Object.keys(body).sort()).toEqual(['draw_id', 'idempotency_key', 'question', 'topic'])
+  })
+
   it('#7 POST /api/payments/create', async () => {
     globalThis.fetch = mockFetch(201, { data: { order_code: 1, status: 'pending' } })
     await api.createPayment({ kind: 'unlock', topic: 'duyen', amount_vnd: 29000, return_url: '/', idempotency_key: 'kkkkkkkk' })
