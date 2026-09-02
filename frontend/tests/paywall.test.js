@@ -116,7 +116,10 @@ describe('PaywallView — stub paywall từ #7 BE-2', () => {
     expect(arg.kind).toBe('donate')
     expect(arg.amount_vnd).toBe(5000)
     expect(arg.topic === undefined || arg.topic === null || arg.topic === '').toBe(true)
-    expect(w.find('[data-testid="pay-thanks"]').exists()).toBe(true)
+    // [DEV-DONATE-QR] t_dc6112cf — hành vi ĐỔI có chủ đích (boss GO): gửi lễ → QR THẬT chờ
+    // tiền về, KHÔNG nhảy thẳng "Cảm ơn" khi chưa paid. Test cũ chốt đúng cái bệnh đó.
+    expect(w.find('[data-testid="pay-donate-qr"]').exists()).toBe(true)
+    expect(w.find('[data-testid="pay-donate-thanks"]').exists()).toBe(false)
   })
 
   it('donate ngoài khoảng C--07 (999đ) → chặn client-side, không gọi #7', async () => {
