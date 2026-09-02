@@ -1,12 +1,14 @@
 <script setup>
 // BottomTabs — 3 tab mobile <768px (NAV-SPEC §1b): Home / Gieo / Sổ quẻ.
-// DisclaimerBar đang fix bottom-0 → tabs ngồi CAO HƠN một bậc (bottom-9 = chiều
-// disclaimer 1 dòng text-small + py-2), z-45 hơn disclaimer z-40.
+// [BUG02 FIX t_b548bbd6] KHÔNG còn tự định vị (fixed bottom-9 cũ giả định disclaimer
+// 1 dòng = sai khi wording wrap 2 dòng ở 375 → đè 19px). App.vue đặt tab + DisclaimerBar
+// chung một stack flex-col fixed bottom-0 — chiều cao tự co giãn, không thể đè nhau.
+// md:hidden giữ nguyên: desktop stack chỉ còn disclaimer → hành vi ≥768 không đổi.
 </script>
 
 <template>
   <nav
-    class="md:hidden fixed bottom-9 inset-x-0 z-[45] bg-paper/95 backdrop-blur-sm border-t border-paper2"
+    class="md:hidden relative z-[45] bg-paper/95 backdrop-blur-sm border-t border-paper2"
     aria-label="Điều hướng nhanh"
   >
     <div class="grid grid-cols-3 text-small">
