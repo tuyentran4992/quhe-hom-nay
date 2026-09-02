@@ -67,7 +67,8 @@ class ShareCtaReferredDrawRealChainTest extends ApiTestCase
         $this->assertSame('app_card', $rowB->utm_source);
         $this->assertSame('share_card_v1', $rowB->utm_campaign);
 
-        // B gieo quẻ thật → V7 fire 1 event, props {draw_id}
+        // B gieo quẻ thật → V7 fire 1 event, props {draw_id, token}
+        // (VS1-L1 §6.T2: token === token thẻ A — props thêm, draw_id bất biến cũ)
         $this->asDevice($deviceB)->postJson('/api/draws', [])->assertStatus(201);
 
         $v7 = Event::query()->where('name', 'share_referred_draw')->where('device_id', $deviceB)->sole();
@@ -75,6 +76,8 @@ class ShareCtaReferredDrawRealChainTest extends ApiTestCase
             (int) Draw::query()->where('device_id', $deviceB)->value('id'),
             (int) $v7->props['draw_id']
         );
+        $this->assertSame($token, $v7->props['token'], 'VS1-L1: props V7 phải mang token thẻ A (nguồn CTA)');
+        $this->assertSame($token, Device::query()->find($deviceB)->referred_token, 'VS1-L1: CTA capture referred_token first-touch');
     }
 
     /** FIRST-TOUCH-KHÓA: B đã có utm từ kênh khác → CTA KHÔNG đè (bất biến 06-mkt §2). */

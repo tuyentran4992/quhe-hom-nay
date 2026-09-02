@@ -233,6 +233,11 @@ class ShareLinkService
      * đó (chỉ ghi khi cột đang NULL, sanitize + race-safe). Trước đây chỉ ghi
      * utm_medium vào props → maybeFireReferredDraw (đọc cột, không đọc props)
      * không bao giờ fire trên chuột thật vì SPA /app/* không bắn /api/track utm.
+     *
+     * VS1-L1 (§3.1): ngoài V6 event, capture token nguồn vào CỘT
+     * devices.referred_token — first-touch-khóa, race-safe cùng pattern
+     * applyFirstTouch (whereNull trong WHERE), chống self-referral (viewer==owner
+     * không ghi). V6 props giữ NGUYÊN — thêm cột không đổi event.
      */
     public function recordCtaClick(ShareLink $link, Device $viewer): void
     {
@@ -240,6 +245,16 @@ class ShareLinkService
             'token' => $link->token,
             'utm_medium' => self::CTA_UTM['medium'],
         ]);
+
+        if ($viewer->device_id !== $link->device_id) {
+            $affected = Device::query()
+                ->where('device_id', $viewer->device_id)
+                ->whereNull('referred_token')
+                ->update(['referred_token' => $link->token]);
+            if ($affected === 1) {
+                $viewer->referred_token = $link->token;
+            }
+        }
     }
 
     /** URL đích CTA — sinh từ CTA_UTM, controller KHÔNG hardcode chuỗi riêng. */
@@ -256,15 +271,22 @@ class ShareLinkService
      * V7 (ADR-002 §3): moc sau 201 ở DrawController — device có first-touch
      * utm_medium=share gieo quẻ → 1 event `share_referred_draw`. Điều kiện là
      * CỘT devices.utm_medium (đã first-touch-khóa), không tin utm theo request.
+     *
+     * VS1-L1 (§3.2): khi devices.referred_token có giá trị → props mang thêm
+     * `token` (nguồn collect card). Điều kiện fire KHÔNG đổi; token NULL (đời
+     * trước L1, hoặc self-click bị chặn ở recordCtaClick) → props {draw_id}
+     * đơn = format cũ → zero regression chuỗi trace sweep t_fd6ddd7e.
      */
     public function maybeFireReferredDraw(Device $device, Draw $draw): void
     {
         if ($device->utm_medium !== 'share') {
             return;
         }
-        $this->track->track($device, self::REFERRED_EVENT, [], [
-            'draw_id' => (int) $draw->id,
-        ]);
+        $props = ['draw_id' => (int) $draw->id];
+        if ($device->referred_token !== null) {
+            $props['token'] = $device->referred_token;
+        }
+        $this->track->track($device, self::REFERRED_EVENT, [], $props);
     }
 
     /** SPEC-THE §4: "Khách XXXX" — 4 ký tự cuối device, không lộ device_id đủ. */
