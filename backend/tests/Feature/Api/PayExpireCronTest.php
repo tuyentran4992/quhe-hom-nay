@@ -59,15 +59,19 @@ class PayExpireCronTest extends Be2TestCase
 
     public function test_don_pending_qua_ttl_been_expired(): void
     {
-        // TTL mặc định 600s (FE poll 300s + dự phòng đồng hồ) — đặt tuổi 20 phút.
+        // TTL mặc định 600s (FE poll 300s + dự phòng đồng hồ) — kiểm cả 2 phía
+        // biên đúng theo cutoff `created_at < now - TTL`: 599s còn hạn, 601s chết.
+        $over = $this->pending(now()->subSeconds(601));
+        // Border under: 599s — vẫn trong TTL, không được động vào.
+        $under = $this->pending(now()->subSeconds(599));
+        // Đơn 20 phút tuổi — đường thường.
         $old = $this->pending(now()->subMinutes(20));
-        // Border under: mới 1 phút → còn hạn, không được động vào.
-        $fresh = $this->pending(now()->subMinute());
 
         $this->runCron();
 
-        $this->assertSame(Payment::ST_EXPIRED, $old->fresh()->status, 'pending quá TTL phải expired ở DB');
-        $this->assertSame(Payment::ST_PENDING, $fresh->fresh()->status, 'pending còn hạn giữ nguyên');
+        $this->assertSame(Payment::ST_EXPIRED, $over->fresh()->status, 'pending quá TTL (601s) phải expired ở DB');
+        $this->assertSame(Payment::ST_PENDING, $under->fresh()->status, 'pending biên dưới (599s) giữ nguyên');
+        $this->assertSame(Payment::ST_EXPIRED, $old->fresh()->status);
     }
 
     public function test_don_het_han_poll_9_tra_expired_dung_hop_dong_fe(): void
@@ -168,6 +172,34 @@ class PayExpireCronTest extends Be2TestCase
         $this->assertSame(Payment::ST_PAID, $fresh->status, 'tiền thật về thì đơn phải paid — quyền khách không mất');
         $this->assertNotNull($fresh->paid_at);
         // Đơn donate: hết expired là hết cô đơn — row về trạng thái tiền thật.
+    }
+
+    public function test_webhook_cancelled_den_sau_khi_expire_van_200_giu_expired(): void
+    {
+        // [REVIEW round 1] bệnh: cron biến expired thành trạng thái THƯỜNG của mọi
+        // đơn bỏ → IPN cancelled=true đến sau expire là đường hay, nhưng
+        // ALLOWED_TRANSITIONS[expired] chỉ có paid → RuntimeException trần = 500
+        // trên IPN, phá cam kết §8 "vẫn 200 — payOS không retry-loop".
+        // Chốt của card: expired đã là "chưa có tiền" — cancelled xác nhận thêm
+        // đúng điều đó, không đổi sổ sách; IPN phải nuốt sạch, trả 200.
+        $p = $this->pending(now()->subMinutes(20));
+        $this->runCron();
+        $this->assertSame(Payment::ST_EXPIRED, $p->fresh()->status);
+
+        $secret = 'payexpire-secret-0123456789abcdef';
+        config(['payos.webhook_secret' => $secret]);
+        $raw = json_encode(['data' => [
+            'code' => 'PC2608', 'id' => '7654323', 'orderCode' => (int) $p->order_code,
+            'amount' => 20000, 'cancelled' => true, 'payDate' => time(),
+            'transactionRef' => 'txn-cancelled-'.Str::random(8), 'channel' => 1,
+        ]]);
+        $this->call('POST', '/api/webhooks/payos', [], [], [],
+            ['CONTENT_TYPE' => 'application/json', 'HTTP_X_PAYOS_SIGNATURE' => hash_hmac('sha256', $raw, $secret)],
+            $raw)->assertOk()->assertExactJson(['error' => ['code' => 'OK']]);
+
+        $fresh = $p->fresh();
+        $this->assertSame(Payment::ST_EXPIRED, $fresh->status, 'cancelled sau expire: giữ expired, không 500');
+        $this->assertNull($fresh->paid_at, 'không có tiền thì paid_at không được mọc');
     }
 
     public function test_webhook_sai_tien_den_sau_khi_expire_van_expired(): void

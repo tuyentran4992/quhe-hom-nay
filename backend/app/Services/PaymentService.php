@@ -139,7 +139,9 @@ class PaymentService
     /**
      * #8 (03-api §8) — thân xử lý IPN payOS, TẦM QUỐC TẾ không theo device:
      * chỉ tin 3 field orderCode/amount/transactionRef. Idempotent theo gateway_ref:
-     * đơn đã paid → 200 ngay, không sửa gì (kể cả paid_at). cancelled → cancelled;
+     * đơn đã paid → 200 ngay, không sửa gì (kể cả paid_at). cancelled → cancelled,
+     * NGOẠI TRỪ đơn đã cron-expired (§7c): giữ expired, log, vẫn 200 — tiền chưa
+     * về đúng như expired đã ghi, IPN không transit ngược;
      * sai số tiền → `expired` + log cảnh báo, vẫn 200 (payOS chốt: không retry-loop).
      * Bất biến tiền: mọi bước qua transitTo (1 chiều + exception nếu ngược).
      */
@@ -162,6 +164,18 @@ class PaymentService
         }
 
         if ($cancelled) {
+            // [REVIEW round 1] cron §7c biến `expired` thành trạng thái THƯỜNG (mọi
+            // đơn bỏ). cancelled=true đến sau expire chỉ XÁC NHẬN điều expired đã
+            // ghi: tiền không về. Không có gì sang sổ — transit expired→cancelled
+            // bị cấm có chủ đích (khỏi đó chỉ có revive paid). Nuốt sạch, vẫn 200
+            // (§8: payOS không retry-loop) — IPN không bao giờ được 500 vì trạng thái.
+            if ($payment->status === Payment::ST_EXPIRED) {
+                logger()->info('payments.webhook.cancelled_after_expire', [
+                    'order_code' => $orderCode, 'gateway_ref' => $gatewayRef,
+                ]);
+
+                return $payment;
+            }
             $payment->transitTo(Payment::ST_CANCELLED, ['gateway_ref' => $gatewayRef]);
             logger()->info('payments.webhook.cancelled', ['order_code' => $orderCode]);
 

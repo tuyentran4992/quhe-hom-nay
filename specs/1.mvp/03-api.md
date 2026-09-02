@@ -273,6 +273,10 @@ Webhook TIỀN ĐÚNG đến sau khi cron §7c đã expire đơn → **revive `e
 cron expire chỉ là suy đoán "hết TTL chưa thấy tiền"; gateway xác nhận tiền thật
 thì tiền thắng — khách chuyển trễ vẫn nhận quyền, donate vẫn về. Đây là ngoại lệ
 CÓ CHỦ ĐÍCH duy nhất của "expired là trạng thái cuối" (`Payment::ALLOWED_TRANSITIONS`).
+Webhook `cancelled=true` đến sau khi cron expire → **giữ `expired`**, log
+`payments.webhook.cancelled_after_expire`, vẫn 200: cancelled chỉ xác nhận điều
+expired đã ghi (tiền chưa về), không có gì sang sổ; IPN không bao giờ 500 vì
+trạng thái (fix [REVIEW round 1] — cron biến expired thành trạng thái thường).
 
 ## 9. `GET /api/payments/{order_code}/status` — FE poll sau khi khách rời trang QR
 
