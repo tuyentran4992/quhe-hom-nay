@@ -40,6 +40,29 @@ class PaymentTest extends Be2TestCase
         $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $res->json('data.expires_at'));
     }
 
+    public function test_f7_qr_data_content_ma_trung_tinh_QH_order_code_ca_2_kind(): void
+    {
+        // Mockup V2 (boss duyệt 02/09): nội dung CK = QH<order_code>, CẤM tên app.
+        // FE parseVietQr theo segment → giữ nguyên format vietqr/action/qr/{bin}/{account}/{amount}/{content}.
+        foreach ([['unlock', 'duyen', null, 29000], ['donate', null, 50000, 50000]] as [$kind, $topic, $amount, $expected]) {
+            $d = $this->device();
+            $res = $this->cookieFor($d)->postJson('/api/payments/create', $this->createPayload($kind, $topic, $amount))->assertCreated();
+            $qr = (string) $res->json('data.qr_data');
+            $order = (int) $res->json('data.order_code');
+            $segments = explode('/', $qr);
+            $this->assertSame('vietqr', $segments[0]);
+            $this->assertSame('action', $segments[1]);
+            $this->assertSame('qr', $segments[2]);
+            $this->assertSame('970436', $segments[3]);
+            $this->assertSame('stub'.$order, $segments[4]);
+            $this->assertSame((string) $expected, $segments[5]);
+            // segment content: đúng mã trung tính, không dấu, không '+', không token tên app
+            $this->assertSame('QH'.$order, $segments[6]);
+            $this->assertStringNotContainsString('Qu+Hom+Nay', $qr);
+            $this->assertStringNotContainsString('+', end($segments));
+        }
+    }
+
     public function test_f7_idempotency_same_key_same_body_200_khoc_body_409(): void
     {
         $d = $this->device();

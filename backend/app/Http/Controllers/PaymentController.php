@@ -84,7 +84,8 @@ class PaymentController extends Controller
             'topic' => $p->topic,
             'amount_vnd' => (int) $p->amount_vnd,
             'status' => $p->status,
-            'qr_data' => 'vietqr/action/qr/970436/stub'.$p->order_code.'/'.$p->amount_vnd.'/Qu+Hom+Nay',
+            // Mockup V2 (02/09): nội dung CK = mã trung tính QH<order_code>, cấm tên app.
+            'qr_data' => 'vietqr/action/qr/970436/stub'.$p->order_code.'/'.$p->amount_vnd.'/QH'.$p->order_code,
             'confirm_url' => url('/api/payments/'.$p->order_code.'/simulate-paid'),
             'checkout_url' => '/pay/'.$p->order_code,
             'stub' => true,
