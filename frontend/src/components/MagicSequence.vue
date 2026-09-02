@@ -6,7 +6,7 @@
 // nháy son 2 nhịp + dấu 動 tại dynoAt TRƯỚC reveal. prefers-reduced-motion: GIỮ
 // nguyên mọi mốc, chỉ bỏ chuyển động thừa (không cụm xu bay). Không âm thanh.
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { MAGIC_SEQUENCE_MS } from '../constants.js'
+import { MAGIC_SEQUENCE_MS, COIN_LAND_SWITCH_MS } from '../constants.js'
 import { pa1Timeline, statusAt, dynoLabels, isChanging } from '../utils/timeline.js'
 
 const props = defineProps({
@@ -72,7 +72,7 @@ onBeforeUnmount(() => {
         v-for="(f, i) in (reduced ? [] : Array.from({ length: flyCount }, (_, k) => k))"
         :key="`c${i}`"
         class="ms-cluster"
-        :class="now - tl.flyAt[i] >= 300 ? 'land' : 'fly'"
+        :class="now - tl.flyAt[i] >= COIN_LAND_SWITCH_MS ? 'land' : 'fly'"
         :style="{ '--up': upPx(f) + 'px' }"
         :data-fly="f"
         data-testid="coin-cluster"

@@ -12,7 +12,7 @@ import { useDevice } from '../composables/useDeviceApi.js'
 import { useToasts } from '../composables/useToasts.js'
 import PayQr from '../components/PayQr.vue'
 import { parseVietQr, bankName, ckCode } from '../utils/donateQr.js'
-import { PRICE_UNLOCK_VND, PRICE_LABEL, DONATE_TIERS, DONATE_MIN, DONATE_MAX, TOPIC_LABELS, PAY_POLL_MS, PAY_POLL_TIMEOUT_MS } from '../constants.js'
+import { PRICE_UNLOCK_VND, PRICE_LABEL, DONATE_TIERS, DONATE_DEFAULT_VND, DONATE_MIN, DONATE_MAX, TOPIC_LABELS, PAY_POLL_MS, PAY_POLL_TIMEOUT_MS } from '../constants.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -32,7 +32,7 @@ const netWarn = ref(false)
 let pollTimer = null
 let pollStart = 0
 
-const donatePick = ref(20000) // [SPEC-CHANGE boss 02/09] mức 2 trong 10/20/50/100k
+const donatePick = ref(DONATE_DEFAULT_VND) // [SPEC-CHANGE boss 02/09] mức 2 trong 10/20/50/100k — CFG-FE: về constants
 const donateCustom = ref('')
 const donateAmount = computed(() => {
   const v = donateCustom.value !== '' ? Number(donateCustom.value) : donatePick.value
@@ -153,7 +153,7 @@ onBeforeUnmount(() => clearTimeout(pollTimer))
     <div v-if="phase === 'form'" class="mt-6 space-y-6">
       <!-- donateMode: ẨN nút unlock + mọi wording giá (C4 — CẤM 29k/unlock khi free) -->
       <button v-if="!donateMode" type="button" data-testid="pay-unlock-btn" class="btn-cinnabar w-full" @click="unlock">
-        Mở khóa 29.000đ
+        Mở khóa {{ PRICE_LABEL }}
       </button>
 
       <section data-testid="pay-donate-block" class="card p-4">
