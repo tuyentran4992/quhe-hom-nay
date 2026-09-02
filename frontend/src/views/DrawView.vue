@@ -12,7 +12,7 @@ import { api } from '../api/client.js'
 import { useHexagrams } from '../composables/useHexagrams.js'
 import { useHaoTexts } from '../composables/useHaoTexts.js'
 import MagicSequence from '../components/MagicSequence.vue'
-import { MAGIC_SEQUENCE_MS } from '../constants.js'
+import { MAGIC_SEQUENCE_MS, AUTO_PUSH_S3_MS } from '../constants.js'
 
 const emit = defineEmits(['revealed'])
 const router = useRouter()
@@ -64,10 +64,10 @@ function tryGo() {
   if (routed || !done.value || !result.value) return
   routed = true
   emit('revealed')
-  // B3: auto-push S3 sau khi reveal (giữ nhịp nhìn symbol ~0.6s)
+  // B3: auto-push S3 sau khi reveal (giữ nhịp nhìn symbol — CFG-FE: nhịp về constants)
   setTimeout(() => {
     router.push({ name: 'detail', params: { drawId: result.value.draw.id } })
-  }, 600)
+  }, AUTO_PUSH_S3_MS)
 }
 </script>
 

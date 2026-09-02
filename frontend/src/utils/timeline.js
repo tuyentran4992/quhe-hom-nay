@@ -13,6 +13,11 @@ import { MAGIC_SEQUENCE_MS } from '../constants.js'
 
 // Lịch PA1 gốc từ mockup (ms, tính từ chạm),节拍 360ms/hào:
 // fly 0.26; fly_i = draw_{i-1}; draw_i = 0.56 + 0.36*i; dyno 2.56; reveal 3.06; S3 3.60.
+// ── NHÓM TIMELINE (CFG-FE t_130d6f4b, cách 2 CEO duyệt): các PA1_* CỐ Ý Ở LẠI ĐÂY —
+// chúng là MỘT LỊCH đồng bộ theo công thức (fly_i = draw_{i-1}, reveal = dyno+500…),
+// tính toán dây chuyền lẫn nhau từ mockup-3xu đã gate t_04394e77 chốt; đổi lẻ 1 số =
+// breaks bất biến C-08/C-09 đã test, không phải knob nghiệp vụ. Sàn thời gian thật
+// (C-08) đã nằm ở constants.MAGIC_SEQUENCE_MS — chỗ đó mới là surface đổi được.
 export const PA1_FLY0_MS = 260
 export const PA1_DRAW0_MS = 560
 export const PA1_BEAT_MS = 360

@@ -2,6 +2,7 @@
 // PayQr — 04-ui §2.S4: render qr_data thành PNG qua lib qrcode (dynamic import,
 // chỉ tải khi màn S4 cần — code-splitting). show confirm_url stub nếu qr_data vắng.
 import { ref, watch, onMounted } from 'vue'
+import { QR_SIZE_PX } from '../constants.js'
 
 const props = defineProps({
   qrData: { type: String, default: '' },
@@ -18,7 +19,7 @@ async function render() {
     const QRCode = (await import('qrcode')).default
     const url = await QRCode.toDataURL(props.qrData, {
       margin: 1,
-      width: 240,
+      width: QR_SIZE_PX,
       color: { dark: '#1E1B18', light: '#F7F2E7' },
     })
     img.value.src = url
@@ -37,8 +38,8 @@ watch(() => props.qrData, render)
       ref="img"
       alt="Mã QR thanh toán"
       class="rounded-card border border-gold/40 bg-paper"
-      width="240"
-      height="240"
+      :width="QR_SIZE_PX"
+      :height="QR_SIZE_PX"
     />
     <a
       v-if="!qrData || err"

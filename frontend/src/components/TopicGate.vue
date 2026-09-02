@@ -9,7 +9,7 @@ import { useRouter } from 'vue-router'
 import { api } from '../api/client.js'
 import { useCountdown } from '../composables/useCountdown.js'
 import { useDevice } from '../composables/useDeviceApi.js'
-import { AI_POLL_MS, AI_POLL_MAX_MS, TOPIC_LABELS, QUESTION_MAX, QUESTION_SUGGESTIONS } from '../constants.js'
+import { AI_POLL_MS, AI_POLL_MAX_MS, TOPIC_LABELS, PRICE_LABEL, QUESTION_MAX, QUESTION_SUGGESTIONS } from '../constants.js'
 
 const props = defineProps({ drawId: { type: Number, required: true }, topic: { type: String, required: true } })
 const router = useRouter()
@@ -137,14 +137,14 @@ watch(unlocked, (u) => {
 
     <!-- nhánh 1: chưa unlock -->
     <div v-if="phase === 'locked'" data-testid="gate-locked">
-      <p class="text-body text-muted mb-3">Chủ đề này cần mở khóa 29.000đ — mở một lần, đọc mãi trên thiết bị này.</p>
+      <p class="text-body text-muted mb-3">Chủ đề này cần mở khóa {{ PRICE_LABEL }} — mở một lần, đọc mãi trên thiết bị này.</p>
       <button
         type="button"
         data-testid="gate-cta-paywall"
         class="btn-cinnabar"
         @click="router.push({ name: 'paywall', params: { topic } })"
       >
-        Mở khóa 29.000đ
+        Mở khóa {{ PRICE_LABEL }}
       </button>
     </div>
 
