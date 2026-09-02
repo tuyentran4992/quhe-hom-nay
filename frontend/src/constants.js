@@ -19,15 +19,17 @@ export const PRICE_UNLOCK_VND = 29000
 
 // ── DONATE (lễ tùy tâm — KHÔNG mở khóa gì) ──────────────────────────────────
 // [SPEC-CHANGE boss 02/09, giữa DEV-DONATE-QR]: 4 mức gợi ý 10k/20k/50k/100k; nhập tay
-// sàn 5k (chặt hơn BE 1k — FE hiển thị, BE enforce). Tag Hán + ghi chú + layout chờ
-// MOCKUP-DONATE-V2 (t_1a2d3a1e) boss duyệt rồi mới chèn — tạm để trống, không tự chế.
-export const DONATE_OPTIONS = [10000, 20000, 50000, 100000]
+// sàn 5k (chặt hơn BE 1k — FE hiển thị, BE enforce).
+// [FE-TIER-SYNC t_ea138b84] MOCKUP-DONATE-V2 (t_1a2d3a1e) boss DUYỆT MẮT 02/09 — gate
+// pass, chèn đúng tag Hán + ghi chú theo shot2-form-mobile.png (đừng đổi 1 chữ nào):
+//   10k 十 "tâm ý khởi đầu" · 20k 廿 "lòng thành" · 50k 五十 "trọn lễ" · 100k 百 "lễ lớn".
+export const DONATE_OPTIONS = [10000, 20000, 50000, 100000] // C-07 khoảng 1000..500000
 // đơn vị: VND | giá trị an toàn: tăng dần, mỗi mức trong DONATE_MIN..DONATE_MAX
 export const DONATE_TIERS = [
-  { amount: 10000, han: '', note: 'một chút tâm ý' },
-  { amount: 20000, han: '', note: 'tâm ý vừa đủ' },
-  { amount: 50000, han: '', note: 'lòng thành hơn' },
-  { amount: 100000, han: '', note: 'trọn mâm lễ' },
+  { amount: 10000, han: '十', note: 'tâm ý khởi đầu' },
+  { amount: 20000, han: '廿', note: 'lòng thành' },
+  { amount: 50000, han: '五十', note: 'trọn lễ' },
+  { amount: 100000, han: '百', note: 'lễ lớn' },
 ]
 export const DONATE_DEFAULT_VND = DONATE_TIERS[1].amount
 // ý nghĩa: mức lễ được chọn sẵn khi mở màn donate | đơn vị: VND

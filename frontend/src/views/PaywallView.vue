@@ -162,7 +162,10 @@ onBeforeUnmount(() => clearTimeout(pollTimer))
           {{ donateMode ? 'Chọn một mức, hoặc tự ghi số lễ.' : 'Lễ là khích lệ tinh thần, không đổi lấy nội dung.' }}
         </p>
         <!-- [DEV-DONATE-QR] SHOT1 mockup: thẻ mâm lễ 2×2, tag Hán + ghi chú, aria-pressed
-             (touch ≥44px, son chỉ cho trạng thái chọn — DESIGN-NOTES, không token mới) -->
+             (touch ≥44px, son chỉ cho trạng thái chọn — DESIGN-NOTES, không token mới).
+             [FE-TIER-SYNC t_ea138b84] bản V2 đã duyệt: .han-tag GÓC TRÊN-TRÁI (left:8/top:6
+             — không phải góc phải như v1), badge ✓ tròn son .ck góc trên-PHẢI (18px),
+             nội dung thẻ center — theo mockup-form.html, không tự sáng tạo. -->
         <div class="grid grid-cols-2 gap-2 mt-3" role="group" aria-label="Mức lễ">
           <button
             v-for="t in DONATE_TIERS"
@@ -170,16 +173,16 @@ onBeforeUnmount(() => clearTimeout(pollTimer))
             type="button"
             data-testid="pay-donate-chip"
             :aria-pressed="donateCustom === '' && donatePick === t.amount ? 'true' : 'false'"
-            class="relative flex flex-col items-start gap-0.5 min-h-[66px] px-3 py-2 rounded-card border text-left transition-shadow hover:shadow-lift focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold active:translate-y-px"
+            class="relative flex flex-col items-center justify-center gap-0.5 min-h-[66px] px-2 py-3 rounded-card border text-center transition-shadow hover:shadow-lift focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold active:translate-y-px"
             :class="donateCustom === '' && donatePick === t.amount ? 'border-cinnabar bg-cinnabar/5' : 'border-gold/40'"
             @click="donatePick = t.amount; donateCustom = ''"
           >
-            <span class="absolute top-1.5 right-1.5 han text-gold/50" aria-hidden="true">{{ t.han }}</span>
+            <span class="han-tag absolute left-2 top-1.5 han text-gold/50 text-small" aria-hidden="true">{{ t.han }}</span>
+            <span v-if="donateCustom === '' && donatePick === t.amount" class="ck absolute right-2 top-1.5 grid h-[18px] w-[18px] place-items-center rounded-full bg-cinnabar text-paper text-[11px] leading-none" aria-hidden="true">✓</span>
             <span class="text-body font-semibold" :class="donateCustom === '' && donatePick === t.amount ? 'text-cinnabar' : 'text-ink'">
-              {{ t.amount.toLocaleString('vi-VN') }}<span class="text-small">đ</span>
+              {{ t.amount.toLocaleString('vi-VN') }}<span class="text-small font-medium" :class="donateCustom === '' && donatePick === t.amount ? 'text-cinnabar' : 'text-muted'">đ</span>
             </span>
-            <span class="text-small" :class="donateCustom === '' && donatePick === t.amount ? 'text-cinnabar' : 'text-muted'">{{ t.note }}</span>
-            <span v-if="donateCustom === '' && donatePick === t.amount" class="text-cinnabar text-small font-semibold" aria-hidden="true">✓</span>
+            <span class="note text-small font-normal" :class="donateCustom === '' && donatePick === t.amount ? 'text-cinnabar' : 'text-muted'">{{ t.note }}</span>
           </button>
         </div>
         <div class="flex items-center gap-2 mt-3">
