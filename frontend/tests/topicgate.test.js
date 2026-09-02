@@ -2,6 +2,7 @@
 // nút "Xin luận sâu" enable lại + bấm mở job mới (key idempotency mới). Defect QA: hết 90s
 // nút vẫn disabled vĩnh viễn, nhãn "— 00:00", không còn đường nào gọi askFresh.
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { readFileSync } from 'node:fs'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import TopicGate from '../src/components/TopicGate.vue'
@@ -13,7 +14,13 @@ vi.mock('../src/api/client.js', async (orig) => {
   const real = await orig()
   return {
     ...real,
-    api: { me: vi.fn(), today: vi.fn(), requestInterpretation: vi.fn(), aiJob: vi.fn() },
+    api: {
+      me: vi.fn(), today: vi.fn(),
+      requestInterpretation: vi.fn(), aiJob: vi.fn(),
+      // ANIM-LUAN (t_74502491): main có phase 'saved' → mount probe #5b; các test cooldown
+      // cũ phụ thuộc số lần gọi requestInterpretation nên probe phải resolve exists=false.
+      savedInterpretation: vi.fn(),
+    },
   }
 })
 
@@ -45,6 +52,9 @@ beforeEach(async () => {
     device_id: 'd', is_new_device: false, server_date_vn: '2026-08-30',
     entitlements: ['duyen'], today_draw: null,
   })
+  // main 8a47694 có phase 'saved': mount probe #5b. Mặc định "chưa có bài lưu" để
+  // các test cooldown cũ không đổi hành vi (đường hỏi bình thường).
+  client.api.savedInterpretation.mockResolvedValue({ data: { exists: false } })
   await useDevice().load()
 })
 afterEach(() => {
@@ -144,5 +154,144 @@ describe('TopicGate cooldown E5 — hết đồng hồ phải mở khoá lại n
     await vi.advanceTimersByTimeAsync(120_000)
     await flushPromises()
     expect(client.api.requestInterpretation).toHaveBeenCalledTimes(1)
+  })
+})
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ANIM-LUAN mức A (card t_74502491, BOSS-GO 02/09 mục 3) — TDD viết ĐỎ trước.
+// Defect boss bắt: mạng chậm, bấm "Xin luận sâu" tưởng không ăn (main 8a47694
+// chỉ đổi phase SAU khi await xong POST #5). Yêu cầu chốt (CEO design, không đổi):
+//   A1. click → state chờ NGAY tick đầu: gate-ask disabled + nhãn "Đang xin luận…"
+//       + spinner gate-submit-spinner (CSS thuần, token có sẵn); ô hỏi + chip GIỮ
+//       nguyên trong DOM (chống layout jump).
+//   A2. job done → article gate-result bật fade `luan-fade` (opacity 0→1 +
+//       translateY 6px→0, 280ms ease-out) khai trong <style scoped> của chính
+//       TopicGate.vue + bắt buộc @media (prefers-reduced-motion: reduce).
+//   A4. spinner không màu mới: rule .gate-spinner cấm hex — chỉ currentColor/token.
+// jsdom không tính CSS từ <style scoped> SFC → chốt bằng class + readFileSync
+// nguồn style (pattern tokens.test.js, đọc theo cwd vì import.meta.url là http).
+// ═══════════════════════════════════════════════════════════════════════════
+const SRC = readFileSync('src/components/TopicGate.vue', 'utf8')
+
+describe('ANIM-LUAN A1 — phản hồi tức thì khi bấm "Xin luận sâu"', () => {
+  it('network treo (POST #5 chờ vô hạn) → ngay tick sau: gate-ask disabled + nhãn "Đang xin luận" + spinner gate-submit-spinner', async () => {
+    client.api.requestInterpretation.mockReturnValue(new Promise(() => {})) // không bao giờ resolve
+    const w = mountGate()
+    await flushPromises()
+    await w.find('[data-testid="gate-ask"]').trigger('click')
+    // KHÔNG await thêm gì ngoài 1 flush — đây chính là "≤100ms đầu" lập trình được
+    const btn = w.find('[data-testid="gate-ask"]')
+    expect(btn.exists()).toBe(true)
+    expect(btn.isDisabled()).toBe(true)
+    expect(btn.text()).toContain('Đang xin luận')
+    expect(w.find('[data-testid="gate-submit-spinner"]').exists()).toBe(true)
+    expect(client.api.requestInterpretation).toHaveBeenCalledTimes(1)
+  })
+
+  it('khi submitting: ô hỏi + chip + counter VẪN trong DOM (chống layout jump), giá trị question giữ nguyên', async () => {
+    client.api.requestInterpretation.mockReturnValue(new Promise(() => {}))
+    const w = mountGate()
+    await flushPromises()
+    const ta = w.find('[data-testid="gate-question"]')
+    await ta.setValue('tiền nong đình trệ')
+    await w.find('[data-testid="gate-ask"]').trigger('click')
+    expect(w.find('[data-testid="gate-question"]').exists()).toBe(true)
+    expect(w.find('[data-testid="gate-question"]').element.value).toBe('tiền nong đình trệ')
+    expect(w.findAll('[data-testid="gate-question-chip"]').length).toBeGreaterThan(0)
+    expect(w.find('[data-testid="gate-question-counter"]').exists()).toBe(true)
+  })
+
+  it('bị từ chối (429 cooldown / cap) giữa lúc submitting → rời submitting: spinner tắt, nhãn cũ, branch tương ứng hiện (hành vi cũ giữ nguyên)', async () => {
+    client.api.requestInterpretation.mockRejectedValue(
+      new ApiError(429, 'AI_COOLDOWN', 'cool', { retry_after_seconds: 90 }),
+    )
+    const w = mountGate()
+    await flushPromises()
+    await w.find('[data-testid="gate-ask"]').trigger('click')
+    await flushPromises() // promise reject đã về
+    expect(w.find('[data-testid="gate-submit-spinner"]').exists()).toBe(false)
+    expect(w.find('[data-testid="gate-cooldown"]').exists()).toBe(true)
+  })
+
+  it('nút gate-retry (branch failed) bấm khi POST #5 treo → cùng pattern submitting (spinner + disabled)', async () => {
+    client.api.requestInterpretation
+      .mockRejectedValueOnce(new ApiError(500, 'SERVER_ERROR', 'sập'))
+      .mockReturnValue(new Promise(() => {}))
+    const w = mountGate()
+    await flushPromises()
+    await w.find('[data-testid="gate-ask"]').trigger('click')
+    await flushPromises()
+    expect(w.find('[data-testid="gate-failed"]').exists()).toBe(true)
+    await w.find('[data-testid="gate-retry"]').trigger('click')
+    const btn = w.find('[data-testid="gate-ask"]')
+    expect(btn.isDisabled()).toBe(true)
+    expect(btn.text()).toContain('Đang xin luận')
+    expect(w.find('[data-testid="gate-submit-spinner"]').exists()).toBe(true)
+  })
+})
+
+describe('ANIM-LUAN A2/A4 — fade bài luận + style token-only', () => {
+  it('job done → article gate-result mang class luan-fade (đường phase done)', async () => {
+    client.api.requestInterpretation.mockResolvedValue({ data: JOB })
+    client.api.aiJob.mockResolvedValue({ data: DONE })
+    vi.useFakeTimers()
+    const w = mountGate()
+    await flushPromises()
+    await w.find('[data-testid="gate-ask"]').trigger('click')
+    await vi.advanceTimersByTimeAsync(2_000) // AI_POLL_MS = 2000
+    await flushPromises()
+    const art = w.find('[data-testid="gate-result"]')
+    expect(art.exists()).toBe(true)
+    expect(art.attributes('class')).toContain('luan-fade')
+  })
+
+  it('bấm "Xem lại" branch saved → bài lưu cũng bật luan-fade (đọc lại không đốt API)', async () => {
+    client.api.savedInterpretation.mockResolvedValue({
+      data: { exists: true, job_uuid: 'j-9', result: '[Hoàn cảnh]\nBài cũ.\n', completed_at: '2026-09-01T10:00:00+07:00' },
+    })
+    const w = mountGate()
+    await flushPromises()
+    await w.find('[data-testid="gate-review"]').trigger('click')
+    await flushPromises()
+    const art = w.find('[data-testid="gate-result"]')
+    expect(art.exists()).toBe(true)
+    expect(art.attributes('class')).toContain('luan-fade')
+    expect(client.api.requestInterpretation).not.toHaveBeenCalled()
+  })
+
+  it('scoped CSS: @keyframes luan-fade opacity 0→1 + translateY(6px→0), 280ms ease-out', () => {
+    const kf = SRC.match(/@keyframes\s+luan-fade\s*\{[\s\S]*?\n\}/)
+    expect(kf).not.toBeNull()
+    expect(kf[0]).toMatch(/opacity:\s*0/)
+    expect(kf[0]).toMatch(/opacity:\s*1/)
+    expect(kf[0]).toMatch(/translateY\(\s*6px\s*\)/)
+    expect(kf[0]).toMatch(/translateY\(\s*0/)
+    const rule = SRC.match(/\.luan-fade\s*\{[^}]*\}/)
+    expect(rule).not.toBeNull()
+    expect(rule[0]).toMatch(/280ms/)
+    expect(rule[0]).toMatch(/ease-out/)
+    expect(rule[0]).toContain('luan-fade')
+  })
+
+  it('scoped CSS: BẮT BUỘC @media (prefers-reduced-motion: reduce) → animation: none cho fade', () => {
+    const mm = SRC.match(/@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]*?\n\}/)
+    expect(mm).not.toBeNull()
+    expect(mm[0]).toMatch(/luan-fade[^}]*animation:\s*none/)
+  })
+
+  it('spinner CSS thuần: rule .gate-spinner có border + @keyframes quay, KHÔNG hex màu mới (token/currentColor thôi)', () => {
+    const rule = SRC.match(/\.gate-spinner\s*\{[^}]*\}/)
+    expect(rule).not.toBeNull()
+    expect(rule[0]).toMatch(/border/)
+    expect(rule[0]).not.toMatch(/#[0-9a-fA-F]{3,8}/) // cấm hex — chỉ currentColor/plan
+    const kf = SRC.match(/@keyframes\s+gate-spin\s*\{[\s\S]*?\n\}/)
+    expect(kf).not.toBeNull()
+    expect(kf[0]).toMatch(/rotate/)
+    expect(SRC).toMatch(/\.gate-spinner\s*\{[^}]*animation:\s*gate-spin/)
+  })
+
+  it('SOUL anti-generic: spinner kế thừa màu nút (currentColor) — không bg/tint ngoài token', () => {
+    const rule = SRC.match(/\.gate-spinner\s*\{[^}]*\}/)
+    expect(rule[0]).toMatch(/currentColor/)
   })
 })

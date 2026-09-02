@@ -20,7 +20,7 @@ const router = useRouter()
 const device = useDevice()
 const cd = useCountdown()
 
-const phase = ref('idle') // idle | queued | running | done | saved | failed | cooldown | cap | locked
+const phase = ref('idle') // idle | submitting | queued | running | done | saved | failed | cooldown | cap | locked
 const result = ref('')
 // REVIEW-LUAN: bài #5b lấy về lúc probe (job_uuid + result + completed_at). `savedMeta`
 // null → chưa có bài lưu. `reviewOpen` = khách đã bấm "Xem lại" chưa — hai state tách
@@ -103,6 +103,10 @@ function reviewSaved() {
 }
 
 async function askFresh() {
+  // ANIM-LUAN A (card t_74502491 mục 1): 'submitting' NGAY dòng đầu, TRƯỚC await #5 —
+  // bản cũ chỉ đổi phase sau khi POST về nên mạng chậm tưởng bấm không ăn. Mọi lần bấm
+  // CTA (gate-ask idle lẫn gate-retry failed) đều vào đây → chờ ≤100ms đầu có state.
+  phase.value = 'submitting'
   stopPoll()
   result.value = ''
   // §7.4.4: snapshot BẢN GỬI ĐI (đã trim qua normalizedQuestion — D4) ngay lúc bấm —
@@ -248,7 +252,7 @@ watch(
         >
           Xem lại
         </button>
-        <article v-else data-testid="gate-result">
+        <article v-else data-testid="gate-result" class="luan-fade">
           <!-- Nhãn chống nhầm "vừa luận mới": chip-status (token có sẵn) đứng ĐẦU bài. -->
           <span
             data-testid="gate-saved-label"
@@ -271,8 +275,11 @@ watch(
       </div>
       <!-- LUAN-V2 §7.1–7.2 (t_b13fd2b9): ô vướng + chip gợi ý — ĐỨNG TRƯỚC CTA
            "Xin luận sâu" (CTA vẫn là phần tử có trọng lượng thị giác cao nhất màn).
-           Chip theo D3: chỉ điền text, không đổi topic API. -->
-      <div v-if="phase === 'idle'" class="mb-4">
+           Chip theo D3: chỉ điền text, không đổi topic API.
+           ANIM-LUAN A (t_74502491 mục 2): block hỏi SỐNG NGUYÊN trong DOM cả lúc
+           'submitting' — thay nhãn/spinner trên chính nút, không mount/unmount khối
+           → hết cảnh layout jump khi mạng chậm. -->
+      <div v-if="phase === 'idle' || phase === 'submitting'" class="mb-4">
         <label for="gate-question-input" class="block text-body text-ink mb-1">
           Bạn đang vướng chuyện gì?
         </label>
@@ -305,13 +312,22 @@ watch(
         </div>
       </div>
       <button
-        v-if="phase === 'idle'"
+        v-if="phase === 'idle' || phase === 'submitting'"
         type="button"
         class="btn-cinnabar"
         data-testid="gate-ask"
+        :disabled="phase === 'submitting'"
+        :aria-busy="phase === 'submitting' ? 'true' : undefined"
         @click="askFresh"
       >
-        Xin luận sâu
+        <!-- ANIM-LUAN A1: phản hồi TỨC THÌ — disabled + nhãn "Đang xin luận…" + spinner
+             CSS thuần (border + @keyframes, màu currentColor kế thừa chữ trắng trên nền
+             cinnabar — không hex mới, không lib). -->
+        <span v-if="phase === 'submitting'" class="inline-flex items-center gap-2">
+          <span data-testid="gate-submit-spinner" class="gate-spinner" aria-hidden="true"></span>
+          Đang xin luận…
+        </span>
+        <span v-else>Xin luận sâu</span>
       </button>
       <div v-else-if="phase === 'queued' || phase === 'running'" data-testid="gate-skeleton" class="space-y-2">
         <div class="sk h-4 w-11/12" />
@@ -322,7 +338,7 @@ watch(
         <p class="text-body text-muted mb-2">Hôm nay bàn cờ im tiếng, thử lại nhé.</p>
         <button type="button" class="btn-cinnabar" data-testid="gate-retry" @click="askFresh">Thử lại</button>
       </div>
-      <article v-else-if="phase === 'done'" data-testid="gate-result">
+      <article v-else-if="phase === 'done'" data-testid="gate-result" class="luan-fade">
         <!-- LUAN-V2 §7.4.4 (t_d4cfddea): câu hỏi lặp lại 1 dòng NHỎ trên đầu bài —
              token có sẵn (text-small/text-muted như counter/chip), CẤM style mới. -->
         <p
@@ -353,5 +369,41 @@ watch(
   0% { opacity: 0.6; }
   50% { opacity: 1; }
   100% { opacity: 0.6; }
+}
+/* ANIM-LUAN mức A (card t_74502491, BOSS-GO 02/09 mục 3) — 2 hiệu ứng, 0 lib, 0 màu mới:
+   1) .luan-fade: bài luận (phase done VÀ bài "Xem lại" saved) mở mượt opacity 0→1 +
+      trồi nhẹ 6px, 280ms ease-out — đúng một nhịp "hôi" của ấn thư đóng xuống giấy.
+   2) .gate-spinner: phản hồi tức thì lúc submitting — vòng border quay, màu kế thừa
+      currentColor của nhãn nút (chữ paper trên nền cinnabar), không hex ngoài token. */
+.luan-fade {
+  animation: luan-fade 280ms ease-out both;
+}
+@keyframes luan-fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.gate-spinner {
+  display: inline-block;
+  width: 0.85em;
+  height: 0.85em;
+  border: 2px solid currentColor;
+  border-top-color: transparent; /* vòng hở 1 cung — spinner thuần CSS */
+  border-radius: 9999px;
+  animation: gate-spin 0.8s linear infinite;
+}
+@keyframes gate-spin {
+  to { transform: rotate(360deg); }
+}
+/* A11y bắt buộc (card mục 3): khách giảm động tác → fade/spinner quay tắt hẳn,
+   state chờ vẫn đọc được bằng nhãn "Đang xin luận…" + nút disabled. */
+@media (prefers-reduced-motion: reduce) {
+  .luan-fade { animation: none; }
+  .gate-spinner { animation: none; }
 }
 </style>
