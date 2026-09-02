@@ -81,6 +81,7 @@ afterEach(() => {
   delete globalThis.fetch
   delete navigator.share
   delete navigator.clipboard
+  delete document.execCommand
   vi.unstubAllGlobals()
 })
 
@@ -175,18 +176,19 @@ describe('toggle 2 khung', () => {
 })
 
 describe('3 hành động overlay', () => {
-  it('Copy link 9:16 = NGUYÊN URL /s/{token} (không caption), bắn V4 method=copy', async () => {
+  it('[VS3-S1] Copy link 9:16 = CAPTION_CLIPBOARD render + "\\n" + URL (hết URL trần), bắn V4 method=copy', async () => {
     const write = vi.fn().mockResolvedValue()
     Object.defineProperty(navigator, 'clipboard', { value: { writeText: write }, configurable: true })
     const { w } = await mountView()
     await vi.waitFor(() => expect(renderFrame).toHaveBeenCalled())
     await w.find('[data-testid="share-card-copy-link"]').trigger('click')
     await flushPromises()
-    expect(write).toHaveBeenCalledWith(LINK.url)
+    expect(write).toHaveBeenCalledWith(`Tôi gieo được Địa Thiên Thái \u2014 bạn là quẻ nào?\n${LINK.url}`)
+    expect(write.mock.calls[0][0]).toMatch(/^[\s\S]+\nhttps?:\/\/\S+$/) // URL dòng cuối nguyên khối
     expect(lastTrackProps()).toEqual({ name: 'share_card_done', props: { draw_id: 42, method: 'copy', token: LINK.token } })
   })
 
-  it('Copy link khi đang khung 1:1 = CAPTION_1X1 + "\\n" + URL (clipboard rule CAP-THE)', async () => {
+  it('[VS3-S1] Copy khung 1x1 = CÙNG khuôn clipboard (một đường copy, một hành vi) — không còn CAPTION_1X1', async () => {
     const write = vi.fn().mockResolvedValue()
     Object.defineProperty(navigator, 'clipboard', { value: { writeText: write }, configurable: true })
     const { w } = await mountView()
@@ -195,7 +197,56 @@ describe('3 hành động overlay', () => {
     await flushPromises()
     await w.find('[data-testid="share-card-copy-link"]').trigger('click')
     await flushPromises()
-    expect(write.mock.calls.at(-1)[0]).toBe(`Địa Thiên Thái — bạn là quẻ nào?\n${LINK.url}`)
+    const text = write.mock.calls.at(-1)[0]
+    expect(text).toBe(`Tôi gieo được Địa Thiên Thái \u2014 bạn là quẻ nào?\n${LINK.url}`)
+    expect(text).toMatch(/^[\s\S]+\nhttps?:\/\/\S+$/)
+    expect(text.split('\n').at(-1)).toBe(LINK.url)
+    expect(text).not.toMatch(/\s\n|\n\s|^ | $/) // không khoảng trắng thừa đầu/cuối dòng
+  })
+
+  it('[VS3-S2] writeText reject → execCommand chạy, V4 bắn ĐÚNG 1 lần method=copy_fallback, không còn node .qhn-copy-tmp', async () => {
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn().mockRejectedValue(new Error('NotAllowedError')) }, configurable: true })
+    // jsdom không có execCommand → gán property (delete ở afterEach)
+    const exec = vi.fn(() => true)
+    Object.defineProperty(document, 'execCommand', { value: exec, configurable: true, writable: true })
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {})
+    const { w } = await mountView()
+    await vi.waitFor(() => expect(renderFrame).toHaveBeenCalled())
+    await w.find('[data-testid="share-card-copy-link"]').trigger('click')
+    await flushPromises()
+    expect(exec).toHaveBeenCalledWith('copy')
+    const dones = globalThis.fetch.mock.calls.filter((c) => JSON.parse(c[1].body).name === 'share_card_done')
+    expect(dones.length).toBe(1)
+    expect(JSON.parse(dones[0][1].body)).toEqual({ name: 'share_card_done', props: { draw_id: 42, method: 'copy_fallback', token: LINK.token } })
+    expect(document.querySelectorAll('.qhn-copy-tmp').length).toBe(0)
+    expect(alertSpy).not.toHaveBeenCalled() // không nag
+  })
+
+  it('[VS3-S2] navigator.clipboard absent (lane http) → vẫn copy_fallback nếu execCommand được, V4 1 lần', async () => {
+    const exec = vi.fn(() => true)
+    Object.defineProperty(document, 'execCommand', { value: exec, configurable: true, writable: true })
+    const { w } = await mountView()
+    await vi.waitFor(() => expect(renderFrame).toHaveBeenCalled())
+    await w.find('[data-testid="share-card-copy-link"]').trigger('click')
+    await flushPromises()
+    expect(exec).toHaveBeenCalledWith('copy')
+    expect(lastTrackProps()).toEqual({ name: 'share_card_done', props: { draw_id: 42, method: 'copy_fallback', token: LINK.token } })
+  })
+
+  it('[VS3-S2] cả 2 fail → share_card_error clipboard_denied, KHÔNG bắn done, không toast/alert, không đổi nút', async () => {
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn().mockRejectedValue(new Error('deny')) }, configurable: true })
+    Object.defineProperty(document, 'execCommand', { value: vi.fn(() => false), configurable: true, writable: true })
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {})
+    const { w } = await mountView()
+    await vi.waitFor(() => expect(renderFrame).toHaveBeenCalled())
+    const btn = w.find('[data-testid="share-card-copy-link"]')
+    await btn.trigger('click')
+    await flushPromises()
+    expect(trackCall('share_card_error')).toEqual({ name: 'share_card_error', props: { draw_id: 42, reason: 'clipboard_denied' } })
+    expect(trackBodies()).not.toContain('share_card_done')
+    expect(alertSpy).not.toHaveBeenCalled()
+    expect(w.find('[data-testid="share-card-copy-link"]').text()).toBe('Copy link') // nút giữ nguyên
+    expect(btn.attributes('disabled')).toBeUndefined()
   })
 
   it('Tải ảnh = toBlob PNG tên que-{token}.png; bắn V4 method=download', async () => {

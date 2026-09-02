@@ -116,4 +116,15 @@ return [
         // An toàn: 1 (tăng = mở pilot nhiều quẻ, sửa spec 03-api C-01 kèm theo).
         'free_per_day' => 1,
     ],
+
+    // ------------------------------------------------------------- SHARE (VS3)
+    'share' => [
+        // Ngưỡng "N lượt xem" trên /s/ — dưới ngưỡng: ẩn (chống số ảo, PROPOSAL-VS3 §5).
+        // Đơn vị: lượt. An toàn: 1–10. Growth đọc giá trị này để dựng bảng đo.
+        'views_min' => 3,
+
+        // Bản ảnh OG: tăng tay khi redesign OG; hash APP_URL tự vô hiệu hoá khi đổi
+        // domain (VS3-S4, blocker B1). Đơn vị: int. An toàn: chỉ tăng, không giảm.
+        'og_version' => 1,
+    ],
 ];
