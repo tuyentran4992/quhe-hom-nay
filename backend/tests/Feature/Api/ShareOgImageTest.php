@@ -29,7 +29,8 @@ class ShareOgImageTest extends ApiTestCase
 
     private function cachePath(string $token): string
     {
-        return storage_path('app/share-og/'.$token.'.png');
+        // VS3-S4 t_3b27cbde: cache giờ nằm trong version dir sha1(app.url|og_version)
+        return (new \App\Services\ShareOgRenderer())->cachePath($token);
     }
 
     public function test_og_png_returns_200_image_png_1200x630(): void

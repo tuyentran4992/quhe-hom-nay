@@ -64,7 +64,8 @@
     <main id="share-card" data-token="{{ $token }}">
         <p class="symbol">{{ $card['symbol'] }}</p>
         <h1 class="ten">{{ $card['ten'] }}</h1>
-        <p class="date">Hôm nay {{ $card['drawn_date'] }}</p>
+        {{-- VS3-S3 (t_3b27cbde): nhánh ngày theo is_today — thẻ hôm qua hết stale "Hôm nay" --}}
+        <p class="date">@if ($card['is_today'])Hôm nay {{ $card['drawn_date'] }}@else {{ $card['drawn_date_full'] }}@endif</p>
         @if ($hookText !== '')
             <p class="hook">“{{ $hookText }}”</p>
         @endif
@@ -76,9 +77,12 @@
             </div>
         @endif
         {{-- CAP-THE §4: dòng gọi mời + label người chia sẻ (payload.sharer_label) --}}
-        <p class="from">Quẻ của {{ $payload['sharer_label'] }} hôm nay. Còn bạn?</p>
+        {{-- VS3-S3: trạng từ ngày nhánh hôm qua = "vừa gieo" (phương án SPEC §S3, chờ B-0 duyệt chữ) --}}
+        <p class="from">Quẻ của {{ $payload['sharer_label'] }} {{ $card['is_today'] ? 'hôm nay' : 'vừa gieo' }}. Còn bạn?</p>
         <a class="cta" data-testid="share-page-cta" href="{{ $ctaUrl }}">Gieo quẻ của bạn</a>
-        @if ($payload['views'] > 0)
+        {{-- VS3-S3: ngưỡng "N lượt xem" về config project.share.views_min (block `share`
+             do FA-VS3-CONFIG ghép project.php — blade đọc KHÔNG fallback ngầm). --}}
+        @if ($payload['views'] >= config('project.share.views_min'))
             <p class="views">{{ number_format((int) $payload['views'], 0, ',', '.') }} lượt xem thẻ này</p>
         @endif
         <p class="disclaimer">{{ $card['disclaimer'] }}</p>

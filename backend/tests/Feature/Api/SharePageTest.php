@@ -40,7 +40,8 @@ class SharePageTest extends ApiTestCase
         $view = $resp->original->getData();
         $this->assertSame($token, $view['payload']['card']['qr_text'] === "/s/{$token}" ? $token : null);
         $this->assertSame(
-            ['hexagram_id', 'symbol', 'ten', 'drawn_date', 'hook', 'keywords', 'disclaimer', 'qr_text'],
+            // VS3-S3 t_3b27cbde: +is_today/+drawn_date_full sau drawn_date (khóa cũ giữ nguyên)
+            ['hexagram_id', 'symbol', 'ten', 'drawn_date', 'is_today', 'drawn_date_full', 'hook', 'keywords', 'disclaimer', 'qr_text'],
             array_keys($view['payload']['card'])
         );
         $this->assertArrayHasKey('sharer_label', $view['payload']);

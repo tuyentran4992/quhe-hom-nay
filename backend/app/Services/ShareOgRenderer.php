@@ -50,19 +50,37 @@ class ShareOgRenderer
         return $png;
     }
 
-    /** Xóa cache khi token bị xóa (E3 — ADR-002 consequences). */
-    public function forget(string $token): void
+    /** VS3-S4: partition cache theo domain + version — sha1(app.url|og_version) 8 hex. */
+    public function cacheVersionDir(): string
     {
-        $path = $this->cachePath($token);
-        if (is_file($path)) {
-            unlink($path);
-        }
+        return substr(sha1(((string) config('app.url')).'|'.((string) config('project.share.og_version'))), 0, 8);
     }
 
     public function cachePath(string $token): string
     {
-        // token đã isValid() ở controller; basename chống mọi dạng path traversal
-        return storage_path('app/share-og/'.basename($token).'.png');
+        // token đã isValid() ở controller; basename chống mọi dạng path traversal.
+        // VS3-S4 (SPEC §S4): version dir = sha1(app.url|project.share.og_version) —
+        // đổi APP_URL (blocker B1) hoặc redesign OG (tăng og_version) → cache sinh lại,
+        // không bao giờ trả ảnh cũ cho URL mới.
+        return storage_path('app/share-og/'.$this->cacheVersionDir().'/'.basename($token).'.png');
+    }
+
+    /** Xóa cache khi token bị xóa (E3 — ADR-002 consequences) — dọn MỌI version dir. */
+    public function forget(string $token): void
+    {
+        $base = storage_path('app/share-og');
+        $name = basename($token).'.png';
+        $this->deleteFile($this->cachePath($token));
+        foreach (glob($base.'/*/'.$name) ?: [] as $old) {
+            $this->deleteFile($old);
+        }
+    }
+
+    private function deleteFile(string $path): void
+    {
+        if (is_file($path)) {
+            unlink($path);
+        }
     }
 
     /** @param array{card:array<string,mixed>, sharer_label:string, views:int} $payload */
