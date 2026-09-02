@@ -31,7 +31,10 @@ Route::middleware(EnsureDeviceSession::class)->group(function () {
     Route::get('/draws/history', [DrawController::class, 'history']); // #4
 
     // BE-2 — luận sâu AI (gate 402 + C-03 + C-06, queue DATABASE)
+    // REVIEW-LUAN (t_8aa93a01): #5 khóa 1 lượt per (quẻ,topic) → 409 AI_ALREADY_DONE;
+    // #5b doc lai bai da luan (nut "Xem lai" cua FE).
     Route::post('/ai/interpretations', [InterpretationController::class, 'store']);
+    Route::get('/ai/interpretations/saved', [InterpretationController::class, 'saved']); // #5b
     Route::get('/ai/jobs/{jobUuid}', [InterpretationController::class, 'show']);
 
     // BE-2 — payments stub contract payOS

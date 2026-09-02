@@ -2,6 +2,10 @@
 // TopicGate — 04-ui §3: 3 nhánh render vùng "luận sâu" S3 (04-ui §2.S3 + §4):
 // 1) chưa unlock → CTA mở S4; 2) cooldown 429 → đếm ngược retry_after_seconds, nút disabled;
 // 3) đã unlock → #5→#6 poll 2s, skeleton 3 đoạn; failed → "bàn cờ im tiếng" + thử lại key mới.
+// REVIEW-LUAN (card t_b8df14e5, BOSS-GO 02/09 mục 1): chủ đề ĐÃ luận xong (BE 409
+// AI_ALREADY_DONE / #5b exists=true) → phase 'saved': chỉ còn nút "Xem lại", ẩn hẳn ô
+// question + chip + "Xin luận sâu" — mỗi (quẻ, topic) chỉ luận 1 lần, đọc lại KHÔNG đốt
+// tiền AI. Lượt THẤT BẠI không bị khóa: gate-retry giữ nguyên, chỉ 409 mới sang saved.
 import { ref, computed, watch, onBeforeUnmount } from 'vue'
 // LUAN-V2 §6c (t_dec9349a): lane render-chính-thức — cắt marker thô.
 import { parseLuan } from '../utils/luanRender'
@@ -16,8 +20,15 @@ const router = useRouter()
 const device = useDevice()
 const cd = useCountdown()
 
-const phase = ref('idle') // idle | queued | running | done | failed | cooldown | cap
+const phase = ref('idle') // idle | queued | running | done | saved | failed | cooldown | cap | locked
 const result = ref('')
+// REVIEW-LUAN: bài #5b lấy về lúc probe (job_uuid + result + completed_at). `savedMeta`
+// null → chưa có bài lưu. `reviewOpen` = khách đã bấm "Xem lại" chưa — hai state tách
+// nhau CÓ CHỦ ĐÍCH: phase 'saved' một mình chỉ là cái nút, bài chỉ hiện khi bấm
+// (đọc lại là hành động chủ ý, không tự trải bài cũ ra như vừa luận xong).
+const savedMeta = ref(null)
+const reviewOpen = ref(false)
+let probeSeq = 0 // chống race: probe topic cũ về muộn không được đè topic mới
 // LUAN-V2 §7 (card t_b13fd2b9): ô "Bạn đang vướng chuyện gì?" — tùy chọn, tối đa
 // QUESTION_MAX ký tự. Ref sống độc lập với phase → retry/fail không mất nội dung.
 const question = ref('')
@@ -53,6 +64,44 @@ function stopPoll() {
 }
 onBeforeUnmount(stopPoll)
 
+// REVIEW-LUAN (card mục 2): #5b probe 1 lần mỗi lần mount/đổi tab khi đã unlock.
+// exists=true → phase 'saved' (chỉ nút "Xem lại"). exists=false / lỗi mạng / 404 /
+// 402 race → mặc nhiên 'idle': khách chưa mua đường hỏi thường không được bị chặn
+// bởi một API phụ. seq-guard: kết quả probe cũ (topic khác) bị loại.
+async function probeSaved() {
+  const seq = ++probeSeq
+  let d = null
+  try {
+    const r = await api.savedInterpretation({ draw_id: props.drawId, topic: props.topic })
+    d = r && r.data
+  } catch {
+    d = null
+  }
+  if (seq !== probeSeq) return false
+  if (d && d.exists) {
+    enterSaved(d)
+    return true
+  }
+  return false
+}
+function enterSaved(meta) {
+  cd.stop()
+  stopPoll()
+  savedMeta.value = meta
+  reviewOpen.value = false
+  result.value = meta.result || ''
+  // khóa kênh phụ question của lượt cũ — saved API CẤM trả question (F7), nên dòng
+  // "Bạn hỏi:" trong vùng bài lưu chỉ có thể đến từ state local → đưa hết về rỗng.
+  askedQuestion.value = ''
+  jobQuestion.value = ''
+  phase.value = 'saved'
+}
+// Bấm "Xem lại": KHÔNG đụng POST #5 — render thẳng kết quả đã lấy về, cùng lane
+// luanBlocks như phase done (card mục 3 — mục tiêu tiết kiệm chi phí AI của boss).
+function reviewSaved() {
+  reviewOpen.value = true
+}
+
 async function askFresh() {
   stopPoll()
   result.value = ''
@@ -73,6 +122,16 @@ async function askFresh() {
     phase.value = r.data.status || 'queued'
     pollTimer = setTimeout(() => poll(r.data.job_uuid), AI_POLL_MS)
   } catch (e) {
+    // REVIEW-LUAN card mục 5 — THỨ TỰ ƯU TIÊN: 409 AI_ALREADY_DONE kiểm TRƯỚC khi
+    // map cooldown/cap (BE t_5f98fe73 đặt gate khóa trước cooldown nên 409 có thể
+    // mang cả details của cooldown — không được để nó bị nuốt thành 'cooldown').
+    // Gọi lại #5b lấy result thật (card mục 4); saved im lặng/không tồn tại → về
+    // 'failed' có đường retry, KHÔNG kẹt màn trắng.
+    if (e.code === 'AI_ALREADY_DONE') {
+      const found = await probeSaved()
+      if (!found) phase.value = 'failed'
+      return
+    }
     if (e.code === 'AI_COOLDOWN') {
       phase.value = 'cooldown'
       // E5 t_0285ac01: đồng hồ chạm 0 → về 'idle' (nút enable lại, hết nhãn "00:00").
@@ -118,17 +177,30 @@ async function poll(uuid) {
     phase.value = 'failed'
   }
 }
+// REVIEW-LUAN card mục 2+6 (t_b8df14e5): MỘT watch reset duy nhất cho
+// (drawId, topic, unlocked) — unlocked → về 'idle' rồi probe #5b 1 lần cho key mới;
+// exists=true → 'saved' (nút "Xem lại"), KHÔNG bao giờ để bài cũ ẩn mà còn đường
+// bấm xin luận lần 2. Chuyển khóa cũ→mới (vừa trả tiền) và probe trắng → tự xin
+// luận như UX cũ (watch `unlocked` rời nhập vào đây). Trước đây mỗi lần đổi tab
+// bài cũ bị xóa về idle — đúng bệnh boss bắt sửa.
 watch(
   () => [props.drawId, props.topic, unlocked.value],
-  () => {
-    phase.value = unlocked.value ? 'idle' : 'locked'
+  async ([, , nowUnlocked], old) => {
+    stopPoll()
+    const wasLocked = old ? !old[2] : false
+    savedMeta.value = null
+    reviewOpen.value = false
+    if (!nowUnlocked) {
+      phase.value = 'locked'
+      return
+    }
+    phase.value = 'idle'
+    const found = await probeSaved()
+    if (found) return
+    if (phase.value === 'idle' && wasLocked) askFresh()
   },
   { immediate: true },
 )
-// khi payment xong → entitlement đổi → tự xin luận
-watch(unlocked, (u) => {
-  if (u && (phase.value === 'locked' || phase.value === 'idle')) askFresh()
-})
 </script>
 
 <template>
@@ -162,6 +234,41 @@ watch(unlocked, (u) => {
 
     <!-- nhánh 3: đã unlock -->
     <template v-else>
+      <!-- REVIEW-LUAN (card t_b8df14e5): chủ đề ĐÃ luận xong → CHỈ nút "Xem lại" —
+           ô question/chip/"Xin luận sâu" ẩn tuyệt đối (đường 2 không tồn tại ở đây).
+           CTA vẫn btn-cinnabar: nút này là phần tử có trọng lượng thị giác cao nhất
+           của màn, đúng nhịp các nhánh còn lại. Bấm = render bài lưu, 0 POST #5. -->
+      <div v-if="phase === 'saved'" class="flex flex-col gap-2">
+        <button
+          v-if="!reviewOpen"
+          type="button"
+          class="btn-cinnabar self-start"
+          data-testid="gate-review"
+          @click="reviewSaved"
+        >
+          Xem lại
+        </button>
+        <article v-else data-testid="gate-result">
+          <!-- Nhãn chống nhầm "vừa luận mới": chip-status (token có sẵn) đứng ĐẦU bài. -->
+          <span
+            data-testid="gate-saved-label"
+            class="chip-status text-muted mb-2 inline-flex"
+          >Bài đã lưu trước đó</span>
+          <!-- saved API không trả question (F7) → displayedQuestion rỗng có chủ đích,
+               không dòng "Bạn hỏi:" — card mục 2. -->
+          <p
+            v-if="displayedQuestion"
+            data-testid="gate-result-question"
+            class="text-small text-muted mb-2"
+          >Bạn hỏi: {{ displayedQuestion }}</p>
+          <div data-testid="luan-rendered">
+            <template v-for="(b, i) in luanBlocks" :key="i">
+              <h4 v-if="b.heading" data-testid="luan-heading" class="han text-h2 font-semibold text-ink mt-4 mb-1">{{ b.heading }}</h4>
+              <p v-if="b.text" data-testid="luan-body" class="prose-quhe text-body text-ink whitespace-pre-wrap">{{ b.text }}</p>
+            </template>
+          </div>
+        </article>
+      </div>
       <!-- LUAN-V2 §7.1–7.2 (t_b13fd2b9): ô vướng + chip gợi ý — ĐỨNG TRƯỚC CTA
            "Xin luận sâu" (CTA vẫn là phần tử có trọng lượng thị giác cao nhất màn).
            Chip theo D3: chỉ điền text, không đổi topic API. -->

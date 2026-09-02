@@ -36,6 +36,7 @@ Bảng mã lỗi toàn cục (HTTP + `error.code`):
 | 402 | `UNLOCK_REQUIRED` | xin luận sâu khi chưa trả phí | #5 |
 | 404 | `NOT_FOUND` | id/uuid không tồn tại hoặc không phải của device này | #4 #6 #9 |
 | 409 | `IDEMPOTENCY_CONFLICT` | cùng `idempotency_key` payload khác | #5 #7 |
+| 409 | `AI_ALREADY_DONE` | chủ đề của quẻ này đã luận xong 1 lượt — khóa 1 lượt/(hexagram,topic) (REVIEW-LUAN t_8aa93a01, boss GO 02/09); FE chuyển sang "Xem lại" qua #5b | #5 |
 | 409 | `DRAW_LIMIT_REACHED` | vi phạm C-01 | #3 |
 | 422 | `VALIDATION_FAILED` | validate fail (`details.errors` liệt kê field) | all |
 | 429 | `AI_COOLDOWN` | vi phạm C-03 (kèm `details.retry_after_seconds`) | #5 |
@@ -156,9 +157,14 @@ Request body — tất cả bắt buộc:
 | `idempotency_key` | string(8-64) | client sinh (uuid); same key+same body = same job 200 |
 
 Logic thứ tự: (a) validate → 422; (b) entitlement (§6 payments paid cho topic) → 402
-`UNLOCK_REQUIRED`; (c) cooldown 90 GIÂY (C-03) theo `ai_jobs.requested_at` của device →
+`UNLOCK_REQUIRED`; (c1) **KHÓA 1 lượt/(hexagram, topic)** — mọi `ai_jobs` status=done
+cùng quẻ+chủ đề, BẤT KỂ question → 409 `AI_ALREADY_DONE`, không INSERT job rac
+(REVIEW-LUAN t_8aa93a01, boss GO 02/09 — thay đường cache AC-2 "done tại chỗ" cũ);
+(c) cooldown 90 GIÂY (C-03) theo `ai_jobs.requested_at` của device →
 429 `AI_COOLDOWN` + `details.retry_after_seconds`; (d) cap toàn cục 90 job/60 phút (C-06) →
 429 `AI_GLOBAL_CAP`; (e) INSERT `ai_jobs` status=queued + dispatch job queue → 202.
+
+Payload lỗi mẫu 409 khóa: `{"error":{"code":"AI_ALREADY_DONE","message":"Chủ đề này đã được luận cho quẻ hiện tại. Bạn bấm Xem lại để đọc lại bài đã lưu.","details":null}}`
 
 Response 202 — `{ "data": { "job_uuid": char36, "status": "queued", "topic": "...", "draw_id": int, "poll_url": "/api/ai/jobs/<uuid>" } }`
 
@@ -168,6 +174,21 @@ Response 202 — `{ "data": { "job_uuid": char36, "status": "queued", "topic": "
 
 Payload lỗi mẫu 402: `{"error":{"code":"UNLOCK_REQUIRED","message":"Chủ đề này cần mở khóa 29.000đ.","details":{"topic":"duyen","price_vnd":29000,"payment_create_url":"/api/payments/create"}}}`
 Payload lỗi mẫu 429 cooldown: `{"error":{"code":"AI_COOLDOWN","message":"Bạn vừa xin luận giải, nghỉ tay 90 giây đã.","details":{"retry_after_seconds":57}}}`
+
+## 5b. `GET /api/ai/interpretations/saved?draw_id=&topic=` — đọc lại bài đã luận (REVIEW-LUAN t_8aa93a01)
+
+FE hiện nút "Xem lại" khi #5 trả 409 `AI_ALREADY_DONE`. middleware `EnsureDeviceSession`
+như #5/#6. Quy `draw_id` → hexagram rồi tra theo khóa (hexagram, topic) NHƯ #5 (không theo
+draw). Gate: draw không phải của device → 404 ẩn tồn tại (F7); chưa unlock topic → 402
+`UNLOCK_REQUIRED` như #5 (cấm chia bài khi mở khóa). Response 200 — CẤM field `question`
+trong payload (F7/PII):
+
+```json
+{"data":{"exists":true,"job_uuid":"9f0d3c2e-...","result":"markdown...","completed_at":"2026-09-02T02:20:23Z"}}
+```
+
+Không có bài done → `{"data":{"exists":false,"job_uuid":null,"result":null,"completed_at":null}}` (vẫn 200).
+Lỗi hình dạng: 422 `VALIDATION_FAILED` (draw_id không nguyên dương / topic ngoài C-02).
 
 ## 6. `GET /api/ai/jobs/{job_uuid}` — poll kết quả
 

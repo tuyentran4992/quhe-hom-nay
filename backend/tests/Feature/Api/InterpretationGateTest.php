@@ -104,7 +104,10 @@ class InterpretationGateTest extends Be2TestCase
             ]]);
     }
 
-    /** C-06 cap 90 job/60 phút TOÀN CỤC → 429 AI_GLOBAL_CAP. */
+    /** C-06 cap 90 job/60 phút TOÀN CỤC → 429 AI_GLOBAL_CAP.
+     * REVIEW-LUAN (t_8aa93a01): gate done-409 đứng TRƯỚC cap theo thứ tự chốt,
+     * nên job bơm nền phải khác topic (tai_loc) với request POST (duyen) — cap
+     * đếm mọi topic, còn khóa done chỉ chặn đúng (hexagram, topic). */
     public function test_global_cap_90_jobs_per_hour(): void
     {
         $this->fakeAi($this->cleanMd);
@@ -116,7 +119,7 @@ class InterpretationGateTest extends Be2TestCase
                 'job_uuid' => (string) Str::uuid(),
                 'device_id' => $d->device_id,
                 'draw_id' => $draw->id,
-                'topic' => 'duyen',
+                'topic' => 'tai_loc',
                 'status' => AiJob::ST_DONE,
                 'attempts' => 1,
                 'result' => 'x',

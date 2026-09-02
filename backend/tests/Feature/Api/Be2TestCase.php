@@ -117,7 +117,16 @@ abstract class Be2TestCase extends TestCase
         ]);
     }
 
-    /** Đặt nội dung provider trả cho lần call KẾ TIẾP (queue FIFO, hết queue → bài sạch). */
+    /**
+     * Đặt nội dung provider trả cho lần call KẾ TIẾP (queue FIFO, hết queue → bài sạch).
+     *
+     * CANH BAO (FIX-LUAN-SAU 02/09, Rules::AI_FILTER_REGENERATIONS=1): noi dung
+     * PHAM wordguard tinh gio = HAI luot call — luot 1 ban → RunAiBoxJob tu
+     * regenerate, queue rong thi fallback cleanMd trong fake o tren → regen "thanh
+     * cong" gia, job DONE thay vi failed AI_FILTERED. Muon test kich ban
+     * that bai boc: fakeAi(dirty) HAI lan lien tiep (hoac 1 lan dirty + 1 lan
+     * cleanMd neu kich ban la regen thanh cong nhu AiWorkerTest).
+     */
     protected function fakeAi(string $content): void
     {
         $this->aiQueue[] = $content;
