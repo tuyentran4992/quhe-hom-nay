@@ -11,7 +11,8 @@ import { api } from '../api/client.js'
 import { useDevice } from '../composables/useDeviceApi.js'
 import { useToasts } from '../composables/useToasts.js'
 import PayQr from '../components/PayQr.vue'
-import { PRICE_UNLOCK_VND, PRICE_LABEL, DONATE_OPTIONS, DONATE_MIN, DONATE_MAX, TOPIC_LABELS, PAY_POLL_MS, PAY_POLL_TIMEOUT_MS } from '../constants.js'
+import { parseVietQr, bankName, ckCode } from '../utils/donateQr.js'
+import { PRICE_UNLOCK_VND, PRICE_LABEL, DONATE_TIERS, DONATE_MIN, DONATE_MAX, TOPIC_LABELS, PAY_POLL_MS, PAY_POLL_TIMEOUT_MS } from '../constants.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -31,13 +32,19 @@ const netWarn = ref(false)
 let pollTimer = null
 let pollStart = 0
 
-const donatePick = ref(2000)
+const donatePick = ref(20000) // [SPEC-CHANGE boss 02/09] mức 2 trong 10/20/50/100k
 const donateCustom = ref('')
 const donateAmount = computed(() => {
   const v = donateCustom.value !== '' ? Number(donateCustom.value) : donatePick.value
   return Number.isFinite(v) ? Math.trunc(v) : 0
 })
 const donateValid = computed(() => donateAmount.value >= DONATE_MIN && donateAmount.value <= DONATE_MAX)
+// [DEV-DONATE-QR] đơn hiện tại là donate hay unlock — poll/templates rẽ nhánh theo kind.
+const orderKind = computed(() => order.value?.kind || 'unlock')
+const isDonateOrder = computed(() => orderKind.value === 'donate')
+const donateCk = computed(() => parseVietQr(order.value?.qr_data)) // null = chuỗi payOS/opaque
+const donateAmountLabel = computed(() =>
+  `Lễ ${order.value ? order.value.amount_vnd.toLocaleString('vi-VN') : donateAmount.value.toLocaleString('vi-VN')}đ — đơn #${order.value?.order_code || ''}`)
 
 function uuid() { return crypto.randomUUID().replace(/-/g, '').slice(0, 16) }
 
@@ -67,6 +74,14 @@ async function poll() {
     netWarn.value = false
     payState.value = r.data.status
     if (r.data.status === 'paid') {
+      if (orderKind.value === 'donate') {
+        // [DEV-DONATE-QR] t_dc6112cf — donate paid: CHỈ hiện "Cảm ơn" (màn donated).
+        // KHÔNG router.replace, KHÔNG toast, KHÔNG refresh entitlement — lễ là khích lệ
+        // tinh thần, không đổi lấy nội dung (BE: entitlement = row kind=unlock,paid).
+        stopPoll()
+        phase.value = 'donated'
+        return
+      }
       await d.refresh().catch(() => {})
       toasts.push(`Đã mở khóa ${label.value}`)
       const id = d.todayDraw.value?.id
@@ -83,21 +98,38 @@ async function poll() {
   }
   schedulePoll()
 }
+function stopPoll() {
+  clearTimeout(pollTimer)
+  pollTimer = null
+}
 function retriggerPoll() {
   pollStart = Date.now()
   poll()
 }
+// [DEV-DONATE-QR] donate lại sau expired/cancelled: tạo đơn MỚI (idempotency key mới —
+// C-07 BE chặn key cũ), reset trạng thái poll.
+async function donateRetry() {
+  await donate()
+}
 async function donate() {
   payErr.value = ''
-  if (!donateValid.value) { payErr.value = `Số lễ từ 1.000đ đến 500.000đ.`; return }
+  if (!donateValid.value) { payErr.value = `Số lễ từ ${DONATE_MIN.toLocaleString('vi-VN')}đ đến ${DONATE_MAX.toLocaleString('vi-VN')}đ.`; return }
   try {
-    await api.createPayment({
+    // BỆNH CŨ: response bị vứt → nhảy thẳng 'donated' khi khách chưa chuyển đồng nào.
+    // FIX: giữ order thật → màn QR + chờ webhook paid (#card t_dc6112cf §1).
+    const r = await api.createPayment({
       kind: 'donate', amount_vnd: donateAmount.value,
       return_url: location.origin, idempotency_key: uuid(),
     })
-    phase.value = 'donated'
+    order.value = r.data
+    payState.value = 'pending'
+    netWarn.value = false
+    phase.value = 'qr'
+    pollStart = Date.now()
+    schedulePoll()
   } catch (e) {
     payErr.value = e.code === 'NETWORK' ? 'Mất mạng — thử lại nhé.' : 'Không gửi được lễ. Thử lại sau.'
+    phase.value = 'error'
   }
 }
 // [MKT-F6-fix/FE] t_9bad794e §2.2 — donate_open: bắn #11 khi MỞ màn (fire-and-forget,
@@ -114,6 +146,7 @@ onBeforeUnmount(() => clearTimeout(pollTimer))
     <h1 class="han text-h1 font-semibold">{{ donateMode ? 'Lễ tùy tâm' : `Mở khóa luận sâu · ${label}` }}</h1>
     <p v-if="!donateMode" data-testid="pay-price" class="text-h2 font-semibold text-cinnabar mt-2">{{ PRICE_LABEL }}</p>
     <p v-if="!donateMode" class="text-small text-muted mt-1">Trả một lần, đọc mãi trên thiết bị này.</p>
+    <p v-if="donateMode && phase === 'form'" class="text-small text-muted mt-1">Lễ là khích lệ tinh thần, không đổi lấy nội dung.</p>
 
     <p v-if="payErr && phase === 'error'" data-testid="pay-error" class="text-small text-cinnabar mt-4">{{ payErr }}</p>
 
@@ -124,36 +157,114 @@ onBeforeUnmount(() => clearTimeout(pollTimer))
       </button>
 
       <section data-testid="pay-donate-block" class="card p-4">
-        <h2 class="font-semibold text-h2">Lễ tùy tâm</h2>
-        <p class="text-small text-muted mt-1">Lễ là khích lệ tinh thần, không đổi lấy nội dung.</p>
-        <div class="flex flex-wrap gap-2 mt-3">
+        <h2 class="font-semibold text-h2">{{ donateMode ? 'Mâm lễ' : 'Lễ tùy tâm' }}</h2>
+        <p class="text-small text-muted mt-1">
+          {{ donateMode ? 'Chọn một mức, hoặc tự ghi số lễ.' : 'Lễ là khích lệ tinh thần, không đổi lấy nội dung.' }}
+        </p>
+        <!-- [DEV-DONATE-QR] SHOT1 mockup: thẻ mâm lễ 2×2, tag Hán + ghi chú, aria-pressed
+             (touch ≥44px, son chỉ cho trạng thái chọn — DESIGN-NOTES, không token mới) -->
+        <div class="grid grid-cols-2 gap-2 mt-3" role="group" aria-label="Mức lễ">
           <button
-            v-for="a in DONATE_OPTIONS"
-            :key="a"
+            v-for="t in DONATE_TIERS"
+            :key="t.amount"
             type="button"
             data-testid="pay-donate-chip"
-            class="px-3 py-1.5 rounded-card border"
-            :class="donateCustom === '' && donatePick === a ? 'border-cinnabar text-cinnabar font-semibold' : 'border-gold/40 text-muted'"
-            @click="donatePick = a; donateCustom = ''"
-          >{{ a.toLocaleString('vi-VN') }}đ</button>
+            :aria-pressed="donateCustom === '' && donatePick === t.amount ? 'true' : 'false'"
+            class="relative flex flex-col items-start gap-0.5 min-h-[66px] px-3 py-2 rounded-card border text-left transition-shadow hover:shadow-lift focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold active:translate-y-px"
+            :class="donateCustom === '' && donatePick === t.amount ? 'border-cinnabar bg-cinnabar/5' : 'border-gold/40'"
+            @click="donatePick = t.amount; donateCustom = ''"
+          >
+            <span class="absolute top-1.5 right-1.5 han text-gold/50" aria-hidden="true">{{ t.han }}</span>
+            <span class="text-body font-semibold" :class="donateCustom === '' && donatePick === t.amount ? 'text-cinnabar' : 'text-ink'">
+              {{ t.amount.toLocaleString('vi-VN') }}<span class="text-small">đ</span>
+            </span>
+            <span class="text-small" :class="donateCustom === '' && donatePick === t.amount ? 'text-cinnabar' : 'text-muted'">{{ t.note }}</span>
+            <span v-if="donateCustom === '' && donatePick === t.amount" class="text-cinnabar text-small font-semibold" aria-hidden="true">✓</span>
+          </button>
+        </div>
+        <div class="flex items-center gap-2 mt-3">
+          <label class="text-small text-muted shrink-0" for="donate-other">Số khác</label>
           <input
+            id="donate-other"
             v-model="donateCustom"
             type="number"
             inputmode="numeric"
-            min="1000"
-            max="500000"
-            placeholder="Số khác"
+            :min="DONATE_MIN"
+            :max="DONATE_MAX"
+            placeholder="Nhập số tiền"
             aria-label="Số lễ tùy tâm"
             data-testid="pay-donate-input"
-            class="w-28 px-2 py-1.5 rounded-card border border-gold/40 bg-paper text-ink"
+            class="w-32 px-2 py-1.5 rounded-card border border-gold/40 bg-paper text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
           />
+          <span class="text-small text-muted">đồng</span>
         </div>
-        <button type="button" data-testid="pay-donate-btn" class="btn-cinnabar mt-3" :disabled="!donateValid" @click="donate">
+        <p class="text-small text-muted mt-1">Giới hạn {{ DONATE_MIN.toLocaleString('vi-VN') }} – {{ DONATE_MAX.toLocaleString('vi-VN') }}đ</p>
+        <button type="button" data-testid="pay-donate-btn" class="btn-cinnabar mt-3 w-full" :disabled="!donateValid" @click="donate">
           Gửi lễ
         </button>
+        <p v-if="donateMode" class="text-small text-muted text-center mt-2">đồng lễ không mở thêm nội dung</p>
       </section>
     </div>
 
+    <!-- ═══ [DEV-DONATE-QR] NHÁNH DONATE — SHOT2 mockup: QR THẬT + badge chờ,
+         cảm ơn CHỈ khi poll #9 bắt được paid ═══ -->
+    <div v-else-if="phase === 'qr' && isDonateOrder" class="mt-6" data-testid="pay-donate-qr">
+      <p class="text-small text-muted text-center">Lễ tùy tâm · Đơn #{{ order?.order_code }}</p>
+      <p class="han text-h1 font-semibold text-center mt-1">
+        Lễ <em class="not-italic text-cinnabar">{{ order?.amount_vnd.toLocaleString('vi-VN') }}</em>đ
+      </p>
+      <PayQr :qr-data="order?.qr_data || ''" :confirm-url="order?.confirm_url || ''" :amount-label="donateAmountLabel" />
+      <!-- [SPEC-CHANGE boss 02/09] Nội dung CK = mã trung tính QH<đơn> — FE tự suy từ
+           order_code (ckCode), CẤM hiển thị tên app/'Qu+Hom+Nay' (qr_data stub BE còn
+           chứa — không in thô). Đối chiếu theo mã đơn. Bank suy từ BIN; chuỗi lạ format
+           → chỉ hiện mã CK, không bịa bank. -->
+      <div data-testid="pay-donate-ck" class="card p-3 mt-3 text-center text-small">
+        <p class="text-ink">Quét mã bằng ứng dụng ngân hàng để chuyển khoản.</p>
+        <p v-if="donateCk" class="text-muted mt-1">Ngân hàng <b class="text-ink">{{ bankName(donateCk.bin) }}</b>
+          · Nội dung CK <b class="text-ink">{{ ckCode(order?.order_code) }}</b></p>
+        <p v-else class="text-muted mt-1">Nội dung CK <b class="text-ink">{{ ckCode(order?.order_code) }}</b></p>
+        <p class="text-muted mt-1">Chuyển đúng nội dung ngân hàng để được ghi nhận.</p>
+      </div>
+      <!-- Badge trạng thái = phần nhìn rõ nhất sau QR (DESIGN-NOTES SHOT2): VÀNG khi chờ -->
+      <p
+        data-testid="pay-status"
+        class="mt-4 mx-auto block w-fit max-w-full px-4 py-2 rounded-card border text-center text-body"
+        :class="payState === 'paid' ? 'border-bamboo/60 bg-bamboo/10 text-bamboo'
+          : ['expired', 'cancelled'].includes(payState) ? 'border-cinnabar/60 bg-cinnabar/10 text-cinnabar'
+          : 'border-gold/45 bg-gold/10 text-ink'"
+      >
+        <template v-if="['expired', 'cancelled'].includes(payState)">Đơn hết hạn — chưa nhận được lễ. </template>
+        <template v-else-if="payState === 'paid'">Đã nhận được lễ — cảm ơn bạn.</template>
+        <template v-else>Chưa phải đã gửi — chờ tiền về<small class="block text-small text-muted">tự động kiểm tra mỗi 3 giây</small></template>
+      </p>
+      <p data-testid="pay-donate-timeout-hint" class="text-small text-muted text-center mt-2">
+        Đơn hết hạn sau <b>5 phút</b>. Nếu quá hạn, hãy tạo đơn mới.
+        Lễ chỉ là khích lệ tinh thần, không đổi lấy nội dung.
+      </p>
+      <p v-if="netWarn" data-testid="pay-net-warn" class="text-small text-cinnabar text-center mt-1">
+        Mất mạng khi kiểm tra đơn — giữ nguyên mã QR.
+      </p>
+      <button
+        v-if="['expired', 'cancelled'].includes(payState)"
+        type="button"
+        data-testid="pay-donate-retry"
+        class="btn-cinnabar w-full mt-3"
+        @click="donateRetry"
+      >Gửi lễ lại</button>
+      <button
+        v-else-if="payState !== 'paid'"
+        type="button"
+        data-testid="pay-donate-recheck"
+        class="btn-outline w-full mt-3"
+        @click="retriggerPoll"
+      >Kiểm tra lại đơn<span class="block text-small font-normal opacity-80">đã chuyển khoản rồi thì ấn ngay</span></button>
+      <p data-testid="pay-stub-note" class="text-small text-muted text-center mt-2">
+        <template v-if="order?.stub">Thanh toán tự động đang sắp mở — giai đoạn này chưa thu tiền thật, mô hình chỉ để thử luồng.</template>
+        <template v-else>Chuyển đúng nội dung ngân hàng để được ghi nhận.</template>
+      </p>
+    </div>
+
+    <!-- ═══ NHÁNH UNLOCK 29k — hành vi GIỮ NGUYÊN (regression paywall.test.js) ═══ -->
     <div v-else-if="phase === 'qr'" class="mt-6">
       <PayQr :qr-data="order?.qr_data || ''" :confirm-url="order?.confirm_url || ''" :amount-label="`${PRICE_LABEL} · đơn ${order?.order_code || ''}`" />
       <p data-testid="pay-stub-note" class="text-small text-muted text-center mt-2">
@@ -171,8 +282,8 @@ onBeforeUnmount(() => clearTimeout(pollTimer))
       <button v-if="netWarn" type="button" data-testid="pay-repoll" class="btn-cinnabar w-full mt-3" @click="retriggerPoll">Kiểm tra lại đơn</button>
     </div>
 
-    <div v-else-if="phase === 'donated'" class="mt-6" data-testid="pay-thanks">
-      <p class="text-body">Cảm ơn bạn đã gửi lễ. Nội dung mở khóa không thay đổi — lễ chỉ là khích lệ tinh thần.</p>
+    <div v-else-if="phase === 'donated'" class="mt-6" data-testid="pay-donate-thanks">
+      <p class="text-body">Cảm ơn bạn đã gửi lễ. Lễ chỉ là khích lệ tinh thần, không đổi lấy nội dung.</p>
       <RouterLink to="/" class="btn-cinnabar inline-block mt-4">Về trang chính</RouterLink>
     </div>
   </div>
