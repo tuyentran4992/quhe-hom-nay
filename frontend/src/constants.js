@@ -74,6 +74,44 @@ export const QR_SIZE_PX = 240
 // ── CHỦ ĐỀ / CÂU HỎI ────────────────────────────────────────────────────────
 export const TOPICS = ['duyen', 'tai_loc', 'xuat_hanh'] // C-02 — khóa theo BE enum
 export const TOPIC_LABELS = { duyen: 'Tình duyên', tai_loc: 'Tài lộc', xuat_hanh: 'Xuất hành' }
+
+// ── HOME-V3 (UX-HOME-V2 t_b779a3a5 + NAV t_bf8b5eaf — boss DUYỆT MẮT 02/09) ──────
+// Chip chủ đề màn home: tên theo BẢN DUYỆT ("Duyên số" — content.md §A; khác nhãn
+// paywall TOPIC_LABELS vì mockup home chốt chữ này — CẤM tự sửa), mô tả 1 dòng +
+// route paywall + href donate (mode donate = vỏ route 'duyen', BE PaymentService).
+export const HOME_TOPIC_CHIPS = [
+  { topic: 'duyen', name: 'Duyên số', desc: 'Tình duyên, hôn nhân — đọc theo lời hào từng ngôi.' },
+  { topic: 'tai_loc', name: 'Tài lộc', desc: 'Việc làm, tiền bạc, đầu tư — nhìn nhịp thịnh suy.' },
+  { topic: 'xuat_hanh', name: 'Xuất hành', desc: 'Đi xa, khởi sự, làm việc mới — chọn giờ đẹp.' },
+]
+// Nhãn free-deep (boss chốt 02/09): khi freeDeep=true home nói MIỄN PHÍ, CẤM in giá.
+export const FREE_DEEP_LABEL = 'Luận sâu MIỄN PHÍ'
+export const DONATE_LABEL = 'Lễ tùy tâm'
+export const DONATE_HREF = '/mo-khoa/duyen?mode=donate'
+// Copy home 3 trạng thái (content.md §A/§B/§C — wording chốt, không hardcode trong .vue)
+export const HOME_COPY = {
+  heroA: { title1: 'Gieo ba đồng xu,', title2: 'xin một quẻ', em: 'hôm nay' },
+  heroC: { title1: 'Quẻ hôm nay', title2: 'vẫn đang', em: 'chờ bạn' },
+  taglineA: 'Quẻ Hôm Nay luận giải việc làm, tình cảm, tiền tài bằng tiếng Việt — một quẻ Kinh Dịch cho một ngày của bạn.',
+  noteA: 'Mỗi ngày một quẻ · Miễn phí · hẹn lại đúng 0h mai',
+  // Fallback streak KHI API CHƯA có streak field và không suy được từ history —
+  // dòng KHÔNG con số (card §2: không tự chế endpoint BE).
+  noteNoStreak: 'Mỗi ngày một quẻ, mai lại gặp quẻ mới',
+  ritual: 'Tĩnh tâm một nhịp — gieo ba đồng xu, đọc quẻ cho ngày của bạn.',
+  ctaGieo: 'Gieo quẻ hôm nay',
+  ctaNoteNew: 'Miễn phí · 1 quẻ mỗi ngày · hẹn lại lúc 0h',
+  statusDrawn: 'hẹn giờ Tý (0h) mai',
+  // Nhãn streak (DESIGN-NOTES §52 — 1 widget 2文案): B "Ngày thứ N của bạn",
+  // C "Chuỗi của bạn: N ngày" + note liệt ngày thật từ #4 (không bịa).
+  streakB: (n) => `Ngày thứ ${n} của bạn`,
+  streakC: (n) => `Chuỗi của bạn: ${n} ngày`,
+  noteC: (days, n) => `Đã gieo ${days} — chuỗi ${n} ngày của bạn đang chờ ngày thứ ${n + 1}`,
+  steps: [
+    { no: '一', t: 'Gieo quẻ', d: 'Ba đồng xu, một câu hỏi — một lần gieo mỗi ngày.', r: '→ /draw' },
+    { no: '二', t: 'Đọc luận miễn phí', d: 'Tên quẻ, tượng quẻ và một dòng việc trong ngày.', r: '→ /que/:id' },
+    { no: '三', t: 'Xin luận sâu', d: 'Chọn chủ đề — luận trọn ba ngôi soạn theo hỏi ý.', r: '→ /mo-khoa/:topic' },
+  ],
+}
 // ── LUAN-V2 (SPEC §7, D3/D4, card t_b13fd2b9) — ô "Bạn đang vướng chuyện gì?" ──
 export const QUESTION_MAX = 200
 // ý nghĩa: trần câu hỏi SAU trim đếm unicode | đơn vị: ký tự
