@@ -24,6 +24,15 @@ final class Rules
     public const AI_MAX_ATTEMPTS = 3;
 
     /**
+     * BUG-QHN-100 (QA t_00c3fb07): ngưỡng đòi xác 'running' — worker chết giữa
+     * chứng để lại job running vĩnh viễn, FE poll vô hạn. Ngưỡng = hard timeout
+     * thật của worker (AI_TIMEOUT_SECONDS+30 = 150s do SIGKILL) + dư 30s đồng hồ
+     * → claim sau chỉ cướp khi CHỦ CŨ CHẮC CHẮN chết, không bao giờ 2 worker
+     * cùng gọi provider trên 1 job.
+     */
+    public const AI_ZOMBIE_AFTER_SECONDS = self::AI_TIMEOUT_SECONDS + 30 + 30;
+
+    /**
      * FIX-LUAN-SAU 02/09 (OBS-FILTER t_c146e45a): model thỉnh thoảng sinh chữ dính
      * wordguard (vd "cốt" trong "cốt lõi" — regex \b...c[oố]t\b bắt cả từ ghép nghĩa
      * thông thường) → job fail AI_FILTERED, user thấy "bàn cờ im tiếng" (~1/5 call).

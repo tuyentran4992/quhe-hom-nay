@@ -24,8 +24,10 @@ use Illuminate\Support\Facades\DB;
  *
  * Bất biến 1 chiều: hàng đợi chỉ lấy job queued (claim atomic UPDATE...WHERE —
  * hai worker không cùng làm 1 job). done/failed là trạng thái cuối — job đã chết
- * mà worker chết theo → lần claim sau thấy running quá timeout mới được đòi lại
- * (đơn giản hoá MVP: chỉ worker này chạy, failed luôn do code tự set).
+ * mà worker chết theo → lần claim sau thấy running quá AI_ZOMBIE_AFTER_SECONDS
+ * được đòi lại (BUG-QHN-100: reclaimZombie(), lời hứa C-04 đã thành code thật);
+ * running còn sốt thì NHỜ queue redeliver, không return im lặng — return im lặng
+ * làm Laravel xoá row jobs, zombie kẹt 'running' vĩnh viễn.
  */
 class RunAiBoxJob implements ShouldQueue
 {
@@ -63,6 +65,9 @@ class RunAiBoxJob implements ShouldQueue
             ->where('id', $this->aiJobId)
             ->where('status', AiJob::ST_QUEUED)
             ->update(['status' => AiJob::ST_RUNNING, 'attempts' => DB::raw('attempts + 1')]);
+        if ($claimed === 0) {
+            $claimed = $this->reclaimZombie();
+        }
         if ($claimed === 0) {
             return; // cache-hit job đã done trước khi worker kịp lấy — bỏ qua (AC-2)
         }
@@ -187,6 +192,43 @@ class RunAiBoxJob implements ShouldQueue
             $job->transitTo(AiJob::ST_FAILED, ['error_code' => 'AI_UPSTREAM', 'finished_at' => now()]);
             logger()->error('aibox.crash', ['job' => $job->job_uuid, 'err' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * BUG-QHN-100 (QA t_00c3fb07) — lời hứa docblock C-04 thành HIỆN THỰC:
+     * worker chết giữa chứng để lại xác 'running'; hàng đợi redeliver làm claim
+     * chuẩn (queued→running) fail. Trước đây hàm handle return im lặng → Laravel
+     * xoá row jobs → zombie VĨNH VIỄN, #6 trả 'running' tới mãi. Phân xử theo
+     * chính xác, atomic 1 UPDATE kèm điều kiện status (không đọc-rồi-ghi):
+     *   - running quá Rules::AI_ZOMBIE_AFTER_SECONDS (worker hard-timeout 150s
+     *     + dư 30s) còn lượt ⇒ đòi xác, trả 1 để handle chạy tiếp như lượt thường;
+     *   - running còn sốt (chủ cũ còn sống — cướp = 2 worker gọi provider trên
+     *     1 job) HOẶC cạn lượt ⇒ ném exception: queue GIỮ row jobs, redeliver
+     *     sau retry_after; cạn tries của queue → failed() tất terminal —
+     *     #6 không bao giờ kẹt 'running';
+     *   - done/failed/mất hàng ⇒ trả 0: skip im lặng như cũ (AC-2 cache-hit).
+     */
+    private function reclaimZombie(): int
+    {
+        $reclaimed = AiJob::query()
+            ->where('id', $this->aiJobId)
+            ->where('status', AiJob::ST_RUNNING)
+            ->where('attempts', '<', Rules::AI_MAX_ATTEMPTS)
+            ->where('updated_at', '<', now()->subSeconds(Rules::AI_ZOMBIE_AFTER_SECONDS))
+            ->update(['attempts' => DB::raw('attempts + 1')]);
+        if ($reclaimed === 1) {
+            logger()->warning('aibox.zombie_reclaim', ['job' => $this->aiJobId]);
+
+            return 1;
+        }
+
+        $status = AiJob::query()->where('id', $this->aiJobId)->value('status');
+        if ($status === AiJob::ST_RUNNING) {
+            // còn sốt hoặc cạn lượt — giữ đường về, chờ lần redeliver kế tiếp
+            throw new \RuntimeException("ai_jobs#{$this->aiJobId}: zombie chưa tới ngưỡng hoặc cạn lượt — chờ redeliver");
+        }
+
+        return 0;
     }
 
     /** Worker chết giữa chừng (quá 3 lượt) → #6 phải thấy failed + AI_BUSY qua error_code. */
