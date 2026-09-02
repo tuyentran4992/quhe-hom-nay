@@ -64,13 +64,15 @@ final class ProjectConfigTest extends TestCase
     }
 
     /**
-     * Preview OFF là default trừ khi env pilot bật — chốt bằng ĐỌC NGUỒN tĩnh
-     * (không require lại trong shell nhiễm env — bài học chính card này).
+     * CFG-FREEDEEP (t_e825563b, boss chốt 02/09): DEFAULT NGHIỆP VỤ là TRUE —
+     * luận sâu free toàn bộ, chốt bằng ĐỌC NGUỒN tĩnh (env chỉ còn là đường
+     * REVERT có chủ đích = false). Không assert runtime trong shell nhiễm env —
+     * bài học chính card này.
      */
-    public function test_free_deep_preview_mac_dinh_tat_khi_thieu_env(): void
+    public function test_free_deep_preview_mac_dinh_bat_tu_02_09(): void
     {
         $src = (string) file_get_contents(__DIR__.'/../../../config/project.php');
-        $this->assertStringContainsString("env('FREE_DEEP_PREVIEW', false)", $src,
-            'default phải là false ngay trong project.php — env chỉ override có chủ đích');
+        $this->assertStringContainsString("env('FREE_DEEP_PREVIEW', true)", $src,
+            "default phải là true ngay trong project.php — env false chỉ để revert");
     }
 }

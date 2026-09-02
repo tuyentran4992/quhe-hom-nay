@@ -11,9 +11,10 @@
 | không clear thì đổi file không có tác dụng — đây là lỗi quên phổ biến nhất).
 |
 | Quy ước mỗi dòng: TÊN => giá trị  // ý nghĩa · đơn vị · giá trị an toàn.
-| Hàm env duy nhất được phép ở file này = FREE_DEEP_PREVIEW (override preview
-| chủ đích, mặc định nghiệp vụ vẫn là giá trị dưới). Bí mật (key/token) KHÔNG
-| bao giờ xuất hiện đây — chúng ở .env.
+| Hàm env duy nhất được phép ở file này = FREE_DEEP_PREVIEW (override revert có
+| chủ đích; MẶC ĐỊNH NGHIỆP VỤ nay là TRUE — giá trị dưới chỉ là fallback khi
+| env absent, vẫn đúng 1 hàm env, chỉ đổi mặt định, CFG-FREEDEEP 02/09). Bí mật
+| (key/token) KHÔNG bao giờ xuất hiện đây — chúng ở .env.
 |
 | Enum cấu trúc (TOPICS) ở App\Domain\Rules; animation FE (MAGIC_SEQUENCE_MS)
 | ở frontend/src/constants.js — xem ghi chú đầu Rules.php.
@@ -23,9 +24,12 @@ return [
 
     // Cờ pilot "luận sâu free": true = bỏ qua gate 402 cho mọi device (VẪN giữ
     // lock 1 lượt / cooldown / cap / idempotency). Đơn vị: bool.
-    // Giá trị an toàn: false = paywall 29k nguyên bản đã QA. env chỉ dành cho
-    // preview có chủ đích (máy dev/deploy pilot), hết pilot là xóa dòng env.
-    'free_deep_preview' => env('FREE_DEEP_PREVIEW', false),
+    // DEFAULT TRUE = luật pilot boss duyệt 02/09 ("cho free deep là default đi
+    // em"). Giá trị an toàn khi revert: đặt env = false (1 dòng env, 0 dòng
+    // code) — paywall 29k nguyên bản đã QA vẫn còn nguyên dưới cánh gate.
+    // Sau khi đổi trên server: php artisan config:clear (kể cả `php artisan
+    // serve` máy dev — process giữ config trong memory, phải restart).
+    'free_deep_preview' => env('FREE_DEEP_PREVIEW', true),
 
     // ---------------------------------------------------------------- AI-Box
     'ai' => [
