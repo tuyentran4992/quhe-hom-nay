@@ -74,8 +74,11 @@ class AiWorkerTest extends Be2TestCase
 
     public function test_ai_loc_noi_dung_cam_AI_FILTERED_khong_luu_bai_ban(): void
     {
+        // FIX-LUAN-SAU 02/09: 1 lượt dính chữ cấm còn được regenerate — bất biến E4
+        // là bài bẩn KHÔNG BAO GIỜ lưu, nên test phải cho model dính CẢ lượt regen.
         $job = $this->queuedJob();
         $this->fakeAi('Mua bùa đổi vận ngay, thầy cam kết linh nghiệm 100%.');
+        $this->fakeAi('Vẫn còn bùa: hứa đổi vận tuyệt đối.');
 
         $this->worker($job->id);
 
@@ -83,6 +86,53 @@ class AiWorkerTest extends Be2TestCase
         $this->assertSame(AiJob::ST_FAILED, $job->status);
         $this->assertSame('AI_FILTERED', $job->error_code);
         $this->assertNull($job->result, 'nội dung cấm không được lưu để cache/anti leak');
+        Http::assertSentCount(2); // 1 lượt đầu + 1 regenerate, không hơn
+    }
+
+    public function test_dinh_chu_cam_duoc_tu_sinh_lai_khong_can_user_bam_thu_lai(): void
+    {
+        // FIX-LUAN-SAU 02/09 (OBS-FILTER): "cốt lõi" dính regex \bc[oố]t\b — trước
+        // đây fail thẳng AI_FILTERED (~1/5 call). Nay worker tự regenerate với
+        // feedback nêu đúng chữ phạm → user chỉ thấy bài sạch, không "bàn cờ im tiếng".
+        $job = $this->queuedJob();
+        $this->fakeAi('Cốt lõi của quẻ là biết dừng đúng lúc.');
+        $this->fakeAi($this->cleanMd);
+
+        $this->worker($job->id);
+
+        $job->refresh();
+        $this->assertSame(AiJob::ST_DONE, $job->status);
+        $this->assertSame($this->cleanMd, $job->result);
+        Http::assertSentCount(2);
+        Http::assertSent(function ($req) {
+            $msgs = $req['messages'] ?? [];
+
+            return count($msgs) === 4
+                && ($msgs[2]['role'] ?? '') === 'assistant'
+                && str_contains($msgs[2]['content'], 'Cốt lõi')
+                && ($msgs[3]['role'] ?? '') === 'user'
+                && str_contains($msgs[3]['content'], 'chữ cấm: cốt');
+        });
+    }
+
+    public function test_luot_dau_cham_hon_budget_khong_regen_fail_thang(): void
+    {
+        // FIX-LUAN-SAU acceptance #3: lượt đầu đã vượt ngân sách (45s thật) thì THÀ
+        // fail sớm cho user bấm thử lại — regeneration vẫn còn lượt nhưng hết cửa
+        // thời gian. Mock ngân sách = -1s: ngay sau lượt 1, hiệu thời gian chắc
+        // chắn > budget (deterministic, không đợi clock).
+        config(['aibox.filter_regen_budget_s' => -1]);
+        $job = $this->queuedJob();
+        $this->fakeAi('Cốt lõi của quẻ là biết dừng đúng lúc.');
+        $this->fakeAi($this->cleanMd); // nếu regen sai nhịp, lượt 2 sẽ sạch → test đỏ
+
+        $this->worker($job->id);
+
+        $job->refresh();
+        $this->assertSame(AiJob::ST_FAILED, $job->status);
+        $this->assertSame('AI_FILTERED', $job->error_code);
+        $this->assertNull($job->result);
+        Http::assertSentCount(1); // KHÔNG regenerate
     }
 
     public function test_ba_loi_upstream_lan_luot_cho_den_khi_can_luot_thanhd_failed(): void

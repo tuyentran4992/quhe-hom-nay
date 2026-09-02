@@ -41,6 +41,21 @@ class RunAiBoxJob implements ShouldQueue
         $this->onQueue('ai');
     }
 
+    /**
+     * FIX-LUAN-SAU seam đo thời gian (test budget acceptance #3): override/travel
+     * qua đây thay vì microtime thật — production mặc định không đổi hành vi.
+     */
+    protected function now(): float
+    {
+        return microtime(true);
+    }
+
+    /** Ngân sách regenerate — config được trong test, mặc định Rules (độc quyền 1 nơi). */
+    protected function regenerateBudgetSeconds(): float
+    {
+        return (float) config('aibox.filter_regen_budget_s', Rules::AI_FILTER_REGENERATE_BUDGET_S);
+    }
+
     public function handle(AiBoxClient $client, ?Luan $luan = null): void
     {
         // claim atomic: queued → running; không giành được = job khác đang làm/bị skip
@@ -105,16 +120,47 @@ class RunAiBoxJob implements ShouldQueue
                 )],
             ];
 
-            $text = $client->complete($messages);
+            // FIX-LUAN-SAU 02/09 (OBS-FILTER t_c146e45a): model thỉnh thoảng sinh
+            // chữ dính wordguard (hay nhất "cốt" trong "cốt lõi" — regex \bc[oố]t\b
+            // bắt cả từ ghép nghĩa) → trước dây fail thẳng AI_FILTERED, user thấy
+            // "bàn cờ im tiếng" dù chỉ lệch MỘT chữ. Nay tự regenerate tối đa
+            // Rules::AI_FILTER_REGENERATIONS lần ngay trong handle: gửi lại chính
+            // xác chữ phạm + yêu cầu viết đủ bài KHÔNG dùng chữ đó. Vẫn giữ hợp
+            // đồng: bài bẩn KHÔNG BAO GIỜ lưu; cạn lượt regenerate → failed
+            // AI_FILTERED như cũ (E4).
+            //
+            // Chặn ngân sách thời gian: user poll tối đa AI_POLL_MAX_MS 130s, worker
+            // timeout 150s — chỉ regenerate khi lượt đầu chạy dưới
+            // AI_FILTER_REGENERATE_BUDGET_S, để lần 2 còn cửa về kịp trong khung
+            // poll; lượt đầu đã chậm thì thà fail sớm cho user bấm thử lại.
+            $startedAt = $this->now();
+            $regen = 0;
+            do {
+                $text = Wordguard::stripBoldMarkers($client->complete($messages));
+                $hits = Wordguard::violations($text);
+                if ($hits === []) {
+                    break;
+                }
+                if ($regen >= Rules::AI_FILTER_REGENERATIONS
+                    || ($this->now() - $startedAt) > $this->regenerateBudgetSeconds()) {
+                    break;
+                }
+                $regen++;
+                $words = Wordguard::matchedWords($text);
+                logger()->warning('aibox.filtered_regenerate', [
+                    'job' => $job->job_uuid, 'hits' => $hits, 'regen' => $regen,
+                ]);
+                // feedback ngắn gọn appended — system prompt + bài cũ làm ngữ cảnh,
+                // model chỉ việc viết lại đủ bài sạch chữ phạm.
+                $messages[] = ['role' => 'assistant', 'content' => $text];
+                $messages[] = ['role' => 'user', 'content' =>
+                    'Bài trên chứa chữ cấm: '.implode(', ', $words).'.'
+                    .' Viết lại TOÀN BỘ bài luận (giữ đúng cấu trúc, độ dài, nội dung),'
+                    .' tuyệt đối KHÔNG xuất hiện các chữ: '.implode(', ', $words).'.'
+                    .' (Ví dụ "cốt lõi" → dùng "giá trị nền tảng".) Chỉ xuất bài hoàn chỉnh, không lời dẫn.'];
+            } while (true);
 
-            // BUG-V3-4 (card t_fc8a8953): normalize `**` MOT CHO ben BE truoc khi
-            // luu — hop dong BUG-V3-2 voi FE (luanRender.js giu nguyen `**`, chi
-            // xu ly marker + `#`). Dat TRUOC violations() de AI_FILTERED soi dung
-            // noi dung se luu (cam `**bùa**` van phai catch sau khi doi chu).
-            $text = Wordguard::stripBoldMarkers($text);
-
-            // 05 E4: output vi phạm wording → failed AI_FILTERED, KHÔNG lưu bài bẩn.
-            $hits = Wordguard::violations($text);
+            // 05 E4: output VẪN vi phạm sau regenerate → failed AI_FILTERED, không lưu bài bẩn.
             if ($hits !== []) {
                 $job->transitTo(AiJob::ST_FAILED, [
                     'error_code' => 'AI_FILTERED',

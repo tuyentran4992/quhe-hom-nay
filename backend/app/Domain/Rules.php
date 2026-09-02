@@ -23,6 +23,22 @@ final class Rules
 
     public const AI_MAX_ATTEMPTS = 3;
 
+    /**
+     * FIX-LUAN-SAU 02/09 (OBS-FILTER t_c146e45a): model thỉnh thoảng sinh chữ dính
+     * wordguard (vd "cốt" trong "cốt lõi" — regex \b...c[oố]t\b bắt cả từ ghép nghĩa
+     * thông thường) → job fail AI_FILTERED, user thấy "bàn cờ im tiếng" (~1/5 call).
+     * Cho phép TỰ SINH LẠI tối đa số lần này trong CÙNG handle() trước khi chịu
+     * failed — người dùng không phải bấm nút thử lại.
+     */
+    public const AI_FILTER_REGENERATIONS = 1;
+
+    /**
+     * FIX-LUAN-SAU: lượt đầu hoàn tất trong ngân sách này (giây) thì mới đáng
+     * regenerate — user FE poll tối đa 130s (constants.js AI_POLL_MAX_MS), worker
+     * timeout 150s (Rules::AI_TIMEOUT_SECONDS+30). 45s để lượt 2 còn cửa về kịp.
+     */
+    public const AI_FILTER_REGENERATE_BUDGET_S = 45;
+
     /** LUAN-V3 §5.2: timeout RIÊNG bước router danh mục = 10s (Rules không đổi logic cap/cooldown). */
     public const AI_ROUTER_TIMEOUT_SECONDS = 10;
 
