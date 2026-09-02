@@ -42,6 +42,15 @@ const askedQuestion = ref('')
 const jobQuestion = ref('')
 let pollTimer = null
 let pollStart = 0
+// LUAN-RACE-FE (card t_debf4bbf, bệnh án BUG-LUAN-RACE-20260902): generator ngữ cảnh
+// (drawId, topic, unlocked). stopPoll() cũ chỉ cancel setTimeout KẾ TIẾP — mọi fetch đã
+// in-flight (poll #6, POST #5) vẫn về sau và ghi phase/result của tab CŨ lên tab MỚI
+// (bài topic cũ chảy sang, "chỉ xem lại được luận sâu tình duyên"). Mỗi lần đổi ngữ
+// cảnh: gen++; callback mang myGen snapshot lúc bắn request, về mà myGen !== gen →
+// IM LẶNG tuyệt đối (không phase, không result, không reschedule). Bài cũ không mất:
+// BE đã lưu theo (draw,topic), quay lại tab → probe #5b trả saved. ĐỘC LẬP với
+// probeSeq (guard riêng của probeSaved — giữ nguyên, không trộn 2 guard).
+let gen = 0
 
 const unlocked = computed(() => device.entitlements.value.includes(props.topic))
 const label = computed(() => TOPIC_LABELS[props.topic] || props.topic)
@@ -62,7 +71,9 @@ function stopPoll() {
   if (pollTimer) clearTimeout(pollTimer)
   pollTimer = null
 }
-onBeforeUnmount(stopPoll)
+// Unmount: gen++ để mọi callback về muộn chặn luôn — Vue KHÔNG tự vô hiệu hóa việc
+// ghi ref sau unmount (ref vẫn sống), nên cờ này là bắt buộc chứ không phải thừa.
+onBeforeUnmount(() => { gen++; stopPoll() })
 
 // REVIEW-LUAN (card mục 2): #5b probe 1 lần mỗi lần mount/đổi tab khi đã unlock.
 // exists=true → phase 'saved' (chỉ nút "Xem lại"). exists=false / lỗi mạng / 404 /
@@ -103,6 +114,10 @@ function reviewSaved() {
 }
 
 async function askFresh() {
+  // LUAN-RACE: snapshot gen TRƯỚC await đầu. Branch sync (đặt phase='submitting'...
+  // trước await #5) giữ nguyên hành vi ANIM-LUAN A1 — chỉ mọi thứ SAU await mới phải
+  // qua kiểm tra myGen === gen.
+  const myGen = gen
   // ANIM-LUAN A (card t_74502491 mục 1): 'submitting' NGAY dòng đầu, TRƯỚC await #5 —
   // bản cũ chỉ đổi phase sau khi POST về nên mạng chậm tưởng bấm không ăn. Mọi lần bấm
   // CTA (gate-ask idle lẫn gate-retry failed) đều vào đây → chờ ≤100ms đầu có state.
@@ -122,10 +137,12 @@ async function askFresh() {
       question: normalizedQuestion.value, // LUAN-V2 D4: trim sẵn ở component; rỗng → undefined,
       // client.js không dựng key — payload sạch kể cả đường mock/test contract.
     })
+    if (myGen !== gen) return // đổi tab lúc POST in-flight → im lặng, không dựng poll job cũ
     pollStart = Date.now()
     phase.value = r.data.status || 'queued'
-    pollTimer = setTimeout(() => poll(r.data.job_uuid), AI_POLL_MS)
+    pollTimer = setTimeout(() => poll(r.data.job_uuid, myGen), AI_POLL_MS)
   } catch (e) {
+    if (myGen !== gen) return // mọi nhánh catch đều là SAU await → guard trước hết
     // REVIEW-LUAN card mục 5 — THỨ TỰ ƯU TIÊN: 409 AI_ALREADY_DONE kiểm TRƯỚC khi
     // map cooldown/cap (BE t_5f98fe73 đặt gate khóa trước cooldown nên 409 có thể
     // mang cả details của cooldown — không được để nó bị nuốt thành 'cooldown').
@@ -133,6 +150,7 @@ async function askFresh() {
     // 'failed' có đường retry, KHÔNG kẹt màn trắng.
     if (e.code === 'AI_ALREADY_DONE') {
       const found = await probeSaved()
+      if (myGen !== gen) return // probe về sau khi đổi tab lần nữa → bỏ, mặc watch mới
       if (!found) phase.value = 'failed'
       return
     }
@@ -148,6 +166,7 @@ async function askFresh() {
       phase.value = 'cap'
     } else if (e.code === 'UNLOCK_REQUIRED') {
       await device.refresh()
+      if (myGen !== gen) return
       if (!device.entitlements.value.includes(props.topic)) phase.value = 'locked'
       else askFresh()
     } else {
@@ -155,9 +174,12 @@ async function askFresh() {
     }
   }
 }
-async function poll(uuid) {
+async function poll(uuid, myGen) {
+  // LUAN-RACE: đầu mỗi callback — vòng poll của job cũ PHẢI chết hẳn khi gen đổi.
+  if (myGen !== gen) return
   try {
     const r = await api.aiJob(uuid)
+    if (myGen !== gen) return // fetch về sau khi đổi tab: không gán gì, không lên lịch tiếp
     const j = r.data
     // kênh phụ §7.4.4: nếu #6 có trả `question` (chưa — 03-api §6 chốt 7 field),
     // nhặt về hiển thị cho job replay/cache-hit; field vắng → giữ snapshot local.
@@ -176,8 +198,9 @@ async function poll(uuid) {
       phase.value = 'failed'
       return
     }
-    pollTimer = setTimeout(() => poll(uuid), AI_POLL_MS)
+    pollTimer = setTimeout(() => poll(uuid, myGen), AI_POLL_MS)
   } catch {
+    if (myGen !== gen) return
     phase.value = 'failed'
   }
 }
@@ -190,7 +213,9 @@ async function poll(uuid) {
 watch(
   () => [props.drawId, props.topic, unlocked.value],
   async ([, , nowUnlocked], old) => {
+    gen++ // LUAN-RACE: đóng băng mọi callback in-flight của ngữ cảnh CŨ...
     stopPoll()
+    const myGen = gen // ...và cả phần SAU await của chính watch này nếu tab đổi tiếp.
     const wasLocked = old ? !old[2] : false
     savedMeta.value = null
     reviewOpen.value = false
@@ -201,6 +226,7 @@ watch(
     phase.value = 'idle'
     const found = await probeSaved()
     if (found) return
+    if (myGen !== gen) return // đổi tab trong lúc probe → watch cũ dừng, watch mới lo
     if (phase.value === 'idle' && wasLocked) askFresh()
   },
   { immediate: true },
