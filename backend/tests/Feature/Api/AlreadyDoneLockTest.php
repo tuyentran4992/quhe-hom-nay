@@ -103,11 +103,18 @@ class AlreadyDoneLockTest extends Be2TestCase
 
     /**
      * Case 4 — BẤT BIẾN: job FAILED (AI_FILTERED) KHÔNG phải nguồn khóa.
-     * Cùng (hexagram,topic) vẫn được hỏi lại → 202, provider call #2.
+     * Cùng (hexagram,topic) vẫn được hỏi lại → 202, provider call.
+     *
+     * FIX-LUAN-SAU 02/09 (t_20f28886, vào main aacc07e): 1 lượt bẩn giờ được
+     * TỰ regenerate — RunAiBoxJob gọi provider lần 2, queue fake rỗng thì
+     * harness fallback bài sạch → regen thành công → job DONE (test cũ giả
+     * định "1 call/job" nên đỏ ở dòng assert failed). Phải fake bẩn CẢ HAI
+     * lượt mới chạm kịch bản "bất biến thất bại" = failed AI_FILTERED.
      */
     public function test_job_failed_khong_khoa_duong(): void
     {
-        $this->fakeAi('Thỉnh bùa ngay hôm nay để đổi vận tuyệt đối.');
+        $this->fakeAi('Thỉnh bùa ngay hôm nay để đổi vận tuyệt đối.'); // lượt 1: phạm wordguard
+        $this->fakeAi('Vẫn bẩn: bùa đổi vận.');                        // lượt regen: cạn ngân sách → AI_FILTERED
         $a = $this->device();
         $this->payUnlock($a, 'duyen');
         $draw = $this->drawFor($a, 11);
@@ -118,7 +125,7 @@ class AlreadyDoneLockTest extends Be2TestCase
         $this->fakeAi($this->cleanMd);
         $again = $this->interpret($a, $draw->id, 'duyen'); // 202 như trước
         $this->assertSame(AiJob::ST_DONE, $again['job']->status);
-        Http::assertSentCount(2);
+        Http::assertSentCount(3); // 1 bẩn + 1 regen-bẩn (failed) + 1 sạch (done)
     }
 
     /**
