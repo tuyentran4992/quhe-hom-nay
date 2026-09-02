@@ -15,4 +15,7 @@ return [
     // PHẢI non-reasoning (Rules::AI_ROUTER_MODEL) — để rỗng trước đây rơi về
     // model luận (deepseek-v4-flash reasoning) = router chết im lặng 100%.
     'router_model' => env('AIBOX_ROUTER_MODEL', Rules::AI_ROUTER_MODEL),
+    // FIX-LUAN-SAU 02/09: ngân sách (giây) cho phép regenerate khi dính filter.
+    // Mặc định = Rules::AI_FILTER_REGENERATE_BUDGET_S; test override qua config.
+    'filter_regen_budget_s' => (float) env('AIBOX_FILTER_REGEN_BUDGET_S', Rules::AI_FILTER_REGENERATE_BUDGET_S),
 ];

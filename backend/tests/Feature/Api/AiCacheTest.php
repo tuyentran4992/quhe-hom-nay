@@ -90,7 +90,9 @@ class AiCacheTest extends Be2TestCase
     public function test_job_failed_khong_bi_dung_lam_cache(): void
     {
         // bài bẩn AI_FILTERED → failed; job sau vẫn phải gọi provider
+        // (FIX-LUAN-SAU 02/09: fake 2 lượt bẩn vì 1 lượt giờ được regenerate)
         $this->fakeAi('Thỉnh bùa ngay hôm nay để đổi vận tuyệt đối.');
+        $this->fakeAi('Vẫn bẩn: bùa đổi vận.');
         $a = $this->device();
         $this->payUnlock($a, 'duyen');
         $draw = $this->drawFor($a, 11);
@@ -105,7 +107,7 @@ class AiCacheTest extends Be2TestCase
 
         $this->assertSame(AiJob::ST_DONE, $good['job']->status);
         $this->assertNotSame($bad['job']->result, $good['job']->result);
-        Http::assertSentCount(2); // failed không thế chỗ done
+        Http::assertSentCount(3); // failed không thế chỗ done (2 lượt bẩn có regen + 1 lượt sạch)
     }
 
     /**

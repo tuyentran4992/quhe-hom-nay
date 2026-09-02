@@ -44,6 +44,28 @@ TXT;
         return $hits;
     }
 
+    /**
+     * FIX-LUAN-SAU 02/09 — trích CHÍNH XÁC đoạn chữ khớp cấm (đã strip ký tự điều
+     * khiển) để đưa vào feedback regenerate: model sửa đúng chữ thay vì đoán mò.
+     * Mỗi pattern lấy match đầu tiên; trả danh sách unique theo thứ tự pattern.
+     *
+     * @return list<string> vd ['cốt'] khi text chứa "cốt lõi"
+     */
+    public static function matchedWords(string $text): array
+    {
+        $words = [];
+        foreach (self::BANNED_PATTERNS as $p) {
+            if (preg_match('/\b(' . $p . ')\b/iu', $text, $m)) {
+                $w = mb_strtolower($m[1]);
+                if (! in_array($w, $words, true)) {
+                    $words[] = $w;
+                }
+            }
+        }
+
+        return $words;
+    }
+
     public static function isClean(string $text): bool
     {
         return self::violations($text) === [];
