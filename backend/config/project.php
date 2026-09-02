@@ -11,7 +11,7 @@
 | không clear thì đổi file không có tác dụng — đây là lỗi quên phổ biến nhất).
 |
 | Quy ước mỗi dòng: TÊN => giá trị  // ý nghĩa · đơn vị · giá trị an toàn.
-| env() duy nhất được phép ở file này = FREE_DEEP_PREVIEW (override preview có
+| Hàm env duy nhất được phép ở file này = FREE_DEEP_PREVIEW (override preview
 | chủ đích, mặc định nghiệp vụ vẫn là giá trị dưới). Bí mật (key/token) KHÔNG
 | bao giờ xuất hiện đây — chúng ở .env.
 |

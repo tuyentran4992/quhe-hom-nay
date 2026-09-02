@@ -28,10 +28,10 @@ Ngoại lệ suy diễn: ngưỡng zombie = `timeout_seconds + 60` (hàm
 | C-07 | `donate.min_vnd` / `donate.max_vnd` | `1000` / `500000` | khoảng tiền "Lễ tùy tâm" |
 | C-08 | `Rules::MAGIC_SEQUENCE_MS` (enum, giữ nguyên) | `1500` | FE tối thiểu cho animation gieo quẻ (04-ui); BE không enforce |
 | C-09 | `Rules::COIN_*` (enum, giữ nguyên) | `3` / `sấp=2 · ngửa=3` | Lăn gieo mỗi hào = 3 đồng xu độc lập; tổng điểm ∈ {6,7,8,9}. Thuật toán §3. (Boss lệnh 31/08: bỏ mô phỏng cỏ thi, quay về 3 xu chuẩn — SPEC-3XU) |
-| C-10 | `ai.filter_regenerations` / `ai.filter_regenerate_budget_s` | `2` / `300` | regen tối đa 2 lần, ngân sách cứng 300s (FE-BUGFIX-0209; env `AIBOX_API_*` chỉ còn hạ tầng kết nối) |
+| C-10 | `ai.filter_regenerations` / `ai.filter_regenerate_budget_s` | `1` / `45` | regen tối đa 1 lần, ngân sách lượt 2 = 45s (FE poll tối đa 130s — FIX-LUAN-SAU/OBS-FILTER; env `AIBOX_FILTER_REGEN_BUDGET_S` chỉ override test). Env `AIBOX_*` chỉ còn hạ tầng kết nối. |
 | C-11 | `ai.lock_one_luan` | `true` | done cùng (hexagram,topic) → 409 `LUAN_DONE_LOCKED`; `false` = đường hồ sơ cũ. Cờ 2 chiều, test `AlreadyDoneLockTest` giữ cả 2 nhánh. |
-| C-12 | `ai.router_model` / `ai.router_budget_vnd_day` / `ai.router_timeout_seconds` | `aibox-fast` / `200000` / `10` | model router + ngân sách ngày cho màn chọn nhanh (BUG-V3-1) |
-| C-13 | `free_deep_preview` (env `FREE_DEEP_PREVIEW` override) | `false` | CỜ pilot luận-sâu-free — reader về `project.php` (xóa `config/preview.php`). Suite test luôn chạy `false` bất kể env/shell máy dev (`phpunit.xml` force + `Tests\TestCase` chốt 2 lớp). |
+| C-12 | `ai.router_model` / `ai.router_max_tokens` / `ai.router_timeout_seconds` | `qwen3.6-flash` / `8` / `10` | router danh mục BUG-V3-1: BẮT BUỘC non-reasoning (reasoning → content rỗng); `AIBOX_ROUTER_MODEL` env override nếu có. Đổi model = probe thật trước. |
+| C-13 | `free_deep_preview` (env `FREE_DEEP_PREVIEW` override) | `false` | CỜ pilot luận-sâu-free — reader về `project.php` (xóa `config/preview.php`). Suite test luôn chạy `false` bất kể env/shell máy dev (`phpunit.xml` force + `Tests\TestCase` chốt default). |
 
 Quy ước chung: sai validate → 422 + `errors[]` theo field; vi phạm rule C-xx → đúng mã
 4xx ghi cạnh rule; mọi timestamp RFC3339 UTC; mọi `amount` là INTEGER đồng (không float).
