@@ -62,11 +62,13 @@ DRAW_LIMIT_REACHED (409) → replace về `/` + `?toast=draw_limit` → S1 rende
 | `detail-keywords` | `keywords.length` | chip từ khóa |
 | `detail-original-toggle` | `cat` | bật/đóng accordion Bản gốc (Hoàng Kiến CUT-45: FE chỉ render `cat.free` nếu có — KHÔNG có khối gốc nháp) |
 | `detail-original-body` | mở | text `cat` |
-| `topic-gate` | luôn | vùng "luận sâu" (TopicGate) — 3 nhánh dưới |
+| `topic-gate` | luôn | vùng "luận sâu" (TopicGate) — 4 nhánh dưới |
 
-### TopicGate (S3) — 3 nhánh 04-ui §2.S3 + §4
+### TopicGate (S3) — 04-ui §2.S3 + §4 + REVIEW-LUAN (t_b8df14e5)
 | testid | khi nào | nội dung |
 |---|---|---|
+| `gate-review` | `phase saved` — #5b trả exists=true lúc probe (mount/đổi tab) HOẶC POST #5 bắt 409 AI_ALREADY_DONE (REVIEW-LUAN t_b8df14e5) | Nút CTA `btn-cinnabar` nhãn "Xem lại", ĐỘC TÔN ở nhánh này: `gate-ask`, `gate-question`, `gate-question-chip`, counter ẩn tuyệt đối — không còn đường mở AI lần 2 cho topic đã luận. Bấm → render bài lưu (`gate-result` + `gate-saved-label`), KHÔNG gọi POST #5 (đếm request network = 0). |
+| `gate-saved-label` | sau khi bấm `gate-review` (bài lưu đang hiển thị) | chip `chip-status text-muted` nhãn "Bài đã lưu trước đó" đứng ĐẦU bài — chống khách tưởng vừa luận mới. Thân bài render ĐÚNG lane `luan-rendered`/`luan-heading`/`luan-body` như phase done. Dòng `gate-result-question` KHÔNG hiện (saved API cấm trả question — F7). |
 | `gate-skeleton` | đang gọi #6 | skeleton chờ |
 | `gate-locked` + `gate-cta-paywall` | chưa unlock (C-03) | blurb 1 câu + nút → `/mo-khoa/{topic}` |
 | `gate-ask` (disabled) + `gate-cooldown` | sau 429 TOPIC_COOLDOWN | đếm ngược `mm:ss` từ `retry_after_seconds`, nút disabled (90s, C-01). Hết đồng hồ → `gate-cooldown` BIẾN MẤT, `gate-ask` enable lại nhãn "Xin luận sâu" (fix E5 t_0285ac01 — QA không còn thấy "— 00:00" vĩnh viễn) |
@@ -120,7 +122,7 @@ DRAW_LIMIT_REACHED (409) → replace về `/` + `?toast=draw_limit` → S1 rende
 ```
 cd frontend
 npm ci
-npx vitest run                      # 76 tests / 14 files (E5 t_0285ac01: +topicgate cooldown→idle)
+npx vitest run                      # 264 tests / 28 files (REVIEW-LUAN t_b8df14e5: +savedreview.test.js 14 case + #5b apiclient)
 npm run typecheck                   # vue-tsc --noEmit, exit 0
 NODE_OPTIONS=--max-old-space-size=1024 npm run build   # → backend/public/app/
 ```

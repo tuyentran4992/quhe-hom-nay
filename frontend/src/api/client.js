@@ -63,6 +63,11 @@ export const api = {
   },
   // #6 poll job
   aiJob: (uuid) => req('GET', `/api/ai/jobs/${uuid}`),
+  // #5b REVIEW-LUAN (03-api mục 5b, card t_5f98fe73/9f4f78c): đọc bài ĐÃ LUẬN của
+  // (draw, topic) — 200 {data:{exists,job_uuid,result,completed_at}}; CẤM field
+  // question phía BE (F7/PII); 402 UNLOCK_REQUIRED; 404 an tồn tại; 422 hình dạng.
+  savedInterpretation: ({ draw_id, topic }) =>
+    req('GET', `/api/ai/interpretations/saved?draw_id=${encodeURIComponent(draw_id)}&topic=${encodeURIComponent(topic)}`),
   // #7 tạo đơn (unlock | donate)
   createPayment: ({ kind, topic, amount_vnd, return_url, idempotency_key }) =>
     req('POST', '/api/payments/create', {

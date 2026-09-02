@@ -64,6 +64,25 @@ describe('api client theo 03-api', () => {
     expect(Object.keys(body).sort()).toEqual(['draw_id', 'idempotency_key', 'question', 'topic'])
   })
 
+  // REVIEW-LUAN #5b (card t_b8df14e5, contract BE @ t_5f98fe73 9f4f78c):
+  // GET /api/ai/interpretations/saved?draw_id=&topic= → {data:{exists,job_uuid,result,completed_at}}
+  // (CẤM field question — F7/PII chốt phía BE; lỗi 402/404/422 → ApiError code nguyên envelope).
+  it('#5b GET /api/ai/interpretations/saved — query đúng shape, envelope data thông', async () => {
+    globalThis.fetch = mockFetch(200, { data: { exists: true, job_uuid: 'u', result: 'bài cũ', completed_at: '2026-09-01T10:00:00+07:00' } })
+    const r = await api.savedInterpretation({ draw_id: 42, topic: 'duyen' })
+    expect(globalThis.fetch.mock.calls[0][0]).toBe('/api/ai/interpretations/saved?draw_id=42&topic=duyen')
+    expect(globalThis.fetch.mock.calls[0][1].method).toBe('GET')
+    expect(r.data.exists).toBe(true)
+  })
+
+  it('#5b exists=false → thông qua ApiError-free; 402 UNLOCK_REQUIRED → ApiError.code giữ nguyên', async () => {
+    globalThis.fetch = mockFetch(402, { error: { code: 'UNLOCK_REQUIRED', message: 'cần mở khóa' } })
+    const e = await api.savedInterpretation({ draw_id: 42, topic: 'duyen' }).catch((err) => err)
+    expect(e).toBeInstanceOf(ApiError)
+    expect(e.status).toBe(402)
+    expect(e.code).toBe('UNLOCK_REQUIRED')
+  })
+
   it('#7 POST /api/payments/create', async () => {
     globalThis.fetch = mockFetch(201, { data: { order_code: 1, status: 'pending' } })
     await api.createPayment({ kind: 'unlock', topic: 'duyen', amount_vnd: 29000, return_url: '/', idempotency_key: 'kkkkkkkk' })
