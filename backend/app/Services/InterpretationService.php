@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Domain\Calendar;
-use App\Domain\Rules;
 use App\Domain\Topic;
 use App\Jobs\RunAiBoxJob;
 use App\Models\AiJob;
@@ -75,9 +74,10 @@ class InterpretationService
             ->where('device_id', $device->device_id)
             ->where('kind', 'unlock')->where('topic', $topic->value)
             ->where('status', Payment::ST_PAID)->exists();
-        // PREVIEW FLAG (không tồn tại ở main): boss tạm mở luận sâu free — bỏ qua 402,
-        // GIỮ cooldown/cap/idempotency. Tắt bằng FREE_DEEP_PREVIEW=false.
-        if (! $paid && ! config('preview.free_deep')) {
+        // PREVIEW OVERRIDE (CFG-BE: nguồn chuẩn = config/project.php, env chỉ để
+        // bật preview): boss tạm mở luận sâu free — bỏ qua 402, GIỮ cooldown/cap/
+        // idempotency. Tắt bằng free_deep_preview=false trong project.php.
+        if (! $paid && ! config('project.free_deep_preview')) {
             throw InterpretationException::unlockRequired($topic->value);
         }
 
@@ -85,25 +85,29 @@ class InterpretationService
         // nguồn khóa = MỌI job done cùng quẻ+chủ đề, BẤT KỂ question (rộng hơn
         // nguồn cache AC-2 vẫn whereNull question). Gate đặt TRƯỚC cooldown/cap/
         // INSERT: hết cooldown không thành đường lách, và 409 không tạo rac job.
-        if ($this->findDoneSource($draw->hexagram_id, $topic->value) !== null) {
+        // CFG-BE: bọc bằng cờ project.ai.lock_one_luan — =false quay về đường cũ
+        // (cooldown/cap vẫn giữ); mặc định TRUE = hành vi boss đã GO 02/09.
+        if (config('project.ai.lock_one_luan')
+            && $this->findDoneSource($draw->hexagram_id, $topic->value) !== null) {
             throw InterpretationException::alreadyDone();
         }
 
-        // (c) cooldown C-03 = 90 GIÂY/device theo ai_jobs.requested_at mới nhất.
+        // (c) cooldown C-03 theo time device → config('project.ai.cooldown_seconds').
+        $cooldown = (int) config('project.ai.cooldown_seconds');
         $last = AiJob::query()->where('device_id', $device->device_id)
             ->max('requested_at');
         if ($last !== null) {
             $elapsed = now()->diffInSeconds(Carbon::parse($last), true);
-            if ($elapsed < Rules::AI_COOLDOWN_SECONDS) {
+            if ($elapsed < $cooldown) {
                 throw InterpretationException::cooldown(
-                    (int) ceil(Rules::AI_COOLDOWN_SECONDS - $elapsed)
+                    (int) ceil($cooldown - $elapsed)
                 );
             }
         }
 
-        // (d) cap TOÀN CỤC C-06: job TẠO MỚI trong 60 phút gần nhất ≤ 90.
-        $recent = AiJob::query()->where('requested_at', '>=', now()->subHour())->count();
-        if ($recent >= Rules::AI_GLOBAL_CAP_PER_HOUR) {
+        // (d) cap TOÀN CỤC C-06: job TẠO MỚI trong 60 phút gần nhất ≤ cap config.
+        if (AiJob::query()->where('requested_at', '>=', now()->subHour())->count()
+            >= (int) config('project.ai.global_cap_per_hour')) {
             throw InterpretationException::globalCap();
         }
 
@@ -162,7 +166,7 @@ class InterpretationService
             ->where('device_id', $device->device_id)
             ->where('kind', 'unlock')->where('topic', $topic->value)
             ->where('status', Payment::ST_PAID)->exists();
-        if (! $paid && ! config('preview.free_deep')) {
+        if (! $paid && ! config('project.free_deep_preview')) {
             throw InterpretationException::unlockRequired($topic->value);
         }
 

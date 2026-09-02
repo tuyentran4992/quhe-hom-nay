@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Services;
 
-use App\Domain\Rules;
 use App\Services\AiBoxClient;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -15,11 +14,11 @@ use Tests\TestCase;
  * router-qna-test không reasoning nên che mất bug (bài học: mock ≠ model thật).
  *
  * FIX chốt theo latency (probe THẬT 2026-09-01, evidence/probe_router_fix*.py):
- *  - Rules::AI_ROUTER_MODEL = 'qwen3.6-flash' (single source): non-reasoning phía
+ *  - project.php ai.router_model = 'qwen3.6-flash' (single source): non-reasoning phía
  *    content — 4/4 nhãn NGUYÊN VĂN đúng whitelist ngay mt=8, 3.0–5.8s < timeout 10s.
  *    Đường cũ "router_model rỗng → fallback model luận" chính là cái bẫy: model
  *    luận hiện tại reasoning → router luôn chết. Rỗng giờ về model router mặc định.
- *  - Rules::AI_ROUTER_MAX_TOKENS = 8 GIỮ NGUYÊN, chỉ phát động qua constant:
+ *  - project.php ai.router_max_tokens = 8 GIỮ NGUYÊN, chỉ phát động qua config:
  *    deepseek-v4-flash phải ≥192 token mới nhả nhãn (~2.5s) — tăng budget theo
  *    hướng card (64) KHÔNG đủ cho model reasoning; đổi model là fix đúng.
  *  - BUG-V3-3: bỏ log đếm-mù aibox.router.sent (ghi TRƯỚC parse), thay bằng
@@ -81,30 +80,38 @@ class RouterBudgetConfigTest extends TestCase
         return null;
     }
 
-    /** Single source of truth: 2 hằng số router mới, giá trị đã probe. */
-    public function test_rules_hang_so_router_moi(): void
+    /** Single source of truth: 2 giá trị router mới trong project.php, đã probe. */
+    public function test_project_config_gia_tri_router(): void
     {
-        $this->assertSame('qwen3.6-flash', Rules::AI_ROUTER_MODEL);
-        $this->assertSame(8, Rules::AI_ROUTER_MAX_TOKENS);
+        $this->assertSame('qwen3.6-flash', config('project.ai.router_model'));
+        $this->assertSame(8, config('project.ai.router_max_tokens'));
     }
 
-    /** .env.example + config comment phải phản ánh cấu hình mới (deploy không đào lại hố cũ). */
-    public function test_env_vi_du_khai_bao_router_model(): void
+    /**
+     * CFG-BE (A6): .env.example khai AIBOX_ROUTER_MODEL RỖNG — default nghiệp vụ
+     * non-reasoning nằm project.php; env chỉ là override khẩn. Deploy đọc file
+     * vẫn thấy cảnh báo non-reasoning (BUG-V3-1) ngay cạnh dòng khai.
+     */
+    public function test_env_vi_du_khai_bao_router_model_override(): void
     {
         $example = (string) file_get_contents(base_path('.env.example'));
-        $this->assertMatchesRegularExpression('/^AIBOX_ROUTER_MODEL=qwen3\.6-flash$/m', $example,
-            '.env.example phải khai model router non-reasoning (BUG-V3-1)');
+        $this->assertMatchesRegularExpression('/^AIBOX_ROUTER_MODEL=$/m', $example,
+            '.env.example: override router để TRỐNG = dùng default project.php (CFG-BE)');
+        $this->assertStringContainsString('non-reasoning', $example,
+            'cảnh báo BUG-V3-1 phải còn trong .env.example');
+        $this->assertSame('qwen3.6-flash', config('project.ai.router_model'),
+            'default nghiệp vụ non-reasoning phải ở project.php');
     }
 
-    /** Payload router khi env KHÔNG khai router_model: về Rules::AI_ROUTER_MODEL, không fallback model luận. */
+    /** Payload router khi env KHÔNG khai router_model: về default project.php, không fallback model luận. */
     public function test_rong_khong_fallback_model_luan_nua(): void
     {
         $this->assertSame('duyen', $this->routeWith('duyen'));
         Http::assertSent(function (Request $r) {
-            $this->assertSame(Rules::AI_ROUTER_MODEL, (string) $r['model'],
-                'router_model rỗng → Rules::AI_ROUTER_MODEL (model luận reasoning là bug, cấm fallback)');
+            $this->assertSame((string) config('project.ai.router_model'), (string) $r['model'],
+                'router_model rỗng → default project.php (model luận reasoning là bug, cấm fallback)');
             $this->assertSame(0, $r['temperature']);
-            $this->assertSame(Rules::AI_ROUTER_MAX_TOKENS, $r['max_tokens']);
+            $this->assertSame((int) config('project.ai.router_max_tokens'), $r['max_tokens']);
 
             return true;
         });

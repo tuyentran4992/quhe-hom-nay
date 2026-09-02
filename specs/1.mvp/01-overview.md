@@ -22,7 +22,7 @@ văn hoá". CẤM: bán ritual (cúng/giải hạn/bùa), câu chữ "thay đổ
 
 Kiến trúc hexagonal nhẹ: `app/Domain/` (pure PHP, không import facade/HTTP), `app/Services/`
 orchestration, `app/Http/` + `app/Jobs/` adapter. Bất biến nghiệp vụ (định giá, cooldown,
-cấu trúc 3 ngôi) đặt 1 chỗ: `app/Domain/Rules.php` (hằng số) + service tương ứng.
+cấu trúc 3 ngôi) đặt 1 chỗ: `backend/config/project.php` (mọi SỐ đổi được — CFG-BE 02/09) + `app/Domain/Rules.php` (enum cấu trúc: TOPICS, coin, MAGIC) + service tương ứng.
 
 ```
 Browser (Vue SPA)
@@ -41,7 +41,7 @@ quhe-hom-nay/
 ├── specs/                      # 5 file này = LUẬT
 ├── backend/                    # Laravel 11
 │   ├── app/
-│   │   ├── Domain/Rules.php    # hằng số nghiệp vụ (bảng C ở 03-api §0)
+│   │   ├── Domain/Rules.php    # enum cấu trúc; SỐ/CỜ nghiệp vụ: config/project.php (bảng C ở 03-api §0)
 │   │   ├── Http/Controllers/   # Draw, Hexagram, Interpretation, Payment, Me
 │   │   ├── Http/Middleware/    # EnsureDeviceSession, IdempotencyKey
 │   │   ├── Jobs/RunAiBoxJob.php
@@ -105,7 +105,7 @@ quhe-hom-nay/
 | `PAYOS_WEBHOOK_SECRET` | verify IPN | placeholder rỗng |
 
 Hằng số nghiệp vụ (cooldown 90 giây, 1 quẻ/ngày, timeout 120 giây, retry 3, cap 90 job/giờ,
-giá 29000đ) KHÔNG nằm trong env — nằm trong `Domain/Rules.php` theo 03-api §0 để FE/BE
+giá 29000đ) KHÔNG nằm trong env — nằm trong `backend/config/project.php` theo 03-api §0 để FE/BE
 đối chiếu một mối.
 
 ## 6. Số khóa (đọc trước khi code — chi tiết ở 03-api §0)

@@ -3,7 +3,6 @@
 namespace Tests\Feature\Api;
 
 use App\Domain\PromptBuilder;
-use App\Domain\Rules;
 use App\Jobs\RunAiBoxJob;
 use App\Models\AiJob;
 use App\Models\Device;
@@ -284,7 +283,7 @@ class RouterV3Test extends Be2TestCase
 
     /**
      * Router model (BUG-V3-1 card t_05d92158 đổi hợp đồng): router_model rỗng →
-     * Rules::AI_ROUTER_MODEL non-reasoning, KHÔNG fallback model luận nữa — model
+     * project.php ai.router_model non-reasoning, KHÔNG fallback model luận nữa — model
      * luận deploy là reasoning, fallback = router chết im lặng (content='' vì lý
      * lẽ ăn hết max_tokens). Khai báo tường minh vẫn thắng.
      */
@@ -298,7 +297,7 @@ class RouterV3Test extends Be2TestCase
         $calls = $this->sentCalls();
         $routerModel = $calls[0]['model'];
         $luanModel = $calls[1]['model'];
-        $this->assertSame(Rules::AI_ROUTER_MODEL, $routerModel, 'rỗng → model router mặc định non-reasoning');
+        $this->assertSame((string) config('project.ai.router_model'), $routerModel, 'rỗng → model router mặc định non-reasoning');
         $this->assertNotSame($luanModel, $routerModel, 'cấm router dùng lại model luận reasoning');
         config(['aibox.router_model' => 'router-small']);
         $this->routerQueue[] = 'tai_loc';

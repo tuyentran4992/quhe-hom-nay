@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Domain\Rules;
 use App\Jobs\RunAiBoxJob;
 use App\Models\AiJob;
 use Illuminate\Console\Command;
@@ -14,7 +13,7 @@ use Illuminate\Support\Facades\DB;
  * lặng) đã làm Laravel XOÁ row jobs, nên chẳng còn gì redeliver để handle lần
  * sau đòi lại. Command quét tay hàng đợi DB:
  *
- *   - running quá Rules::AI_ZOMBIE_AFTER_SECONDS + còn lượt + MỒ CÔI (không còn
+ *   - running quá RunAiBoxJob::zombieAfterSeconds() + còn lượt + MỒ CÔI (không còn
  *     row jobs) ⇒ đưa về queued + dispatch lại (worker thường nhặt việc);
  *   - running còn row jobs ⇒ ĐỂ YÊN — worker tự redeliver, reclaimZombie() lo
  *     (dispatch chồng = 2 worker song song trên cùng job, cấm);
@@ -34,7 +33,10 @@ class SweepZombieJobs extends Command
 
     public function handle(): int
     {
-        $cutoff = now()->subSeconds(Rules::AI_ZOMBIE_AFTER_SECONDS);
+        // BUG-QHN-100/CFG-BE: ngưỡng zombie = giá trị SUY DIỄN từ
+        // project.php ai.timeout_seconds — gọi hàm dẫn xuất 1 nguồn duy nhất,
+        // không copy số (xem RunAiBoxJob::zombieAfterSeconds).
+        $cutoff = now()->subSeconds(RunAiBoxJob::zombieAfterSeconds());
         $queueTable = config('queue.connections.database.table', 'jobs');
 
         // Set job id còn nằm TRONG hàng đợi pending — decode + unserialize đúng
@@ -66,7 +68,7 @@ class SweepZombieJobs extends Command
 
                 continue;
             }
-            if ($job->attempts >= Rules::AI_MAX_ATTEMPTS) {
+            if ($job->attempts >= (int) config('project.ai.max_attempts')) {
                 // transitTo chặn ngược/dẫm chân: ai vừa claim giữa chừng → status
                 // không còn running, RuntimeException (worker thật sẽ không kịp;
                 // sweep coi như bỏ qua xác này).

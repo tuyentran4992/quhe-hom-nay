@@ -30,10 +30,14 @@ class InterpretationException extends \RuntimeException
 
     public static function unlockRequired(string $topic): self
     {
+        // CFG-BE: cả price_vnd lẫn con số trong message đều suy ra từ
+        // project.php — boss đổi unlock_vnd là payload + message đổi theo, không sửa code.
+        $price = (int) config('project.price.unlock_vnd');
+
         return new self(
             402, 'UNLOCK_REQUIRED',
-            'Chủ đề này cần mở khóa 29.000đ.', // payload mẫu §5
-            ['topic' => $topic, 'price_vnd' => \App\Domain\Rules::PRICE_UNLOCK_VND,
+            'Chủ đề này cần mở khóa '.number_format($price, 0, ',', '.').'đ.', // payload mẫu §5
+            ['topic' => $topic, 'price_vnd' => $price,
                 'payment_create_url' => '/api/payments/create'],
         );
     }

@@ -2,12 +2,11 @@
 
 namespace Tests\Feature\Api;
 
-use App\Domain\Rules;
 use App\Models\AiJob;
 use Illuminate\Support\Str;
 
 /**
- * 05-testplan F4 (402 gate) + F5 (cooldown 90 GIÂY) + F6 (idempotency #5) +
+ * 05-testplan F4 (402 gate) + F5 (cooldown project.php) + F6 (idempotency #5) +
  * F7 (ẩn tồn tại) trên /api/ai/interpretations + /api/ai/jobs.
  */
 class InterpretationGateTest extends Be2TestCase
@@ -51,7 +50,7 @@ class InterpretationGateTest extends Be2TestCase
         $retry = $second->json('error.details.retry_after_seconds');
         $this->assertIsInt($retry);
         $this->assertGreaterThanOrEqual(1, $retry);
-        $this->assertLessThanOrEqual(Rules::AI_COOLDOWN_SECONDS, $retry);
+        $this->assertLessThanOrEqual((int) config('project.ai.cooldown_seconds'), $retry);
 
         // mock requested_at cũ 91 giây → hết cooldown, được thông qua
         AiJob::query()->where('device_id', $d->device_id)->update(['requested_at' => now()->subSeconds(91)]);
@@ -114,7 +113,7 @@ class InterpretationGateTest extends Be2TestCase
         $d = $this->device();
         $draw = $this->drawFor($d);
         // bơm 90 job done requested_at cách đây 2 phút — device lạ, không dính cooldown F5
-        for ($i = 0; $i < Rules::AI_GLOBAL_CAP_PER_HOUR; $i++) {
+        for ($i = 0; $i < (int) config('project.ai.global_cap_per_hour'); $i++) {
             AiJob::query()->create([
                 'job_uuid' => (string) Str::uuid(),
                 'device_id' => $d->device_id,

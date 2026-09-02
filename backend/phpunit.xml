@@ -29,5 +29,11 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
+        <!-- CFG-BE (t_ce2a6834): suite LUÔN chạy default nghiệp vụ chuẩn bất kể
+             .env/shell máy dev — bài học 02/09: FREE_DEEP_PREVIEW=true cục bộ làm
+             4 test F8 paywall đỏ oan. force="true" = ghi đè kể cả biến đã export
+             trong shell; tests/TestCase.php còn chốt config() sau bootstrap (2 lớp
+             phòng vệ). Test nào cần preview BẬT thì tự config() trong body. -->
+        <env name="FREE_DEEP_PREVIEW" value="false" force="true"/>
     </php>
 </phpunit>

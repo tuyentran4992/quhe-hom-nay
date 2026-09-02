@@ -3,22 +3,21 @@
 namespace App\Services;
 
 use App\Domain\RouterPrompt;
-use App\Domain\Rules;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 
 /**
  * BE-2 — adapter AI-Box (spec 01 §2/§5). Chỉ RunAiBoxJob được instantiate class này;
  * controller/service khác gọi thẳng provider = vi phạm kiến trúc đã khóa.
- * Timeout 1 retry nằm ở tầng job (Rules::C-04) — client chỉ gọi ĐÚNG 1 lần/request.
+ * Timeout 1 retry nằm ở tầng job (C-04, project.php ai.*) — client chỉ gọi ĐÚNG 1 lần.
  */
 class AiBoxClient
 {
     /**
      * LUAN-V3 (SPEC §5.2, ADR-V3-01) — bước ROUTER danh mục: call NHỎ chạy trước
      * bước luận trong RunAiBoxJob. Cùng client/base_url/key, model riêng
-     * (aibox.router_model, rỗng → Rules::AI_ROUTER_MODEL non-reasoning),
-     * temperature 0, max_tokens Rules::AI_ROUTER_MAX_TOKENS, timeout RIÊNG 10s.
+     * (aibox.router_model, rỗng → project.php ai.router_model non-reasoning),
+     * temperature 0, max_tokens ai.router_max_tokens, timeout RIÊNG ai.router_timeout_seconds.
      * LỖI/mạng/JSON rác → trả NULL nội bộ — TUYỆT ĐỐI không
      * throw, không làm fail job luận (worker đi nhánh fallback T-D).
      * Nợ ghi nhận (§5.3): model router đổi về sau → replay lý thuyết lệch; MVP
@@ -27,7 +26,7 @@ class AiBoxClient
      * BUG-V3-1 (card t_05d92158) — đường cũ `router_model ?: model luận` là hố
      * tử thần: model luận deploy = deepseek-v4-flash (reasoning) → lý lẽ ăn hết
      * 8 token, content='' → route null → 100% bài rơi T-D im lặng. Fallback mới
-     * về Rules::AI_ROUTER_MODEL; CẤM fallback model luận khi router_model rỗng.
+     * về project.php ai.router_model; CẤM fallback model luận khi router_model rỗng.
      * BUG-V3-3 — log aibox.router.sent đếm-mù (ghi trước parse, request 200 kể
      * cả khi nhãn bị cắt) thay bằng aibox.router.result SAU parse: route = giá
      * trị thật (label|null|UNCLEAR) + finish_reason để giám sát không mù.
@@ -39,16 +38,16 @@ class AiBoxClient
         if ($key === '') {
             return null; // chưa cấu hình = router lỗi → fallback im lặng CÓ chủ đích (T-D)
         }
-        $model = trim((string) config('aibox.router_model')) ?: Rules::AI_ROUTER_MODEL;
+        $model = trim((string) config('aibox.router_model')) ?: (string) config('project.ai.router_model');
 
         try {
-            $res = Http::timeout(Rules::AI_ROUTER_TIMEOUT_SECONDS)
+            $res = Http::timeout((int) config('project.ai.router_timeout_seconds'))
                 ->withToken($key)
                 ->post($base.'/chat/completions', [
                     'model' => $model,
                     'messages' => [['role' => 'user', 'content' => RouterPrompt::forQuestion($question)]],
                     'temperature' => 0,
-                    'max_tokens' => Rules::AI_ROUTER_MAX_TOKENS,
+                    'max_tokens' => (int) config('project.ai.router_max_tokens'),
                 ]);
         } catch (\Throwable $e) {
             logger()->warning('aibox.router.failed', ['err' => $e->getMessage()]);
@@ -91,7 +90,7 @@ class AiBoxClient
         }
 
         try {
-            $res = Http::timeout(Rules::AI_TIMEOUT_SECONDS)
+            $res = Http::timeout((int) config('project.ai.timeout_seconds'))
                 ->withToken($key)
                 ->post($base.'/chat/completions', [
                     'model' => config('aibox.model'),

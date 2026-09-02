@@ -4,22 +4,40 @@ Base URL: `/api` · JSON-only · Content-Type `application/json` · charset utf-
 Auth: cookie-first — `qhn_device` (HttpOnly, xem 02-db §8) + `laravel_session`.
 KHÔNG có API công khai nào cần Bearer trong MVP. Mọi response lỗi dùng 1 envelope §0.3.
 
-## 0. Hằng số nghiệp vụ — nguồn duy nhất `backend/app/Domain/Rules.php`
+## 0. Hằng số nghiệp vụ — nguồn duy nhất `backend/config/project.php` (CFG-BE 02/09)
 
-| ID | Tên code | Giá trị CHỐT | Ý nghĩa |
+**ĐỔI CƠ = SỬA `project.php`, KHÔNG SỬA CODE.** Từ 02/09 (card CFG-BE t_ce2a6834,
+boss chốt): mọi CƠ + SỐ thay đổi được (giá, cooldown, cap, attempts, ngưỡng donate,
+quẻ free/ngày, cờ preview, cờ lock 1-luận, ngân sách filter, model router) nằm
+**1 nơi duy nhất**: `backend/config/project.php` — đọc qua `config('project.*')`.
+`app/Domain/Rules.php` chỉ còn **enum cấu trúc** (C-02 `TOPICS`, C-08
+`MAGIC_SEQUENCE_MS` — giá trị FE/BE cùng đọc để giữ contract, không phải "số nghiệp
+vụ đổi được"). Giá trị trong bảng dưới là HARD-LOCK — `ProjectConfigTest` +
+`RulesTest` fail nếu ai đó đổi ngầm; đổi thật = PR riêng có dấu boss.
+Ngoại lệ suy diễn: ngưỡng zombie = `timeout_seconds + 60` (hàm
+`RunAiBoxJob::zombieAfterSeconds()`, không phải số thô).
+
+| ID | Khóa config (`project.php`) | Giá trị CHỐT | Ý nghĩa |
 |---|---|---|---|
-| C-01 | `FREE_DRAW_PER_DAY` | `1` | 1 quẻ free / device / ngày dương lịch VN ( enforce bằng `uq_draws_device_date`) |
-| C-02 | `TOPICS` | `duyen, tai_loc, xuat_hanh` | 3 chủ đề unlock (enum DB, đúng 3 giá trị) |
-| C-03 | `AI_COOLDOWN_SECONDS` | **`90`** | cooldown GIỮA 2 lần xin luận sâu của 1 device = **90 giây thời gian**. LỆCH BẢN CŨ CHỐT Ở ĐÂY: bản cũ 01-overview ghi "cap 90s", 03-api ghi "cap 90 lần ~225s" → thống nhất: **90 giây**, không tồn tại "90 lần". |
-| C-04 | `AI_TIMEOUT_SECONDS` / `AI_MAX_ATTEMPTS` | `120` / `3` | 1 job AI chết sau 120s, tối đa 3 lần thử |
-| C-05 | `PRICE_UNLOCK_VND` | `29000` | giá one-time / chủ đề, đơn vị đồng (VND chẵn, không có 29k lẻ) |
-| C-06 | `AI_GLOBAL_CAP_PER_HOUR` | `90` | cap TOÀN CỤC job AI tạo mới trong 60 phút gần nhất (đếm `ai_jobs.requested_at`) |
-| C-07 | `DONATE_MIN_VND` / `DONATE_MAX_VND` | `1000` / `500000` | khoảng tiền "Lễ tùy tâm" |
-| C-08 | `MAGIC_SEQUENCE_MS` | `1500` | FE tối thiểu cho animation gieo quẻ (04-ui); BE không enforce |
-| C-09 | `COIN_THROWS_PER_YAO` / `COIN_FACE_VALUES` | `3` / `sấp=2 · ngửa=3` | Lăn gieo mỗi hào = 3 đồng xu độc lập; tổng điểm ∈ {6,7,8,9}. Thuật toán §3. (Boss lệnh 31/08: bỏ mô phỏng cỏ thi, quay về 3 xu chuẩn — SPEC-3XU) |
+| C-01 | `draw.free_per_day` | `1` | 1 quẻ free / device / ngày dương lịch VN ( enforce bằng `uq_draws_device_date`) |
+| C-02 | `Rules::TOPICS` (enum, giữ nguyên) | `duyen, tai_loc, xuat_hanh` | 3 chủ đề unlock (enum DB, đúng 3 giá trị) |
+| C-03 | `ai.cooldown_seconds` | **`90`** | cooldown GIỮA 2 lần xin luận sâu của 1 device = **90 giây thời gian**. LỆCH BẢN CŨ CHỐT Ở ĐÂY: bản cũ 01-overview ghi "cap 90s", 03-api ghi "cap 90 lần ~225s" → thống nhất: **90 giây**, không tồn tại "90 lần". |
+| C-04 | `ai.timeout_seconds` / `ai.max_attempts` | `120` / `3` | 1 job AI chết sau 120s, tối đa 3 lần thử |
+| C-05 | `price.unlock_vnd` | `29000` | giá one-time / chủ đề, đơn vị đồng (VND chẵn, không có 29k lẻ). Message 402 + payload `price_vnd` suy ra từ đây — đổi số, API đổi theo (bằng chứng: outbox A2, ROI <3s). |
+| C-06 | `ai.global_cap_per_hour` | `90` | cap TOÀN CỤC job AI tạo mới trong 60 phút gần nhất (đếm `ai_jobs.requested_at`) |
+| C-07 | `donate.min_vnd` / `donate.max_vnd` | `1000` / `500000` | khoảng tiền "Lễ tùy tâm" |
+| C-08 | `Rules::MAGIC_SEQUENCE_MS` (enum, giữ nguyên) | `1500` | FE tối thiểu cho animation gieo quẻ (04-ui); BE không enforce |
+| C-09 | `Rules::COIN_*` (enum, giữ nguyên) | `3` / `sấp=2 · ngửa=3` | Lăn gieo mỗi hào = 3 đồng xu độc lập; tổng điểm ∈ {6,7,8,9}. Thuật toán §3. (Boss lệnh 31/08: bỏ mô phỏng cỏ thi, quay về 3 xu chuẩn — SPEC-3XU) |
+| C-10 | `ai.filter_regenerations` / `ai.filter_regenerate_budget_s` | `2` / `300` | regen tối đa 2 lần, ngân sách cứng 300s (FE-BUGFIX-0209; env `AIBOX_API_*` chỉ còn hạ tầng kết nối) |
+| C-11 | `ai.lock_one_luan` | `true` | done cùng (hexagram,topic) → 409 `LUAN_DONE_LOCKED`; `false` = đường hồ sơ cũ. Cờ 2 chiều, test `AlreadyDoneLockTest` giữ cả 2 nhánh. |
+| C-12 | `ai.router_model` / `ai.router_budget_vnd_day` / `ai.router_timeout_seconds` | `aibox-fast` / `200000` / `10` | model router + ngân sách ngày cho màn chọn nhanh (BUG-V3-1) |
+| C-13 | `free_deep_preview` (env `FREE_DEEP_PREVIEW` override) | `false` | CỜ pilot luận-sâu-free — reader về `project.php` (xóa `config/preview.php`). Suite test luôn chạy `false` bất kể env/shell máy dev (`phpunit.xml` force + `Tests\TestCase` chốt 2 lớp). |
 
 Quy ước chung: sai validate → 422 + `errors[]` theo field; vi phạm rule C-xx → đúng mã
 4xx ghi cạnh rule; mọi timestamp RFC3339 UTC; mọi `amount` là INTEGER đồng (không float).
+Đổi giá/cờ trên server Production: sửa `project.php` → `php artisan config:clear` →
+API đổi ngay, KHÔNG deploy code; có `queue:worker` thì restart worker (`queue:restart`)
+vì job đọc tries/timeout lúc construct.
 
 ### 0.3 Error envelope (MỌI endpoint lỗi trả đúng hình này)
 

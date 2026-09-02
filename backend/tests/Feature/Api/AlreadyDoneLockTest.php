@@ -275,4 +275,38 @@ class AlreadyDoneLockTest extends Be2TestCase
         $this->cookieFor($b)->getJson('/api/ai/interpretations/saved?topic=duyen')
             ->assertStatus(422);
     }
+
+    /**
+     * CFG-BE (t_ce2a6834) — cờ 2 chiều project.ai.lock_one_luan:
+     *  - true (mặc định, BOSS-GO 02/09): done cùng (hexagram,topic) → 409 (đã test ở case trên).
+     *  - false: đường cũ hồi sinh — hết cooldown thì POST lại được 202 + row job
+     *    MỚI (quay về hành vi pre-t_8aa93a01; cooldown/cap vẫn giữ, provider call
+     *    nằm ở worker, queue DB trong test chỉ ghi pending nên không tăng sent count).
+     */
+    public function test_cfg_be_lock_one_luan_flag_hai_chieu(): void
+    {
+        $this->fakeAi($this->cleanMd);
+        $a = $this->device();
+        $this->payUnlock($a, 'duyen');
+        $draw = $this->drawFor($a, 11);
+        $this->interpret($a, $draw->id, 'duyen'); // done + cooldown đang chạy
+        $this->assertSame(1, AiJob::count());
+        Http::assertSentCount(1);
+
+        // cờ = false + hết cooldown → INSERT lại được: 202 + job row mới
+        $this->clearCooldown($a);
+        config(['project.ai.lock_one_luan' => false]);
+        $this->cookieFor($a)->postJson('/api/ai/interpretations', [
+            'draw_id' => $draw->id, 'topic' => 'duyen', 'idempotency_key' => 'lk-'.Str::random(16),
+        ])->assertStatus(202);
+        $this->assertSame(2, AiJob::count(), 'cờ tắt = đường cũ hồi sinh, có job mới');
+
+        // BẬT lại cờ (mặc định nghiệp vụ) → chính request đó giờ thành 409 TRƯỚC INSERT
+        config(['project.ai.lock_one_luan' => true]);
+        $this->clearCooldown($a);
+        $this->cookieFor($a)->postJson('/api/ai/interpretations', [
+            'draw_id' => $draw->id, 'topic' => 'duyen', 'idempotency_key' => 'lk-'.Str::random(16),
+        ])->assertStatus(409)->assertJsonPath('error.code', 'AI_ALREADY_DONE');
+        $this->assertSame(2, AiJob::count(), 'cờ bật = 409 dựng trước INSERT, không rac job');
+    }
 }
