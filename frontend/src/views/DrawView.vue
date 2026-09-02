@@ -72,7 +72,16 @@ function tryGo() {
 </script>
 
 <template>
-  <section class="min-h-[80dvh] flex flex-col items-center justify-center px-gutter" data-testid="draw-frame">
+  <section class="min-h-[80dvh] flex flex-col items-center justify-center px-gutter relative" data-testid="draw-frame">
+    <!-- NAV-SPEC §1c: màn nghi thức KHÔNG có shell nav → thay bằng nút Về góc trái
+         để người dùng không bị lạc (muốn về home/Sổ quẻ trước đây phải dùng back trình duyệt). -->
+    <RouterLink
+      data-testid="draw-back"
+      to="/"
+      class="absolute top-4 left-4 no-underline text-small text-muted hover:text-ink"
+      aria-label="Về trang chính"
+      >← Về</RouterLink
+    >
     <template v-if="phase === 'idle'">
       <p class="text-muted text-body mb-6 text-center max-w-sm">
         Một quẻ mỗi ngày. Hơi thở đều, nghĩ một câu hỏi rõ ràng.
