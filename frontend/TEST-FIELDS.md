@@ -86,6 +86,7 @@ DRAW_LIMIT_REACHED (409) → replace về `/` + `?toast=draw_limit` → S1 rende
 ## S4 Mở khóa `/mo-khoa/:topic` — PaywallView.vue
 | testid | khi nào | nội dung |
 |---|---|---|
+| `pay-title` | luôn | [FE-G1 t_d99af588] h1 màn paywall: paywall thường = "Mở khóa luận sâu · <nhãn topic>", donateMode = "Lễ tùy tâm". Nhãn topic tra `TOPIC_LABELS`, normalize `-`→`_` nên deep-link typo `/mo-khoa/tai-loc` vẫn ra "Tài lộc" (không in nguyên URL param); slug lạ hoàn toàn (vd `/mo-khoa/abc`) fallback in đúng slug |
 | `pay-mode-donate` | `query.mode==='donate'` VÀ `#1 free_deep===true` (F8-FE C4) | root div của màn donateMode. donateMode: h1 = "Lễ tùy tâm", `pay-unlock-btn` + `pay-price` + dòng "Trả một lần…" ẤN (CẤM mọi wording 29k/unlock khi free); block donate giữ nguyên. Flag OFF → phớt lờ query, paywall 29k nguyên bản |
 | `pay-price` | luôn (trừ donateMode) | "29.000đ" — one-time theo device (C-05); KHÔNG đồng hồ đếm ngược / "còn N suất" |
 | `pay-unlock-btn` | luôn (trừ donateMode) | nút 1: POST #7 order → render QR |

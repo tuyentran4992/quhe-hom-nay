@@ -178,4 +178,18 @@ describe('PaywallView — stub paywall từ #7 BE-2', () => {
     expect(w.find('[data-testid="pay-donate-block"]').exists()).toBe(true)
     expect(w.find('[data-testid="pay-error"]').exists()).toBe(false)
   })
+
+  // [FE-G1] t_d99af588 — deep-link slug gạch nối (user tự gõ /mo-khoa/tai-loc) phải tra
+  // được label qua normalize -→_ ; slug đúng (tai_loc) giữ nguyên chuẩn. Không đụng gating.
+  it('G1: slug đúng tai_loc → h1 render nhãn "Tài lộc" (chuẩn cũ, chống regress)', async () => {
+    const { w } = await mountS4('tai_loc')
+    expect(w.find('[data-testid="pay-title"]').text()).toContain('Tài lộc')
+  })
+
+  it('G1: slug typo gạch nối tai-loc → h1 vẫn render "Tài lộc", KHÔNG in nguyên URL param', async () => {
+    const { w } = await mountS4('tai-loc')
+    const h1 = w.find('[data-testid="pay-title"]').text()
+    expect(h1).toContain('Tài lộc')
+    expect(h1).not.toContain('tai-loc')
+  })
 })
