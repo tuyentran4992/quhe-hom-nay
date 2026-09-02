@@ -19,7 +19,10 @@ const router = useRouter()
 const d = useDevice()
 const toasts = useToasts()
 const topic = computed(() => route.params.topic)
-const label = computed(() => TOPIC_LABELS[topic.value] || topic.value)
+// [FE-G1] t_d99af588 — deep-link slug gạch nối (user tự gõ /mo-khoa/tai-loc): normalize
+// -→_ trước khi tra nhãn để TOPIC_LABELS khớp; slug nội bộ snake (tai_loc) không đổi.
+// Chỉ là display fallback — KHÔNG đụng donateMode/gating (payload #7 vẫn gửi topic nguyên URL).
+const label = computed(() => TOPIC_LABELS[topic.value] || TOPIC_LABELS[String(topic.value).replace(/-/g, '_')] || topic.value)
 // [F8-FE C4] t_03424b76 — donateMode = query AND flag. URL do user sửa được → flag OFF
 // thì PHỚT LỜ query, giữ paywall 29k nguyên bản đã QA (chống giả mạo).
 const donateMode = computed(() => route.query.mode === 'donate' && d.freeDeep.value)
@@ -143,7 +146,7 @@ onBeforeUnmount(() => clearTimeout(pollTimer))
 
 <template>
   <div class="wrap mx-auto max-w-xl px-gutter pt-6" :data-testid="donateMode ? 'pay-mode-donate' : undefined">
-    <h1 class="han text-h1 font-semibold">{{ donateMode ? 'Lễ tùy tâm' : `Mở khóa luận sâu · ${label}` }}</h1>
+    <h1 data-testid="pay-title" class="han text-h1 font-semibold">{{ donateMode ? 'Lễ tùy tâm' : `Mở khóa luận sâu · ${label}` }}</h1>
     <p v-if="!donateMode" data-testid="pay-price" class="text-h2 font-semibold text-cinnabar mt-2">{{ PRICE_LABEL }}</p>
     <p v-if="!donateMode" class="text-small text-muted mt-1">Trả một lần, đọc mãi trên thiết bị này.</p>
     <p v-if="donateMode && phase === 'form'" class="text-small text-muted mt-1">Lễ là khích lệ tinh thần, không đổi lấy nội dung.</p>
