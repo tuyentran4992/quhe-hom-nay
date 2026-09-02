@@ -122,7 +122,8 @@ onMounted(async () => {
 
       <HomeLibraryStrip v-if="stripDraws.length" :draws="stripDraws" />
       <HomeSteps v-if="state === 'a'" />
-      <HomeTopicChips :entitlements="d.entitlements.value" :free-deep="d.freeDeep.value" />
+      <!-- [HOME-V4-A L1] today-draw-id: chip freeDeep nhảy thẳng /que/<id>?topic= (nhãn khớp đích) -->
+      <HomeTopicChips :entitlements="d.entitlements.value" :free-deep="d.freeDeep.value" :today-draw-id="today?.id ?? null" />
 
       <!-- Donate: chỉ ngôn ngữ free-deep (nhánh giá cũ KHÔNG thấy "Lễ tùy tâm" ở home —
            CTA donate chính nằm nav shell, gate giống nav-donate) -->

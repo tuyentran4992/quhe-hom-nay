@@ -2,12 +2,23 @@
 // HomeTopicChips — 3 chip chủ đề S1. NGÔN NGỮ THEO freeDeep (boss chốt 02/09):
 // true → pill "Luận sâu MIỄN PHÍ" trên CẢ 3 chip, CẤM in giá; false → giữ hành vi cũ
 // (Đã mở ✓ cho topic trong entitlements, PRICE_LABEL cho chip chưa mở).
+// [HOME-V4-A L1] freeDeep=true → chip nhảy THẲNG trang quẻ /que/<draw_id>?topic=<tab>
+// (KHÔNG bao giờ qua /mo-khoa); chưa có draw hôm nay → /draw. false → y nguyên hành vi cũ.
 import { HOME_TOPIC_CHIPS, TOPIC_LABELS, PRICE_LABEL, FREE_DEEP_LABEL } from '../../constants.js'
 const props = defineProps({
   entitlements: { type: Array, default: () => [] },
   freeDeep: { type: Boolean, default: false },
+  todayDrawId: { type: [Number, String], default: null }, // #1 today_draw.id (HomeView truyền xuống)
 })
 const slug = (t) => t.replace('_', '-')
+// ánh xạ chip home → tab DetailView (ngược với topicForTab DetailView:85 —
+// congViec→xuat_hanh, tinhDuyen→duyen, taiLoc→tai_loc)
+const TAB_FOR_TOPIC = { xuat_hanh: 'congViec', duyen: 'tinhDuyen', tai_loc: 'taiLoc' }
+const chipTo = (t) => {
+  if (!props.freeDeep) return `/mo-khoa/${t}`
+  if (props.todayDrawId) return { path: `/que/${props.todayDrawId}`, query: { topic: TAB_FOR_TOPIC[t] } }
+  return '/draw'
+}
 </script>
 
 <template>
@@ -18,7 +29,7 @@ const slug = (t) => t.replace('_', '-')
         <RouterLink
           :data-testid="`home-chip-${slug(c.topic)}`"
           class="card block p-4 no-underline"
-          :to="`/mo-khoa/${c.topic}`"
+          :to="chipTo(c.topic)"
         >
           <span class="font-semibold text-ink">{{ c.name }}</span>
           <span class="sr-only"> ({{ TOPIC_LABELS[c.topic] }})</span>
