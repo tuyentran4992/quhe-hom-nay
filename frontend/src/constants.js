@@ -97,3 +97,8 @@ export const PRICE_LABEL = `${fmtVnd(PRICE_UNLOCK_VND)}đ` // vd "29.000đ" — 
 // Dấu "—" là em dash U+2014; placeholder duy nhất {hexagram_ten} (hexagram.ten, 03-api §2).
 export const CAPTION_NATIVE = 'Hôm nay tôi là {hexagram_ten} — bạn là quẻ nào?' // Web Share (nút Chia sẻ)
 export const CAPTION_1X1 = '{hexagram_ten} — bạn là quẻ nào?' // dòng phụ 1:1 + clipboard 1:1
+// [VS3-S1 t_68f2bfff] caption đường COPY-LINK, dùng chung CẢ 2 khung 9:16 + 1x1
+// (hết cảnh URL trần 9:16 — SPEC-VS3 §S1). Wording CEO DUYỆT bản chốt comment 332
+// card B-0 t_917caf19 (P1.B kho CAP-THE) — CẤM tự sửa chữ. Không chứa "hôm nay"
+// (miễn nhiễm stale-date). Worst-case 11/12 từ trên 64 tên quẻ thật (QA-verified).
+export const CAPTION_CLIPBOARD = 'Tôi gieo được {hexagram_ten} — bạn là quẻ nào?' // clipboard (nút Copy link, 2 khung)

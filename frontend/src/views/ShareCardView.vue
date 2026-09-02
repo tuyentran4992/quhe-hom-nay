@@ -13,9 +13,10 @@ import { useDevice } from '../composables/useDeviceApi.js'
 import { useHexagrams } from '../composables/useHexagrams.js'
 import { useHaoTexts } from '../composables/useHaoTexts.js'
 import { buildCardModel, renderCaption } from '../utils/shareCard.js'
+import { copyToClipboard } from '../utils/clipboard.js'
 import { renderFrame, FRAME_9X16, FRAME_1X1 } from '../utils/shareCardCanvas.js'
 import { trackShareCard } from '../utils/track.js'
-import { CAPTION_NATIVE, CAPTION_1X1 } from '../constants.js'
+import { CAPTION_NATIVE, CAPTION_1X1, CAPTION_CLIPBOARD } from '../constants.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -107,17 +108,21 @@ async function getCanvasBlob() {
   return new Promise((res) => canvas.toBlob((b) => res(b), 'image/png'))
 }
 
-/** Copy link — 9:16 = NGUYÊN URL; 1:1 = CAPTION_1X1 + "\n" + URL (CAP-THE §4). */
+/** Copy link — VS3-S1: CẢ 2 khung đều CAPTION_CLIPBOARD + "\n" + URL (URL CUỐI dòng
+ * nguyên khối, nền tảng cắt caption vẫn còn link). S2: fallback execCommand không nag —
+ * V4 method=copy|copy_fallback tách đôi (ĐK-3 growth), fail → V3 clipboard_denied. */
 async function copyLink() {
   const m = model.value
   if (!m) return
-  const text = frame.value.key === '1x1' ? `${m.caption_1x1}\n${m.url}` : m.url
-  try {
-    await navigator.clipboard.writeText(text)
-    trackShareCard.done({ draw_id: m.draw_id, method: 'copy', token: m.token }) // V4
-  } catch {
-    /* clipboard từ chối (permission/http) — im lặng, không alert */
+  const caption = renderCaption(CAPTION_CLIPBOARD, m.ten)
+  const text = `${caption}\n${m.url}`
+  const result = await copyToClipboard(text)
+  // cả 3 nhánh KHÔNG toast/alert/đổi nút (SPEC-VS3 §S2 — dữ liệu track là đủ)
+  if (result === 'fail') {
+    trackShareCard.error({ draw_id: m.draw_id, reason: 'clipboard_denied' }) // V3
+    return
   }
+  trackShareCard.done({ draw_id: m.draw_id, method: result, token: m.token }) // V4 copy | copy_fallback
 }
 
 /** Tải ảnh PNG — anchor download, tên que-{token}.png. */

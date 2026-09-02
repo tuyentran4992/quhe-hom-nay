@@ -9,7 +9,8 @@ import {
   renderCaption,
   CARD_DISCLAIMER,
 } from '../src/utils/shareCard.js'
-import { CAPTION_NATIVE, CAPTION_1X1 } from '../src/constants.js'
+import { CAPTION_NATIVE, CAPTION_1X1, CAPTION_CLIPBOARD } from '../src/constants.js'
+import { readFileSync } from 'node:fs'
 
 const NX = 'Thiên Hỏa Đồng Nhân' // tên 4 từ worst-case (CAP-THE §0)
 
@@ -153,5 +154,29 @@ describe('CAP-THE §2 caption CHỐT — chép nguyên văn, em dash U+2014', ()
   it('renderCaption chỉ thay {hexagram_ten}', () => {
     expect(renderCaption(CAPTION_NATIVE, NX)).toBe('Hôm nay tôi là Thiên Hỏa Đồng Nhân — bạn là quẻ nào?')
     expect(renderCaption(CAPTION_1X1, 'Địa Thiên Thái')).toBe('Địa Thiên Thái — bạn là quẻ nào?')
+  })
+})
+
+// [VS3-S1 t_68f2bfff] caption clipboard — bản CEO DUYỆT comment 332 card B-0 t_917caf19
+describe('VS3-S1 CAPTION_CLIPBOARD — CEO chốt, CẤM sửa chữ', () => {
+  it('đúng từng ký tự (em dash U+2014, 1 placeholder duy nhất {hexagram_ten})', () => {
+    expect(CAPTION_CLIPBOARD).toBe('Tôi gieo được {hexagram_ten} \u2014 bạn là quẻ nào?')
+    expect((CAPTION_CLIPBOARD.match(/\{[^}]+\}/g) || [])).toEqual(['{hexagram_ten}'])
+    expect(CAPTION_CLIPBOARD).toContain('\u2014') // em dash U+2014, không phải hyphen
+    expect(CAPTION_CLIPBOARD).not.toMatch(/ - /)
+    expect(CAPTION_CLIPBOARD.toLowerCase()).not.toContain('hôm nay') // miễn nhiễm stale-date
+  })
+  it('renderCaption thay tên quẻ; ≤12 từ trên CẢ 64 tên quẻ THẬT (hexagrams.json — QA-VS3 gate)', () => {
+    const hx = JSON.parse(readFileSync('../backend/database/data/hexagrams.json', 'utf8'))
+    const names = (Array.isArray(hx) ? hx : hx.hexagrams || Object.values(hx)[0]).map((h) => h.ten)
+    expect(names.length).toBe(64)
+    const words = (s) => s.split(/\s+/).filter((t) => /[\p{L}\p{M}\p{N}]/u.test(t)).length
+    for (const n of names) {
+      const cap = renderCaption(CAPTION_CLIPBOARD, n)
+      expect(words(cap), n).toBeLessThanOrEqual(12)
+      expect(cap).toContain(n)
+    }
+    // worst-case thật 11 từ (CEO verify): không bia chữ — đếm trên dữ liệu
+    expect(words(renderCaption(CAPTION_CLIPBOARD, 'Địa Hỏa Minh Di'))).toBe(11)
   })
 })
