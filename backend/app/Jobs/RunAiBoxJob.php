@@ -5,7 +5,6 @@ namespace App\Jobs;
 use App\Domain\BianRule;
 use App\Domain\Luan;
 use App\Domain\PromptBuilder;
-use App\Domain\Rules;
 use App\Domain\Wordguard;
 use App\Models\AiJob;
 use App\Services\AiBoxClient;
@@ -19,8 +18,9 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * BE-2 — 01 §2/§3: CHỖ DUY NHẤT được đụng provider (queue DATABASE, không gọi
- * đồng bộ trong request HTTP). C-04: timeout 120s, tối đa 3 lần thử — retry NHỜ
- * queue, không sleep trong handle.
+ * đồng bộ trong request HTTP). C-04: timeout/cooldown/attempts đọc từ
+ * config/project.php (CFG-BE t_ce2a6834 — đổi số nghiệp vụ = sửa project.php,
+ * không sửa code) — retry NHỜ queue, không sleep trong handle.
  *
  * Bất biến 1 chiều: hàng đợi chỉ lấy job queued (claim atomic UPDATE...WHERE —
  * hai worker không cùng làm 1 job). done/failed là trạng thái cuối — job đã chết
@@ -33,14 +33,31 @@ class RunAiBoxJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    /** C-04: 3 lần thử; mỗi lần không quá 120s cộng dư giết worker. */
-    public int $tries = Rules::AI_MAX_ATTEMPTS;
+    /** C-04 (project.php ai.*): 3 lần thử; mỗi lần không quá timeout+30s dư giết worker.
+     *  CFG-BE: đọc config tại lúc construct — đổi số trên server nhớ `queue:restart`
+     *  kèm `config:clear` (worker sống lâu cache config trong memory). */
+    public int $tries;
 
-    public int $timeout = Rules::AI_TIMEOUT_SECONDS + 30;
+    public int $timeout;
 
     public function __construct(public int $aiJobId)
     {
+        $this->tries = (int) config('project.ai.max_attempts');
+        $this->timeout = (int) config('project.ai.timeout_seconds') + 30;
         $this->onQueue('ai');
+    }
+
+    /**
+     * BUG-QHN-100: ngưỡng đòi xác 'running' — KHÔNG phải số nghiệp vụ tự do mà
+     * GIÁ TRỊ SUY DIỄN từ project.php ai.timeout_seconds: hard timeout thật của
+     * worker (timeout+30 do SIGKILL) + dư 30s đồng hồ → claim sau chỉ cướp khi
+     * CHỦ CŨ CHẮC CHẮN chết, không bao giờ 2 worker cùng gọi provider trên 1 job.
+     * 1 nguồn duy nhất cho RunAiBoxJob + SweepZombieJobs (đừng tham số hóa —
+     * đổi nó độc lập với timeout = mở cửa 2 worker giành 1 job).
+     */
+    public static function zombieAfterSeconds(): int
+    {
+        return (int) config('project.ai.timeout_seconds') + 30 + 30;
     }
 
     /**
@@ -52,10 +69,12 @@ class RunAiBoxJob implements ShouldQueue
         return microtime(true);
     }
 
-    /** Ngân sách regenerate — config được trong test, mặc định Rules (độc quyền 1 nơi). */
+    /** Ngân sách regenerate — override aibox.* (test/trường hợp đặc biệt), mặc định
+     *  project.php ai.filter_regenerate_budget_s (độc quyền 1 nơi, CFG-BE). */
     protected function regenerateBudgetSeconds(): float
     {
-        return (float) config('aibox.filter_regen_budget_s', Rules::AI_FILTER_REGENERATE_BUDGET_S);
+        return (float) (config('aibox.filter_regen_budget_s')
+            ?? config('project.ai.filter_regenerate_budget_s'));
     }
 
     public function handle(AiBoxClient $client, ?Luan $luan = null): void
@@ -129,7 +148,7 @@ class RunAiBoxJob implements ShouldQueue
             // chữ dính wordguard (hay nhất "cốt" trong "cốt lõi" — regex \bc[oố]t\b
             // bắt cả từ ghép nghĩa) → trước dây fail thẳng AI_FILTERED, user thấy
             // "bàn cờ im tiếng" dù chỉ lệch MỘT chữ. Nay tự regenerate tối đa
-            // Rules::AI_FILTER_REGENERATIONS lần ngay trong handle: gửi lại chính
+            // project.php ai.filter_regenerations lần ngay trong handle: gửi lại chính
             // xác chữ phạm + yêu cầu viết đủ bài KHÔNG dùng chữ đó. Vẫn giữ hợp
             // đồng: bài bẩn KHÔNG BAO GIỜ lưu; cạn lượt regenerate → failed
             // AI_FILTERED như cũ (E4).
@@ -146,7 +165,7 @@ class RunAiBoxJob implements ShouldQueue
                 if ($hits === []) {
                     break;
                 }
-                if ($regen >= Rules::AI_FILTER_REGENERATIONS
+                if ($regen >= (int) config('project.ai.filter_regenerations')
                     || ($this->now() - $startedAt) > $this->regenerateBudgetSeconds()) {
                     break;
                 }
@@ -178,14 +197,17 @@ class RunAiBoxJob implements ShouldQueue
 
             $job->transitTo(AiJob::ST_DONE, ['result' => $text, 'finished_at' => now()]);
         } catch (AiBoxException $e) {
-            // còn lượt thử thì throw cho queue retry; cạn 3 lượt (C-04) → failed vĩnh viễn
-            if ($this->attempts() < $this->tries && $job->attempts < Rules::AI_MAX_ATTEMPTS) {
+            // còn lượt thử thì throw cho queue retry; cạn tries (C-04, project.php)
+            // → failed vĩnh viễn
+            $maxAttempts = (int) config('project.ai.max_attempts');
+            if ($this->attempts() < $this->tries && $job->attempts < $maxAttempts) {
                 $job->forceFill(['status' => AiJob::ST_QUEUED])->save();
                 throw $e;
             }
             $job->transitTo(AiJob::ST_FAILED, ['error_code' => $e->errorCode, 'finished_at' => now()]);
         } catch (\Throwable $e) {
-            if ($this->attempts() < $this->tries && $job->attempts < Rules::AI_MAX_ATTEMPTS) {
+            $maxAttempts = (int) config('project.ai.max_attempts');
+            if ($this->attempts() < $this->tries && $job->attempts < $maxAttempts) {
                 $job->forceFill(['status' => AiJob::ST_QUEUED])->save();
                 throw $e;
             }
@@ -200,7 +222,7 @@ class RunAiBoxJob implements ShouldQueue
      * chuẩn (queued→running) fail. Trước đây hàm handle return im lặng → Laravel
      * xoá row jobs → zombie VĨNH VIỄN, #6 trả 'running' tới mãi. Phân xử theo
      * chính xác, atomic 1 UPDATE kèm điều kiện status (không đọc-rồi-ghi):
-     *   - running quá Rules::AI_ZOMBIE_AFTER_SECONDS (worker hard-timeout 150s
+     *   - running quá zombieAfterSeconds() (hard-timeout 150s mặc định
      *     + dư 30s) còn lượt ⇒ đòi xác, trả 1 để handle chạy tiếp như lượt thường;
      *   - running còn sốt (chủ cũ còn sống — cướp = 2 worker gọi provider trên
      *     1 job) HOẶC cạn lượt ⇒ ném exception: queue GIỮ row jobs, redeliver
@@ -213,8 +235,8 @@ class RunAiBoxJob implements ShouldQueue
         $reclaimed = AiJob::query()
             ->where('id', $this->aiJobId)
             ->where('status', AiJob::ST_RUNNING)
-            ->where('attempts', '<', Rules::AI_MAX_ATTEMPTS)
-            ->where('updated_at', '<', now()->subSeconds(Rules::AI_ZOMBIE_AFTER_SECONDS))
+            ->where('attempts', '<', (int) config('project.ai.max_attempts'))
+            ->where('updated_at', '<', now()->subSeconds(self::zombieAfterSeconds()))
             ->update(['attempts' => DB::raw('attempts + 1')]);
         if ($reclaimed === 1) {
             logger()->warning('aibox.zombie_reclaim', ['job' => $this->aiJobId]);

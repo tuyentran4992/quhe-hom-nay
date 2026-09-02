@@ -40,7 +40,14 @@ class DrawService
     {
         $vnToday = $this->vnDate($now);
 
-        if ($existing = $this->todayDraw($device, $vnToday)) {
+        // C-01 = project.php draw.free_per_day (CFG-BE): đếm quẻ đã gieo hôm nay
+        // so với ngưỡng config. Mặc định 1 → đường 409 y hệt cũ; DB còn uq
+        // (device,date) chặn race ở mức 1 — tăng config >1 cần bỏ unique index
+        // kèm (chú thích trong project.php), code đã sẵn sàng đọc số.
+        $freePerDay = (int) config('project.draw.free_per_day');
+        $todayCount = Draw::query()->where('device_id', $device->device_id)
+            ->where('drawn_date', $vnToday->format('Y-m-d'))->count();
+        if ($todayCount >= max(1, $freePerDay)) {
             throw ApiException::drawLimitReached($this->nextMidnightUtc($now));
         }
 

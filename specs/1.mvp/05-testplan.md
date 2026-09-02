@@ -141,5 +141,5 @@ mỗi khối đủ Hán + quốc âm + nghĩa (k=3); cả 3 ca KHÔNG có tên/s
 - [ ] U1–U7 + F1–F9 xanh trên CI local (`php artisan test`) trước mỗi merge card BE.
 - [ ] E1–E7 xanh do qa-engineer xác nhận (dev-lead nhận report + screenshot, không tự chạy).
 - [ ] 03-api field-by-field khớp FE network panel (QA diff JSON mẫu vs thực tế 3 ca F2/F4/F8).
-- [ ] Không file >250 dòng; không magic number ngoài `Domain/Rules`; không secret trong git
+- [ ] Không file >250 dòng; không magic number ngoài `config/project.php` (số/CỜ) + `Domain/Rules` (enum cấu trúc); không secret trong git
       (`git grep -Ii 'AIBOX_API_KEY=.\+' ; git grep -i 'password'.env.example` → chỉ placeholder).

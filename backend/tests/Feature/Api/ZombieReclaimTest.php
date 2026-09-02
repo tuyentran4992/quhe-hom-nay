@@ -17,7 +17,7 @@ use Illuminate\Support\Str;
  * tới timeout 130s lặp vô hạn.
  *
  * Hợp đồng mới (phương án 2, claim atomic mở cho xác zombie):
- *  - running quá Rules::AI_ZOMBIE_AFTER_SECONDS (worker hard-timeout 150s + dư)
+ *  - running quá RunAiBoxJob::zombieAfterSeconds() (timeout project.php + dư)
  *    ⇒ lần claim sau ĐÒI LẠI được, chạy đủ như worker thường.
  *  - running CÒN SỐT (worker khác còn sống) ⇒ KHÔNG cướp — ném exception cho queue
  *    redeliver sau retry_after; row jobs được GIỮ LẠI (đường về của zombie).

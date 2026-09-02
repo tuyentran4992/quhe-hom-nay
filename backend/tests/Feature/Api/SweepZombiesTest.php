@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
  * BUG-QHN-100 — cứu hộ xác zombie mà reclaim trong RunAiBoxJob KHÔNG với tới:
  * hàng đợi jobs đã bị xoá (dấu vết của chính bug cũ: claim fail + return im lặng)
  * ⇒ không còn gì redeliver ⇒ command `ai:sweep-zombies` là đường về duy nhất.
- * Quét running quá Rules::AI_ZOMBIE_AFTER_SECONDS: còn lượt + MỒ CÔI (không còn
+ * Quét running quá RunAiBoxJob::zombieAfterSeconds(): còn lượt + MỒ CÔI (không còn
  * row jobs) ⇒ về queued + dispatch lại; còn row jobs ⇒ ĐỂ YÊN (worker tự
  * redeliver, cướp = 2 job chạy song song); cạn lượt ⇒ failed(AI_UPSTREAM)
  * terminal — #6 không bao giờ kẹt 'running' vĩnh viễn.

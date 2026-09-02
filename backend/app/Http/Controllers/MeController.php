@@ -31,7 +31,7 @@ class MeController extends Controller
             'server_date_vn' => $this->draws->serverDateVn(now()),
             // F8-BE (C1): tín hiệu "luận sâu đang FREE" — FE CHỈ tin key này,
             // không suy từ entitlements (device trả 29k cũng đủ 3 topic).
-            'free_deep' => (bool) config('preview.free_deep'),
+            'free_deep' => (bool) config('project.free_deep_preview'),
         ]);
     }
 
@@ -45,7 +45,7 @@ class MeController extends Controller
             'today_draw' => $this->draws->todayDraw($device)?->toApi(),
             'entitlements' => $this->entitlements($device),
             'server_date_vn' => $this->draws->serverDateVn(now()),
-            'free_deep' => (bool) config('preview.free_deep'), // F8-BE C1 — cùng nguồn #1
+            'free_deep' => (bool) config('project.free_deep_preview'), // F8-BE C1 — cùng nguồn #1
         ]]);
     }
 
@@ -58,9 +58,9 @@ class MeController extends Controller
      */
     private function entitlements(Device $device): array
     {
-        // PREVIEW FLAG (không tồn tại ở main): mở luận sâu free → FE coi như đã unlock
-        // cả 3 topic để vào thẳng vùng hỏi, không đẩy sang màn paywall.
-        if (config('preview.free_deep')) {
+        // PREVIEW OVERRIDE (project.php free_deep_preview): mở luận sâu free → FE
+        // coi như đã unlock cả 3 topic để vào thẳng vùng hỏi, không đẩy sang paywall.
+        if (config('project.free_deep_preview')) {
             return \App\Domain\Rules::TOPICS;
         }
         $paid = \Illuminate\Support\Facades\Schema::hasTable('payments')

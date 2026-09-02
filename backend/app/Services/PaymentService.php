@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Domain\Rules;
 use App\Domain\Topic;
 use App\Models\Device;
 use App\Models\Payment;
@@ -42,8 +41,9 @@ class PaymentService
         $amount = (int) ($body['amount_vnd'] ?? 0);
         if ($kind === 'unlock') {
             // spec §7: client gửi khác → server GHI ĐÈ 29000, không lỗi.
-            $amount = Rules::PRICE_UNLOCK_VND;
-        } elseif ($kind === 'donate' && ($amount < Rules::DONATE_MIN_VND || $amount > Rules::DONATE_MAX_VND)) {
+            $amount = (int) config('project.price.unlock_vnd');
+        } elseif ($kind === 'donate' && ($amount < (int) config('project.donate.min_vnd')
+            || $amount > (int) config('project.donate.max_vnd'))) {
             $errors['amount_vnd'] = ['Lễ tùy tâm trong khoảng 1.000–500.000đ (C-07).'];
         }
         $key = trim((string) ($body['idempotency_key'] ?? ''));

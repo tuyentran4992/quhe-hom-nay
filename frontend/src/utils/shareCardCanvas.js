@@ -6,7 +6,12 @@
 // · bamboo #3E5C48 · muted #5C554A. Font symbol: "Noto Serif TC" (self-host main.js).
 // Story safe-area: đỉnh 250 · đáy 310 → text quan trọng nằm giữa 250..1610;
 // dưới đáy CHỈ QR + URL (muted). 1:1: không QR, 3 chips (drop chip tràn), dòng phụ caption.
-
+//
+// ── NHÓM CANVAS (CFG-FE t_130d6f4b, cách 2 CEO duyệt): các số px DƯỚI ĐÂY CỐ Ý Ở LẠI
+// ĐÂY thay vì về constants.js — chúng LÀ KIẾN TRÚC PIXEL CỦA BÀI VẼ: mọi toạ độ trong
+// các hàm draw* tính tương đối lẫn nhau theo đơn vị UNIT=1080 (đổi 1 số mà không vẽ lại
+// cả bố cục = vỡ layout canvas, không phải "đổi cấu hình kinh doanh"). constants.js chỉ
+// chứa số NGHIỆP VỤ đổi được; đây là số HÌNH HỌC bám mockup đã duyệt — sửa kèm mockup.
 export const TOKENS = {
   paper: '#F7F2E7',
   paper2: '#EFE6D3',
