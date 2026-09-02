@@ -47,6 +47,7 @@ function mkRoutes() {
       { path: '/', name: 'home', component: { template: '<div/>' } },
       { path: '/que/:drawId', name: 'detail', component: DetailView },
       { path: '/mo-khoa/:topic', name: 'paywall', component: { template: '<div/>' } },
+      { path: '/tam-tu', name: 'donate', component: { template: '<div/>' } }, // [HOME-V4-B]
       { path: '/share-card', name: 'share-card', component: { template: '<div/>' } },
     ],
   })
@@ -178,7 +179,7 @@ describe('UI-POLISH 4 — chống thoái hóa hợp đồng cũ', () => {
       expect(w.find(`[data-testid="${t}"]`).exists(), t).toBe(true)
   })
 
-  it('đổi tab vẫn đổi free-slot + donate click vẫn push paywall mode=donate (flow không đổi)', async () => {
+  it('đổi tab vẫn đổi free-slot + donate click vẫn push màn /tam-tu (HOME-V4-B: route riêng)', async () => {
     const r = mkRoutes()
     client.api.me.mockResolvedValue(me({ free_deep: true }))
     const w = mount({ template: '<RouterView />' }, { global: { plugins: [r] } })
@@ -191,6 +192,7 @@ describe('UI-POLISH 4 — chống thoái hóa hợp đồng cũ', () => {
     expect(w.find('[data-testid="detail-free-slot"]').text()).toContain('td')
     await w.find('[data-testid="donate-cta-open"]').trigger('click')
     await flushPromises()
-    expect(r.currentRoute.value.query.mode).toBe('donate')
+    // [HOME-V4-B] t_3647e25e — donate CTA nay là route RIÊNG /tam-tu (không còn query mode)
+    expect(r.currentRoute.value.path).toBe('/tam-tu')
   })
 })

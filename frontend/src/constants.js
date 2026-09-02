@@ -87,7 +87,9 @@ export const HOME_TOPIC_CHIPS = [
 // Nhãn free-deep (boss chốt 02/09): khi freeDeep=true home nói MIỄN PHÍ, CẤM in giá.
 export const FREE_DEEP_LABEL = 'Luận sâu MIỄN PHÍ'
 export const DONATE_LABEL = 'Lễ tùy tâm'
-export const DONATE_HREF = '/mo-khoa/duyen?mode=donate'
+// [HOME-V4-B] t_3647e25e — Luật 2: lễ tùy tâm là route RIÊNG /tam-tu (DonateView),
+// KHÔNG còn query mode donate trên /mo-khoa (link cũ redirect ở router guard).
+export const DONATE_HREF = '/tam-tu'
 // Copy home 3 trạng thái (content.md §A/§B/§C — wording chốt, không hardcode trong .vue)
 export const HOME_COPY = {
   heroA: { title1: 'Gieo ba đồng xu,', title2: 'xin một quẻ', em: 'hôm nay' },

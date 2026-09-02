@@ -11,6 +11,7 @@ import { join } from 'node:path'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import PaywallView from '../src/views/PaywallView.vue'
+import DonateView from '../src/views/DonateView.vue' // [HOME-V4-B] t_3647e25e
 import TopicGate from '../src/components/TopicGate.vue'
 import PayQr from '../src/components/PayQr.vue'
 import * as client from '../src/api/client.js'
@@ -69,13 +70,14 @@ describe('CFG-FE — binding UI đọc từ constants', () => {
   })
   afterEach(() => vi.useRealTimers())
 
-  it('Paywall: nhãn giá = PRICE_LABEL, nút unlock chứa PRICE_LABEL, donate mặc định chọn mức DONATE_DEFAULT_VND, payload #7 = PRICE_UNLOCK_VND', async () => {
+  it('Paywall: nhãn giá = PRICE_LABEL, nút unlock chứa PRICE_LABEL, payload #7 = PRICE_UNLOCK_VND; donate ở /tam-tu mặc định DONATE_DEFAULT_VND', async () => {
     const r = createRouter({
       history: createMemoryHistory(),
       routes: [
         { path: '/', name: 'home', component: { template: '<div/>' } },
         { path: '/que/:drawId', name: 'detail', component: { template: '<div/>' } },
         { path: '/mo-khoa/:topic', name: 'paywall', component: PaywallView },
+        { path: '/tam-tu', name: 'donate', component: DonateView }, // [HOME-V4-B] t_3647e25e
       ],
     })
     await r.push({ name: 'paywall', params: { topic: 'duyen' } })
@@ -83,12 +85,20 @@ describe('CFG-FE — binding UI đọc từ constants', () => {
     await flushPromises()
     expect(w.find('[data-testid="pay-price"]').text()).toBe(PRICE_LABEL)
     expect(w.find('[data-testid="pay-unlock-btn"]').text()).toContain(PRICE_LABEL)
-    const chips = w.findAll('[data-testid="pay-donate-chip"]')
-    expect(chips[1].attributes('aria-pressed')).toBe('true') // mức 2 = DONATE_DEFAULT_VND
+    // [HOME-V4-B] Luật 2: /mo-khoa THUẦN giá — không còn block donate trên màn này
+    expect(w.findAll('[data-testid="pay-donate-chip"]').length).toBe(0)
     client.api.createPayment.mockResolvedValue({ data: { order_code: 1, kind: 'unlock', topic: 'duyen', amount_vnd: PRICE_UNLOCK_VND, status: 'pending', qr_data: 'vietqr/x', confirm_url: '', checkout_url: '/pay/1', stub: true } })
     await w.find('[data-testid="pay-unlock-btn"]').trigger('click')
     await flushPromises()
     expect(client.api.createPayment.mock.calls[0][0].amount_vnd).toBe(PRICE_UNLOCK_VND)
+    // donate mặc định = DONATE_DEFAULT_VND, giờ kiểm ở màn riêng /tam-tu
+    vi.clearAllMocks()
+    await r.push('/tam-tu')
+    const wd = mount(DonateView, { global: { plugins: [r] } })
+    await flushPromises()
+    const chips = wd.findAll('[data-testid="pay-donate-chip"]')
+    expect(chips[1].attributes('aria-pressed')).toBe('true') // mức 2 = DONATE_DEFAULT_VND
+    wd.unmount()
   })
 
   it('TopicGate nhánh locked: wording giá đọc PRICE_LABEL (không literal 29k)', async () => {

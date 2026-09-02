@@ -88,10 +88,12 @@ const topicForTab = computed(() => ({ congViec: 'xuat_hanh', tinhDuyen: 'duyen',
 
 // ===== [F8-FE C3] t_03424b76 — CTA "Lễ tùy tâm ủng hộ" (chip paper2, chỉ khi free_deep) =====
 // Nút render = luận đã tải xong (hx có trong template v-else) VÀ d.freeDeep (key C1, không suy từ entitlements).
+// [HOME-V4-B] t_3647e25e — Luật 2: đích đến là route RIÊNG /tam-tu (query mode cũ trên
+// paywall chết hẳn). Event tracking donate_cta_* giữ nguyên name + props.
 const donateCtaVisible = computed(() => !!hx.value && !!draw.value && d.freeDeep.value)
 function openDonateCta() {
   api.track({ name: 'donate_cta_click', props: { topic: topicForTab.value } }).catch(() => {}) // fire-and-forget (C2)
-  router.push({ name: 'paywall', params: { topic: topicForTab.value }, query: { mode: 'donate' } })
+  router.push({ name: 'donate' })
 }
 // donate_cta_shown: ĐÚNG 1 lần khi nút THỰC SỰ render (C3) — flag OFF → không bắn; reload data
 // trong cùng mount không bắn lại (bắn theo nút, không theo tab).
@@ -209,7 +211,7 @@ watch(donateCtaVisible, (v) => {
           :topic="topicForTab"
         />
         <!-- [F8-FE C3] t_03424b76 + polish: CTA donate BẬC 1 — btn-cinnabar + hover/
-             focus-visible/disabled; click → donate_cta_click + S4 ?mode=donate (flow C2 giữ). -->
+             focus-visible/disabled; click → donate_cta_click + màn /tam-tu (flow C2 giữ). -->
         <button
           v-if="donateCtaVisible"
           type="button"

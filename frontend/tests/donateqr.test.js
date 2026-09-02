@@ -3,12 +3,14 @@
 // CHỈ paid mới 'donated' (pay-donate-thanks). donate: KHÔNG router.replace, KHÔNG toast,
 // KHÔNG refresh entitlement. expired → "Gửi lễ lại" tạo đơn MỚI (idempotency key mới).
 // Unlock 29k GIỮ NGUYÊN hành vi (các test cũ paywall.test.js là regression gate).
+// [HOME-V4-B] t_3647e25e — màn donate dời sang route riêng /tam-tu (DonateView);
+// data-testid + payload + luồng GIỮ NGUYÊN nên suite này chỉ đổi nơi mount.
 // Thẫm mỹ theo mockup DUYỆT: /data/agents/ux-ui/outbox/UX-MOCKUP-DONATE/ (SHOT1 thẻ lễ,
 // SHOT2 badge vàng "Chưa phải đã gửi — chờ tiền về").
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
-import PaywallView from '../src/views/PaywallView.vue'
+import DonateView from '../src/views/DonateView.vue'
 import * as client from '../src/api/client.js'
 import { parseVietQr, ckCode } from '../src/utils/donateQr.js'
 import { _resetDeviceForTests } from '../src/composables/useDeviceApi.js'
@@ -34,7 +36,7 @@ function mk() {
     routes: [
       { path: '/', name: 'home', component: { template: '<div/>' } },
       { path: '/que/:drawId', name: 'detail', component: { template: '<div/>' } },
-      { path: '/mo-khoa/:topic', name: 'paywall', component: PaywallView },
+      { path: '/tam-tu', name: 'donate', component: DonateView },
     ],
   })
 }
@@ -42,12 +44,12 @@ function mk() {
 beforeEach(() => { vi.clearAllMocks(); _resetDeviceForTests(); client.api.me.mockResolvedValue(ME_FREE); client.api.track.mockResolvedValue(null) })
 afterEach(() => { vi.useRealTimers() })
 
-// donateMode chuẩn: freeDeep ON + ?mode=donate (C4)
+// [HOME-V4-B] màn donate = route riêng /tam-tu (C4 giữ: không có nhánh giá trên màn này)
 async function mountDonate() {
   const r = mk()
-  await r.push({ name: 'paywall', params: { topic: 'duyen' }, query: { mode: 'donate' } })
+  await r.push('/tam-tu')
   await r.isReady()
-  const w = mount(PaywallView, { global: { plugins: [r] } })
+  const w = mount(DonateView, { global: { plugins: [r] } })
   await flushPromises(); await flushPromises()
   return { r, w }
 }
@@ -178,7 +180,7 @@ describe('donate poll — chỉ paid → donated', () => {
     expect(w.find('[data-testid="pay-donate-thanks"]').exists()).toBe(true)
     expect(w.text()).toMatch(/Cảm ơn/)
     expect(w.text()).toMatch(/khích lệ tinh thần/) // wording chốt mockup, không hứa nội dung
-    expect(r.currentRoute.value.query.mode).toBe('donate') // ở lại màn, KHÔNG router.replace
+    expect(r.currentRoute.value.path).toBe('/tam-tu') // ở lại màn, KHÔNG router.replace
     expect(useToasts().list.value.length).toBe(0)
     expect(client.api.today).not.toHaveBeenCalled() // donate không đụng entitlement
     vi.useRealTimers()
