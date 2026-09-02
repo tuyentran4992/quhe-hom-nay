@@ -154,9 +154,10 @@ class ShareLinksApiTest extends ApiTestCase
         $json = $resp->json();
         $this->assertSame(['card', 'sharer_label', 'views'], array_keys($json), 'đúng 3 key top-level');
         $this->assertSame(
-            ['hexagram_id', 'symbol', 'ten', 'drawn_date', 'hook', 'keywords', 'disclaimer', 'qr_text'],
+            // VS3-S3 t_3b27cbde: +2 khóa dẫn xuất is_today/drawn_date_full → 10 key
+            ['hexagram_id', 'symbol', 'ten', 'drawn_date', 'is_today', 'drawn_date_full', 'hook', 'keywords', 'disclaimer', 'qr_text'],
             array_keys($json['card']),
-            'card đúng 8 key, không hơn'
+            'card đúng 10 key, không hơn'
         );
         $this->assertSame(['text', 'source', 'text_clip80'], array_keys($json['card']['hook']), 'BUG-F7-QA3 t_b0cfc1b4: hook 3 key (text NGUYÊN VĂN + source + bản hiển ≤80)');
         $this->assertSame(11, $json['card']['hexagram_id']);

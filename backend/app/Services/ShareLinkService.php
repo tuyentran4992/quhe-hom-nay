@@ -128,6 +128,11 @@ class ShareLinkService
             'symbol' => (string) $hexagram->symbol,
             'ten' => (string) $hexagram->ten,
             'drawn_date' => $draw->drawn_date->format('d/m'),
+            // VS3-S3 (SPEC §S3): is_today dùng isSameDay Carbon CÙNG timezone cột
+            // drawn_date (không so string — lệch rạng sáng); drawn_date_full cho
+            // blade nhánh thẻ hôm qua. Khóa cũ giữ nguyên thứ tự + giá trị (PNG/OG bất biến).
+            'is_today' => $draw->drawn_date->isSameDay(now()),
+            'drawn_date_full' => $draw->drawn_date->format('d/m/Y'),
             'hook' => $this->pickHook($draw, $hexagram),
             'keywords' => array_values(array_map(
                 'strval',
