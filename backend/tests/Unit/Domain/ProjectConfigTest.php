@@ -54,6 +54,13 @@ final class ProjectConfigTest extends TestCase
         $this->assertSame('qwen3.6-flash', $c['ai']['router_model'], 'BUG-V3-1 probe 01/09');
         $this->assertSame(8, $c['ai']['router_max_tokens']);
         $this->assertSame(10, $c['ai']['router_timeout_seconds']);
+        // BE-PAY-EXPIRE (t_bbfff19b): C-14/C-15 — TTL cron expire đơn pending.
+        // 600s > timer FE 300s là BẤT BIẾN (BE không expire khi khách còn quét QR);
+        // muốn hạ phải sửa spec 03-api §7c trước.
+        $this->assertSame(600, $c['pay']['expire_ttl_seconds'], 'C-14: TTL expire (giây)');
+        $this->assertGreaterThanOrEqual(600, $c['pay']['expire_ttl_seconds'],
+            'C-14 phải ≥ 2x FE poll 300s — hạ xuống = cắt quyền khách đang chuyển tiền');
+        $this->assertTrue($c['pay']['expire_cron_enabled'], 'C-15: cờ cron default BẬT');
     }
 
     /**

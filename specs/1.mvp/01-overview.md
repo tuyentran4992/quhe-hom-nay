@@ -19,6 +19,11 @@ văn hoá". CẤM: bán ritual (cúng/giải hạn/bùa), câu chữ "thay đổ
 - DB — MariaDB 10.11, database `quhe_hom_nay`, queue + sessions + jobs đều qua DATABASE.
 - AI — AI-Box (provider LLM cấu hình qua env), gọi CHỈ từ queue worker, không gọi đồng bộ
   trong request HTTP.
+- Cron — BE-PAY-EXPIRE 02/09: lệnh nền khai báo schedule trong `routes/console.php`
+  (hiện có `payments:expire-pending`; `jobs:sweep-zombies` chưa — card khác thêm thì
+  cũng khai báo ở đây). Máy deploy BẮT BUỘC một dòng crond:
+  `* * * * * cd <repo>/backend && php artisan schedule:run >> /dev/null 2>&1`.
+  Lệnh đều idempotent — chưa gắn crond thì chạy tay, không hỏng data.
 
 Kiến trúc hexagonal nhẹ: `app/Domain/` (pure PHP, không import facade/HTTP), `app/Services/`
 orchestration, `app/Http/` + `app/Jobs/` adapter. Bất biến nghiệp vụ (định giá, cooldown,

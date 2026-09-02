@@ -177,6 +177,16 @@ class PaymentService
             return $payment;
         }
 
+        // BE-PAY-EXPIRE (t_bbfff19b, AC-3) — webhook TIỀN ĐÚNG đến sau khi cron
+        // expire: revive expired→paid. BE expire chỉ là suy đoán hết-TTL-chưa-thấy
+        // tiền; gateway xác nhận tiền thật thì tiền thắng (khách chuyển trễ vẫn
+        // nhận quyền, donate vẫn về). Đơn paid thường đi qua nhanh-return ở trên.
+        if ($payment->status === Payment::ST_EXPIRED) {
+            logger()->warning('payments.webhook.revive_after_expire', [
+                'order_code' => $orderCode, 'gateway_ref' => $gatewayRef,
+            ]);
+        }
+
         $payment->transitTo(Payment::ST_PAID, ['paid_at' => now(), 'gateway_ref' => $gatewayRef]);
         logger()->info('payments.webhook.paid', ['order_code' => $orderCode, 'gateway_ref' => $gatewayRef]);
 
