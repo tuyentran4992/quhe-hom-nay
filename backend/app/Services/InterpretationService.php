@@ -13,13 +13,14 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 /**
- * BE-2 — 03-api §5/#6: gate 402 → cooldown C-03 → cap C-06 → INSERT ai_jobs + dispatch.
+ * BE-2 — 03-api §5/#6: gate 402 → KHÓA done (409) → cooldown C-03 → cap C-06
+ * → INSERT ai_jobs + dispatch.
  * 1 trách nhiệm: ĐIỀU PHỐI job luận sâu. KHÔNG gọi AI-Box ở đây (chỉ RunAiBoxJob — 01 §2),
  * không đụng tiền (PaymentService).
  *
- * Cache AC-2: trước khi dispatch, tra job `done` mới nhất CÓ CÙNG QUẺ (hexagram_id) +
- * CÙNG CHỦ ĐỀ; khớp → job mới sinh ra đã done, sao chép result, KHÔNG dispatch → worker
- * không gọi provider (chứng minh bằng đếm log `aibox.request.sent`).
+ * REVIEW-LUAN (t_8aa93a01): cache AC-2 "tạo job done ngay tại chỗ" đã bị THAY
+ * bằng 409 AI_ALREADY_DONE (boss GO 02/09 — mỗi (quẻ, topic) chỉ luận 1 lần ở
+ * giai đoạn này). Nguồn đọc lại = #5b GET /api/ai/interpretations/saved.
  */
 class InterpretationService
 {
@@ -80,6 +81,14 @@ class InterpretationService
             throw InterpretationException::unlockRequired($topic->value);
         }
 
+        // (c1) REVIEW-LUAN (t_8aa93a01): KHÓA 1 lượt luận per (hexagram, topic) —
+        // nguồn khóa = MỌI job done cùng quẻ+chủ đề, BẤT KỂ question (rộng hơn
+        // nguồn cache AC-2 vẫn whereNull question). Gate đặt TRƯỚC cooldown/cap/
+        // INSERT: hết cooldown không thành đường lách, và 409 không tạo rac job.
+        if ($this->findDoneSource($draw->hexagram_id, $topic->value) !== null) {
+            throw InterpretationException::alreadyDone();
+        }
+
         // (c) cooldown C-03 = 90 GIÂY/device theo ai_jobs.requested_at mới nhất.
         $last = AiJob::query()->where('device_id', $device->device_id)
             ->max('requested_at');
@@ -98,7 +107,8 @@ class InterpretationService
             throw InterpretationException::globalCap();
         }
 
-        // (e) INSERT + cache tra trước khi dispatch.
+        // (e) INSERT + dispatch — đường 202 DUY NHẤT còn lại (không còn nhánh
+        // "cache done tại chỗ": đã thay bằng 409 ở (c1) theo card t_8aa93a01).
         $job = AiJob::query()->create([
             'job_uuid' => (string) Str::uuid(),
             'device_id' => $device->device_id,
@@ -111,42 +121,59 @@ class InterpretationService
             'result_key_hash' => $hash,
         ]);
 
-        // LUAN-V2 §5.2 (D1): job CÓ question LUÔN bỏ qua cache — không ăn bài của
-        // người khác (bài luận không hỏi ≠ bài luận có vướng mắc riêng).
-        $cached = $question === null
-            ? $this->findCacheHit($draw->hexagram_id, $topic->value, $job->id)
-            : null;
-        if ($cached !== null) {
-            // AC-2 cache: SAME QUẺ + SAME CHỦ ĐỀ → done ngay, không đụng provider.
-            $job->forceFill([
-                'status' => AiJob::ST_DONE,
-                'result' => $cached->result,
-                'finished_at' => now(),
-                'attempts' => 0,
-            ])->save();
-
-            return $job;
-        }
-
         RunAiBoxJob::dispatch($job->id);
 
         return $job;
     }
 
-    /** Job done gần nhất cùng hexagram+topic KHÁC chính nó — nguồn cache DB (AC-2).
-     * LUAN-V2 §5: chỉ job question NULL được làm nguồn (bài luận không hỏi). */
-    public function findCacheHit(int $hexagramId, string $topic, int $excludeJobId): ?AiJob
+    /**
+     * REVIEW-LUAN — NGUỒN KHÓA/#5b: job `done` mới nhất cùng hexagram + topic,
+     * BẤT KỂ question (rộng hơn nguồn cache AC-2 cũ — le cu chi nhan question
+     * NULL, nieng theo card chot; AC-2 done-tai-cho không còn dùng nguồn này).
+     * done của bất kỳ device nào cũng khóa: khóa theo quẻ+chủ đề, không theo draw/device.
+     */
+    public function findDoneSource(int $hexagramId, string $topic): ?AiJob
     {
         return AiJob::query()
             ->where('status', AiJob::ST_DONE)
             ->where('topic', $topic)
-            ->whereNull('question')
-            ->where('id', '!=', $excludeJobId)
             ->whereIn('draw_id', function ($q) use ($hexagramId) {
                 $q->select('id')->from('draws')->where('hexagram_id', $hexagramId);
             })
             ->latest('finished_at')
             ->first();
+    }
+
+    /**
+     * #5b REVIEW-LUAN — quyết định đọc lại: validate hình dạng ở controller, mọi
+     * gate (404 ẩn tồn tại → 402 entitlement như #5 → tra nguồn done) ở đây.
+     * @return array{exists:bool, job_uuid:?string, result:?string, completed_at:?string}
+     */
+    public function saved(Device $device, int $drawId, Topic $topic): array
+    {
+        $draw = $device->draws()->whereKey($drawId)->first();
+        if ($draw === null) {
+            // ẩn tồn tại F7: draw của device khác = 404, không lộ là có quẻ này
+            throw InterpretationException::notFound('draw_id không hợp lệ với thiết bị này.');
+        }
+
+        // entitlement CÙNG điều kiện #5 (kể cả preview flag) — cấm chia bài khi mở khóa
+        $paid = Payment::query()
+            ->where('device_id', $device->device_id)
+            ->where('kind', 'unlock')->where('topic', $topic->value)
+            ->where('status', Payment::ST_PAID)->exists();
+        if (! $paid && ! config('preview.free_deep')) {
+            throw InterpretationException::unlockRequired($topic->value);
+        }
+
+        $source = $this->findDoneSource((int) $draw->hexagram_id, $topic->value);
+
+        return [
+            'exists' => $source !== null,
+            'job_uuid' => $source?->job_uuid,
+            'result' => $source?->result,
+            'completed_at' => $source?->finished_at?->format('Y-m-d\TH:i:s\Z'),
+        ];
     }
 
     /** 03-api #6 — poll theo uuid CHỈ của device (uuid lạ = 404, ẩn tồn tại F7). */

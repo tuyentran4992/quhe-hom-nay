@@ -63,6 +63,19 @@ class InterpretationException extends \RuntimeException
         );
     }
 
+    /**
+     * REVIEW-LUAN (t_8aa93a01) — chủ đề này của quẻ này đã luận xong 1 lượt:
+     * POST mới bị khóa ở giai đoạn này (boss GO 02/09). FE map code này
+     * → chuyển sang chế độ "Xem lại" (GET /api/ai/interpretations/saved).
+     */
+    public static function alreadyDone(): self
+    {
+        return new self(
+            409, 'AI_ALREADY_DONE',
+            'Chủ đề này đã được luận cho quẻ hiện tại. Bạn bấm Xem lại để đọc lại bài đã lưu.',
+        );
+    }
+
     public function toResponse(): \Illuminate\Http\JsonResponse
     {
         return \App\Http\ApiError::json($this->status, $this->errorCode, $this->getMessage(), $this->details);
