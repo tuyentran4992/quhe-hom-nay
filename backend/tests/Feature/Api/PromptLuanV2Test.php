@@ -95,7 +95,9 @@ class PromptLuanV2Test extends Be2TestCase
         $this->assertStringNotContainsString('Khách đang vướng', $noQ);
 
         $this->fakeAi($this->cleanMd);
-        $withQ = $this->userPromptOf($this->drawWith(11, [2], 20), 'bao giờ có người yêu');
+        // REVIEW-LUAN (t_8aa93a01): hex 11+duyen đã done ở bước trên → lần 2 dùng
+        // quẻ khác (khóa 1 lượt per (hexagram,topic)), prompt vẫn là template duyen.
+        $withQ = $this->userPromptOf($this->drawWith(12, [2], 20), 'bao giờ có người yêu');
         $this->assertStringContainsString('Khách đang vướng: "bao giờ có người yêu"', $withQ);
         $this->assertStringNotContainsString('CẤM bịa hoặc đoán hoàn cảnh riêng', $withQ);
     }

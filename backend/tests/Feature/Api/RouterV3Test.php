@@ -301,8 +301,10 @@ class RouterV3Test extends Be2TestCase
         $this->assertSame(Rules::AI_ROUTER_MODEL, $routerModel, 'rỗng → model router mặc định non-reasoning');
         $this->assertNotSame($luanModel, $routerModel, 'cấm router dùng lại model luận reasoning');
         config(['aibox.router_model' => 'router-small']);
-        $this->routerQueue[] = 'duyen';
-        $this->runWorker('duyen', 'abc duyen 2');
+        $this->routerQueue[] = 'tai_loc';
+        // REVIEW-LUAN (t_8aa93a01): runWorker lần 2 đổi topic — duyen+hex11 đã done
+        // nên bị khóa 409; model router kiểm được độc lập với chủ đề.
+        $this->runWorker('tai_loc', 'abc duyen 2');
         $calls = $this->sentCalls();
         // lần 2: calls = [router1, luan1, router2, luan2] — router thứ 2 ở index 2
         $this->assertCount(4, $calls);

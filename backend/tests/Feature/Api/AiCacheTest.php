@@ -38,6 +38,11 @@ class AiCacheTest extends Be2TestCase
         AiJob::query()->where('device_id', $d->device_id)->update(['requested_at' => now()->subMinutes(10)]);
     }
 
+    /**
+     * REVIEW-LUAN (t_8aa93a01): cung que + cung topic da done → device B bị KHÓA
+     * 409 AI_ALREADY_DONE (thay cho cache-hit done-tai-cho cũ). Provider vẫn đúng
+     * 1 lần; B đọc lại bài qua #5b GET saved (nguồn cùng hexagram, không lộ question).
+     */
     public function test_ac2_cung_que_cung_topic_chi_goi_provider_dung_mot_lan(): void
     {
         $this->fakeAi($this->cleanMd);
@@ -49,20 +54,21 @@ class AiCacheTest extends Be2TestCase
         $first = $this->interpret($a, $drawA->id, 'duyen');
         $this->assertSame(AiJob::ST_DONE, $first['job']->status);
 
-        // device B KHÁC, quẻ KHÁC id nhưng CÙNG hexagram 11 + CÙNG topic → cache hit
+        // device B KHÁC, quẻ KHÁC id nhưng CÙNG hexagram 11 + CÙNG topic → 409 khóa
         $b = $this->device();
         $this->payUnlock($b, 'duyen');
         $drawB = $this->drawFor($b, 11); // hexagram_id giống, draw id khác
-        $second = $this->interpret($b, $drawB->id, 'duyen', 200); // cache → done tại chỗ
+        $this->cookieFor($b)->postJson('/api/ai/interpretations', [
+            'draw_id' => $drawB->id, 'topic' => 'duyen', 'idempotency_key' => 'ac2-'.Str::random(16),
+        ])->assertStatus(409)->assertJsonPath('error.code', 'AI_ALREADY_DONE');
+        $this->assertSame(1, AiJob::query()->count(), 'khóa không được tạo rac job');
+        Http::assertSentCount(1); // ← 1 lượt luận: hai request, MỘT lần gọi AI-Box
 
-        $this->assertSame(AiJob::ST_DONE, $second['job']->status, 'job cache phải done ngay');
-        $this->assertSame($first['job']->result, $second['job']->result);
-        $this->assertNotSame($first['job']->job_uuid, $second['job']->job_uuid, 'cache tạo job riêng cho device');
-        Http::assertSentCount(1); // ← AC-2: hai luận sâu, MỘT lần gọi AI-Box
-
-        // #6 device B poll job cache → 200 status done, result đầy đủ
-        $this->cookieFor($b)->getJson('/api/ai/jobs/'.$second['job']->job_uuid)
-            ->assertOk()->assertJsonPath('data.status', 'done')->assertJsonPath('data.result', $this->cleanMd);
+        // #5b device B đọc lại bài đã lưu (nguồn theo hexagram, của device A)
+        $this->cookieFor($b)->getJson('/api/ai/interpretations/saved?draw_id='.$drawB->id.'&topic=duyen')
+            ->assertOk()->assertJsonPath('data.exists', true)
+            ->assertJsonPath('data.job_uuid', $first['job']->job_uuid)
+            ->assertJsonPath('data.result', $this->cleanMd);
     }
 
     /**
@@ -111,9 +117,9 @@ class AiCacheTest extends Be2TestCase
     }
 
     /**
-     * AC-2 + cooldown: provider chỉ 1 lần cho 2 device (cache); job cache device B
-     * trả 200 done ngay tại #5. B dùng requested_at quá khứ để chứng minh cache
-     * không cần chờ worker — không nhầm với cooldown của A (device khác nhau).
+     * REVIEW-LUAN (t_8aa93a01): đường "200 done-tại-chỗ không cần worker" đã bị
+     * thay bằng 409 AI_ALREADY_DONE — device B đã unlock, có done cùng quẻ+topic
+     * → POST về 409, không job mới, không provider call, không cần đụng cooldown.
      */
     public function test_cache_job_done_taicho_200_khong_can_worker(): void
     {
@@ -129,8 +135,9 @@ class AiCacheTest extends Be2TestCase
         // requested_at tương lai xa? không — để null: device B chưa có job nào → cooldown im lặng
         $this->cookieFor($b)->postJson('/api/ai/interpretations', [
             'draw_id' => $drawB->id, 'topic' => 'duyen', 'idempotency_key' => 'ac2-cd-'.Str::random(12),
-        ])->assertStatus(200) // 200 = done tại chỗ, không 202 chờ worker
-            ->assertJsonPath('data.status', 'done');
+        ])->assertStatus(409) // 409 = khóa 1 lượt (đường 200 done-tại-chỗ đã bị thay thế)
+            ->assertJsonPath('error.code', 'AI_ALREADY_DONE');
         Http::assertSentCount(1);
+        $this->assertSame(1, AiJob::query()->count(), '409 không tạo job rac');
     }
 }

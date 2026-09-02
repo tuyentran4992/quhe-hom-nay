@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Topic;
 use App\Models\AiJob;
 use App\Models\Device;
 use App\Services\InterpretationException;
@@ -60,8 +61,9 @@ class InterpretationController extends Controller
             return $e->toResponse();
         }
 
-        // 202 khi job VỚI TẠO MỚI còn queued (mới dispatch); mọi trường hợp còn lại 200:
-        // cache AC-2 tạo job mới nhưng done ngay tại chỗ; replay same key = same job (spec §5).
+        // 202 = job TẠO MỚI còn queued (đường 202 DUY NHẤT — REVIEW-LUAN đã bỏ
+        // nhánh cache done-tại-chỗ, thay bằng 409 AI_ALREADY_DONE trong service).
+        // 200 còn lại duy nhất: replay same idempotency key = same job (spec §5 F6).
         $status = ($job->wasRecentlyCreated && $job->status === AiJob::ST_QUEUED) ? 202 : 200;
 
         return response()->json(['data' => [
@@ -71,6 +73,39 @@ class InterpretationController extends Controller
             'draw_id' => (int) $job->draw_id,
             'poll_url' => '/api/ai/jobs/'.$job->job_uuid,
         ]], $status);
+    }
+
+    /**
+     * #5b REVIEW-LUAN (t_8aa93a01) — GET /api/ai/interpretations/saved?draw_id=&topic=
+     * FE hiện nút "Xem lại". Quy draw_id → hexagram rồi tra theo (hexagram, topic)
+     * NHƯ KHÓA #5 (không theo draw). Entitlement như #5: chưa unlock → 402
+     * UNLOCK_REQUIRED (cấm chia bài khi mở khóa). Payload CẤM field question (F7/PII).
+     */
+    public function saved(Request $request): JsonResponse
+    {
+        /** @var Device */
+        $device = $request->attributes->get('device');
+        $drawId = $request->query('draw_id');
+        $topic = Topic::tryFrom((string) $request->query('topic'));
+
+        $errors = [];
+        if (filter_var($drawId, FILTER_VALIDATE_INT) === false || (int) $drawId <= 0) {
+            $errors['draw_id'] = ['draw_id phải là số nguyên dương.'];
+        }
+        if ($topic === null) {
+            $errors['topic'] = ['topic phải là một trong C-02.'];
+        }
+        if ($errors !== []) {
+            return InterpretationException::validation($errors)->toResponse();
+        }
+
+        try {
+            $data = $this->service->saved($device, (int) $drawId, $topic);
+        } catch (InterpretationException $e) {
+            return $e->toResponse();
+        }
+
+        return response()->json(['data' => $data]);
     }
 
     /** #6 — poll. uuid lạ hoặc của device khác = 404 (ẩn tồn tại, F7). */
