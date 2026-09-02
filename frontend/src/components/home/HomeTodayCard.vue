@@ -50,21 +50,24 @@ const status = () => {
             :class="{ yin: lineCls(i - 1).yin, mov: lineCls(i - 1).mov }"
           ></span>
         </div>
-        <div v-else data-testid="home-hexagram-pending" class="han shrink-0 text-muted text-h1 leading-none" aria-label="đang tải quẻ">…</div>
+        <div v-else data-testid="home-hexagram-pending" class="home-skeleton animate-pulse shrink-0 w-16 h-[52px] self-center" aria-label="đang tải quẻ" role="status"></div>
         <div class="flex-1 min-w-0">
           <h2 v-if="hx" data-testid="home-hexagram-name" class="han font-semibold text-h2">
             <span class="text-small text-muted font-normal no-underline">Quẻ {{ hx.id }}</span> · {{ hx.ten }}
             <span class="han text-gold text-body">{{ hx.han }}</span>
           </h2>
-          <p v-else-if="draw" class="text-small text-muted"><span data-testid="home-hexagram-pending">Chưa tải được tên quẻ — kiểm tra mạng rồi tải lại.</span></p>
+          <!-- [HOME-V4-A L3] pending tên quẻ = skeleton CÙNG VỊ TRÍ, cấm chữ "…"/câu lịch góm -->
+          <div v-else-if="draw" data-testid="home-hexagram-pending" class="home-skeleton animate-pulse h-6 w-40 max-w-full" aria-label="đang tải tên quẻ" role="status"></div>
           <p v-if="draw.changing_lines?.length" data-testid="home-changing-lines" class="text-cinnabar font-semibold text-small mt-1">
             {{ changingLabel(draw.changing_lines) }}
           </p>
-          <div v-if="hx?.free_content?.congViec" data-testid="home-today-free-line" class="border-l-2 border-gold pl-3 mt-3 text-body">
-            <p class="text-small text-muted">Công việc · luận ngắn</p>
-            <p>{{ hx.free_content.congViec }}</p>
-          </div>
         </div>
+      </div>
+      <!-- [HOME-V4-A L3] luận ngắn xuống HÀNG RIÊNG đầy bề rộng card (boss 02/09): thoát cột
+           phải hẹp, giữ vạch vàng border-l-2 border-gold làm accent, bỏ gò bó co. -->
+      <div v-if="hx?.free_content?.congViec" data-testid="home-today-free-line" class="block border-l-2 border-gold pl-3 mt-4 text-body">
+        <p class="text-small text-muted">Công việc · luận ngắn</p>
+        <p>{{ hx.free_content.congViec }}</p>
       </div>
       <div class="flex flex-wrap items-center gap-3 mt-4">
         <RouterLink data-testid="home-cta-detail" class="btn-cinnabar" :to="`/que/${draw.id}`">Xem đủ ba ngôi →</RouterLink>
@@ -75,6 +78,11 @@ const status = () => {
 </template>
 
 <style scoped>
+/* [HOME-V4-A L3] 1 kiểu skeleton dùng chung trong card cho mọi state phụ
+   (pending hình quẻ + pending tên quẻ) — token paper2, pulse qua class gốc. */
+.home-skeleton {
+  @apply rounded-card bg-paper2;
+}
 .ln {
   @apply block h-[7px] bg-ink/85 rounded-[1px];
 }

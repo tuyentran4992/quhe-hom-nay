@@ -36,6 +36,10 @@ const TABS = [
   ['taiLoc', 'tai-loc', 'Tài lộc'],
 ]
 const original = ref(false)
+// [HOME-V4-A L1] deep-link từ chip home: ?topic= mở ĐÚNG tab đầu tiên
+// (congViec|tinhDuyen|taiLoc; values khác/khuyết → mặc định hiện hành congViec).
+const TOPIC_QUERY_TABS = ['congViec', 'tinhDuyen', 'taiLoc']
+if (TOPIC_QUERY_TABS.includes(route.query.topic)) tab.value = route.query.topic
 
 async function resolveDraw(id) {
   // 1) draw hôm nay từ #1 (kể cả đã prime bởi S2)
