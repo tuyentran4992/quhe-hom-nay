@@ -94,7 +94,7 @@ DRAW_LIMIT_REACHED (409) → replace về `/` + `?toast=draw_limit` → S1 rende
 | `pay-repoll` | paid nhưng #10 chưa thấy | nút "kiểm tra lại" (FE refetch #1) |
 | `pay-error` / `pay-retry` | #7/#8/#9 lỗi | thông báo + thử lại (mã lỗi 04-ui §4: `INVALID_TOPIC`, `ALREADY_PAID`, `ORDER_NOT_FOUND`, `ORDER_EXPIRED`) |
 | `pay-net-warn` | `navigator.onLine === false` | "Không có mạng…" (mạng chập chờn) |
-| `pay-donate-block` / `pay-donate-chip` / `pay-donate-input` / `pay-donate-btn` | luôn, sau blocker | mục phụ "Ủng hộ tác giả": chips 1.000/2.000/5.000đ + input tự do; 50.000đ KHÔNG là option gợi ý (C-07) |
+| `pay-donate-block` / `pay-donate-chip` / `pay-donate-input` / `pay-donate-btn` | luôn, sau blocker | [FE-TIER-SYNC t_ea138b84] mockup V2 đã duyệt: 4 chips 10.000/20.000/50.000/100.000đ (mặc định on 20k, `aria-pressed="true"`), mỗi chip có `.han-tag` (Hán góc trên-trái: 十/廿/五十/百) + `.note` (tâm ý khởi đầu/lòng thành/trọn lễ/lễ lớn); chip ON thêm `.ck` (✓ tròn son góc trên-phải); input tay 5.000–500.000đ |
 
 ## S5 Sổ quẻ `/cua-ban` — LibraryView.vue
 | testid | khi nào | nội dung |
