@@ -22,7 +22,12 @@ class Payment extends Model
         self::ST_PENDING => [self::ST_PAID, self::ST_CANCELLED, self::ST_EXPIRED],
         self::ST_PAID => [self::ST_REFUNDED],
         self::ST_CANCELLED => [],
-        self::ST_EXPIRED => [],
+        // BE-PAY-EXPIRE (t_bbfff19b) — NGOẠI LỆ CÓ CHỦ ĐÍCH của "expired là chốt":
+        // cron expire chỉ là SUY ĐOÁN "hết TTL mà gateway chưa báo gì". Webhook #8
+        // mang tiền ĐÚNG đến sau đó = bằng chứng thật → tiền thắng suy đoán, đơn
+        // revive về paid (khách chuyển trễ vẫn nhận quyền). Webhook SAI TIỀN vẫn
+        // giữ expired (PaymentService chỉ revive khi amount khớp).
+        self::ST_EXPIRED => [self::ST_PAID],
         self::ST_REFUNDED => [],
     ];
 

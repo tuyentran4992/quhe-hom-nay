@@ -93,6 +93,22 @@ return [
         'max_vnd' => 500000,
     ],
 
+    // --------------------------------------------------------------- Payments
+    'pay' => [
+        // C-14 (BE-PAY-EXPIRE t_bbfff19b): đơn `pending` chết sau ngần này GIÂY
+        // kể từ created_at — cron `payments:expire-pending` transit expired để DB
+        // hết row pending cô đơn (QA-DONATE-QR #6). Đơn vị: giây. An toàn: 600–1800.
+        // PHẢI > timer FE (PAY_POLL_TIMEOUT_MS=300s, constants.js) có chủ đích:
+        // FE hết hạn là TRẢI NGHIỆM, BE expire là SỔ SÁCH — BE không được expire
+        // đơn khi khách còn đang quét QR. Hạ xuống dưới 300 = cắt tiền khách.
+        'expire_ttl_seconds' => 600,
+
+        // C-15: cờ BẬT/TẮT reconcile. bool. =false → lệnh chạy nhưng không ghi
+        // gì (dùng khi bảo trì gateway / sự cố đồng hồ). Mặc định BẬT: pending
+        // chất đống là bệnh thật, không phải giả định.
+        'expire_cron_enabled' => true,
+    ],
+
     // ------------------------------------------------------------------ Draw
     'draw' => [
         // C-01: số quẻ free / device / ngày dương lịch VN (enforce bằng

@@ -32,6 +32,8 @@ Ngoại lệ suy diễn: ngưỡng zombie = `timeout_seconds + 60` (hàm
 | C-11 | `ai.lock_one_luan` | `true` | done cùng (hexagram,topic) → 409 `LUAN_DONE_LOCKED`; `false` = đường hồ sơ cũ. Cờ 2 chiều, test `AlreadyDoneLockTest` giữ cả 2 nhánh. |
 | C-12 | `ai.router_model` / `ai.router_max_tokens` / `ai.router_timeout_seconds` | `qwen3.6-flash` / `8` / `10` | router danh mục BUG-V3-1: BẮT BUỘC non-reasoning (reasoning → content rỗng); `AIBOX_ROUTER_MODEL` env override nếu có. Đổi model = probe thật trước. |
 | C-13 | `free_deep_preview` (env `FREE_DEEP_PREVIEW` override) | `false` | CỜ pilot luận-sâu-free — reader về `project.php` (xóa `config/preview.php`). Suite test luôn chạy `false` bất kể env/shell máy dev (`phpunit.xml` force + `Tests\TestCase` chốt default). |
+| C-14 | `pay.expire_ttl_seconds` | `600` | (BE-PAY-EXPIRE t_bbfff19b) đơn `pending` chết sau 600 GIÂY kể từ created_at → cron transit `expired` (§7c). BẤT BIẾN: ≥ 2× timer FE `PAY_POLL_TIMEOUT_MS`=300s — BE không expire khi khách còn quét QR. Muốn hạ: sửa dòng này TRƯỚC khi sửa code. |
+| C-15 | `pay.expire_cron_enabled` | `true` | cờ bật/tắt reconcile §7c. `false` = lệnh chạy no-op (bảo trì gateway). Test `PayExpireCronTest` giữ cả 2 nhánh. |
 
 Quy ước chung: sai validate → 422 + `errors[]` theo field; vi phạm rule C-xx → đúng mã
 4xx ghi cạnh rule; mọi timestamp RFC3339 UTC; mọi `amount` là INTEGER đồng (không float).
@@ -248,6 +250,17 @@ Lỗi: 409 `IDEMPOTENCY_CONFLICT` (same key, khác body); 422 `VALIDATION_FAILED
 
 Đánh thức webhook cho FE test: set paid + bắn đúng handler #8 nội bộ. 404 nếu `APP_ENV=production`.
 
+## 7c. Cron `payments:expire-pending` — reconcile pending quá hạn (BE-PAY-EXPIRE t_bbfff19b)
+
+`php artisan payments:expire-pending` (khai báo schedule mỗi phút trong
+`routes/console.php`; cờ C-15 tắt = no-op): mọi đơn `status=pending` có
+`created_at` già hơn C-14 (`pay.expire_ttl_seconds`, default 600s) → transit
+`expired`. Lý do tồn tại: FE tự expire UI-side sau 300s nhưng DB không bao giờ
+đổi (QA-DONATE-QR #6 — pending cô đơn tích tụ). Race-safe: UPDATE có điều kiện
+`status='pending'` at-write-time — webhook paid chen giữa = cron thua, đơn paid
+giây cuối không bị nuốt. PAY-01 gateway thật PHẢI query trạng thái payOS trước
+khi expire từng batch (hook ghi trong `PaymentReconciler::expireStalePending`).
+
 ## 8. `POST /api/webhooks/payos` — IPN thật (PAY-01; spec chốt trước để BE-0 chừa đường)
 
 Headers: `X-PayOS-Signature` (HMAC SHA256 hex của raw body với `PAYOS_WEBHOOK_SECRET`).
@@ -256,6 +269,14 @@ Xử lý: verify signature → 401 nếu sai; tìm payment theo `order_code`; id
 `(gateway_ref)`: webhook lặp trả 200 ngay. `paid` khi `!cancelled && amount == payments.amount_vnd`.
 Response: `{"error":{"code":"OK"}}` — **đúng format payOS yêu cầu** (họ check chuỗi này).
 Sai số tiền → `status='expired'`, log cảnh báo, vẫn 200.
+Webhook TIỀN ĐÚNG đến sau khi cron §7c đã expire đơn → **revive `expired`→`paid`**, log `payments.webhook.revive_after_expire` (BE-PAY-EXPIRE t_bbfff19b, AC-3):
+cron expire chỉ là suy đoán "hết TTL chưa thấy tiền"; gateway xác nhận tiền thật
+thì tiền thắng — khách chuyển trễ vẫn nhận quyền, donate vẫn về. Đây là ngoại lệ
+CÓ CHỦ ĐÍCH duy nhất của "expired là trạng thái cuối" (`Payment::ALLOWED_TRANSITIONS`).
+Webhook `cancelled=true` đến sau khi cron expire → **giữ `expired`**, log
+`payments.webhook.cancelled_after_expire`, vẫn 200: cancelled chỉ xác nhận điều
+expired đã ghi (tiền chưa về), không có gì sang sổ; IPN không bao giờ 500 vì
+trạng thái (fix [REVIEW round 1] — cron biến expired thành trạng thái thường).
 
 ## 9. `GET /api/payments/{order_code}/status` — FE poll sau khi khách rời trang QR
 
