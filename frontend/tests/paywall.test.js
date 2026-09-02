@@ -6,6 +6,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import PaywallView from '../src/views/PaywallView.vue'
+// [HOME-V4-B] t_3647e25e — block donate dời sang màn riêng /tam-tu (DonateView); suite
+// này vẫn là regression gate unlock 29k, các test donate mount DonateView.
+import DonateView from '../src/views/DonateView.vue'
 import * as client from '../src/api/client.js'
 import { _resetDeviceForTests } from '../src/composables/useDeviceApi.js'
 import { useToasts } from '../src/composables/useToasts.js'
@@ -31,6 +34,7 @@ function mk() {
       { path: '/', name: 'home', component: { template: '<div/>' } },
       { path: '/que/:drawId', name: 'detail', component: { template: '<div/>' } },
       { path: '/mo-khoa/:topic', name: 'paywall', component: PaywallView },
+      { path: '/tam-tu', name: 'donate', component: DonateView }, // [HOME-V4-B]
     ],
   })
 }
@@ -101,10 +105,11 @@ describe('PaywallView — stub paywall từ #7 BE-2', () => {
     vi.useRealTimers()
   })
 
-  it('Lễ tùy tâm HIỆN: chips 1000/2000/5000/50000 + input tay; bấm Gửi lễ → #7 kind=donate, KHÔNG topic', async () => {
+  // [HOME-V4-B] donate = màn riêng /tam-tu (khối donate KHÔNG còn trên paywall — assert luôn)
+  it('Lễ tùy tâm ở /tam-tu: chips + input tay; bấm Gửi lễ → #7 kind=donate, KHÔNG topic', async () => {
     const r = mk()
-    await r.push({ name: 'paywall', params: { topic: 'duyen' } })
-    const w = mount(PaywallView, { global: { plugins: [r] } })
+    await r.push('/tam-tu')
+    const w = mount(DonateView, { global: { plugins: [r] } })
     await flushPromises()
     expect(w.find('[data-testid="pay-donate-block"]').exists()).toBe(true)
     expect(w.findAll('[data-testid="pay-donate-chip"]').length).toBe(4)
@@ -124,8 +129,8 @@ describe('PaywallView — stub paywall từ #7 BE-2', () => {
 
   it('donate ngoài khoảng C--07 (999đ) → chặn client-side, không gọi #7', async () => {
     const r = mk()
-    await r.push({ name: 'paywall', params: { topic: 'duyen' } })
-    const w = mount(PaywallView, { global: { plugins: [r] } })
+    await r.push('/tam-tu')
+    const w = mount(DonateView, { global: { plugins: [r] } })
     await flushPromises()
     await w.find('[data-testid="pay-donate-input"]').setValue('999')
     expect(w.find('[data-testid="pay-donate-btn"]').attributes('disabled')).toBeDefined()
@@ -175,7 +180,8 @@ describe('PaywallView — stub paywall từ #7 BE-2', () => {
     await flushPromises()
     expect(client.api.track).toHaveBeenCalledTimes(1)
     expect(w.find('[data-testid="pay-unlock-btn"]').exists()).toBe(true)
-    expect(w.find('[data-testid="pay-donate-block"]').exists()).toBe(true)
+    // [HOME-V4-B] paywall thuần: không còn donate-block trên màn này
+    expect(w.find('[data-testid="pay-donate-block"]').exists()).toBe(false)
     expect(w.find('[data-testid="pay-error"]').exists()).toBe(false)
   })
 

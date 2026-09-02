@@ -65,7 +65,8 @@ describe('NavBar — header chung desktop (NAV-SPEC §1a)', () => {
     expect(w.find('[data-testid="nav-brand"]').attributes('href')).toBe('/')
     expect(w.find('[data-testid="nav-draw"]').attributes('href')).toBe('/draw')
     expect(w.find('[data-testid="nav-library"]').attributes('href')).toBe('/cua-ban')
-    expect(w.find('[data-testid="nav-donate"]').attributes('href')).toBe('/mo-khoa/duyen?mode=donate')
+    // [HOME-V4-B] t_3647e25e — nav-donate về route riêng /tam-tu (hằng số DONATE_HREF)
+    expect(w.find('[data-testid="nav-donate"]').attributes('href')).toBe('/tam-tu')
   })
 
   it('nav-donate HIỆN khi free_deep=true (mock #1)', async () => {

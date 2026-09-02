@@ -4,10 +4,11 @@
 //   Chip Hán ở GÓC TRÊN-TRÁI thẻ (mockup .han-tag{left:8px;top:6px}), badge ✓ đỏ góc phải,
 //   mặc định chọn 20k. Don't-flow CẤM lộ token: tên app ('Qu+Hom+Nay'/'Quẻ Hôm Nay'),
 //   giá '29.000', wording 'mở khóa' (C4). DONATE_OPTIONS/MIN/MAX không đổi (đã đúng).
+// [HOME-V4-B] t_3647e25e — màn donate là route riêng /tam-tu (DonateView), selector giữ nguyên.
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
-import PaywallView from '../src/views/PaywallView.vue'
+import DonateView from '../src/views/DonateView.vue'
 import * as client from '../src/api/client.js'
 import { _resetDeviceForTests } from '../src/composables/useDeviceApi.js'
 import { DONATE_TIERS, DONATE_OPTIONS, DONATE_MIN, DONATE_MAX } from '../src/constants.js'
@@ -32,7 +33,7 @@ function mk() {
     routes: [
       { path: '/', name: 'home', component: { template: '<div/>' } },
       { path: '/que/:drawId', name: 'detail', component: { template: '<div/>' } },
-      { path: '/mo-khoa/:topic', name: 'paywall', component: PaywallView },
+      { path: '/tam-tu', name: 'donate', component: DonateView },
     ],
   })
 }
@@ -42,9 +43,9 @@ afterEach(() => { vi.useRealTimers() })
 
 async function mountDonate() {
   const r = mk()
-  await r.push({ name: 'paywall', params: { topic: 'duyen' }, query: { mode: 'donate' } })
+  await r.push('/tam-tu')
   await r.isReady()
-  const w = mount(PaywallView, { global: { plugins: [r] } })
+  const w = mount(DonateView, { global: { plugins: [r] } })
   await flushPromises(); await flushPromises()
   return { r, w }
 }

@@ -216,7 +216,8 @@ describe('HomeView — ngôn ngữ sản phẩm theo free-deep (boss chốt 02/0
       expect(w.find(`[data-testid="home-chip-${slug}"]`).exists()).toBe(true)
       expect(w.find(`[data-testid="home-chip-${slug}-free"]`).text()).toContain('Luận sâu MIỄN PHÍ')
     }
-    expect(w.find('[data-testid="home-donate-link"]').attributes('href')).toBe('/mo-khoa/duyen?mode=donate')
+    // [HOME-V4-B] t_3647e25e — link donate về route riêng /tam-tu (hằng số DONATE_HREF)
+    expect(w.find('[data-testid="home-donate-link"]').attributes('href')).toBe('/tam-tu')
     expect(w.html()).not.toContain('29.000')
     expect(w.find('[data-testid="home-chip-tai-loc-price"]').exists()).toBe(false)
   })

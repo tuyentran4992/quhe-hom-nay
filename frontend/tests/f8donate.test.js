@@ -5,6 +5,7 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { createRouter, createMemoryHistory } from 'vue-router'
 import DetailView from '../src/views/DetailView.vue'
 import PaywallView from '../src/views/PaywallView.vue'
+import DonateView from '../src/views/DonateView.vue' // [HOME-V4-B] t_3647e25e
 import * as client from '../src/api/client.js'
 import { useDevice, _resetDeviceForTests } from '../src/composables/useDeviceApi.js'
 import { _resetHexagramCacheForTests } from '../src/composables/useHexagrams.js'
@@ -41,6 +42,7 @@ function mkRoutes(detailComp = DetailView) {
       { path: '/', name: 'home', component: { template: '<div/>' } },
       { path: '/que/:drawId', name: 'detail', component: detailComp },
       { path: '/mo-khoa/:topic', name: 'paywall', component: detailComp === PaywallView ? PaywallView : { template: '<div/>' } },
+      { path: '/tam-tu', name: 'donate', component: DonateView }, // [HOME-V4-B] t_3647e25e
       { path: '/share-card', name: 'share-card', component: { template: '<div/>' } },
     ],
   })
@@ -117,7 +119,8 @@ describe('DetailView CTA donate (C3)', () => {
     expect(shown[0][0].props).toEqual({ topic: 'xuat_hanh' }) // tab mặc định congViec→xuat_hanh
   })
 
-  it('bấm nút → track donate_cta_click {topic tab hiện hành} + push /mo-khoa/{topic}?mode=donate', async () => {
+  // [HOME-V4-B] t_3647e25e — đích chuyển là route RIÊNG /tam-tu (name donate), không còn query mode
+  it('bấm nút → track donate_cta_click {topic tab hiện hành} + push /tam-tu (route donate riêng)', async () => {
     client.api.me.mockResolvedValue(me({ free_deep: true }))
     const { r, w } = await mountView(mkRoutes(), '/que/42')
     client.api.track.mockClear()
@@ -127,9 +130,8 @@ describe('DetailView CTA donate (C3)', () => {
     const click = client.api.track.mock.calls.find((c) => c[0].name === 'donate_cta_click')
     expect(click).toBeTruthy()
     expect(click[0].props).toEqual({ topic: 'duyen' })
-    expect(r.currentRoute.value.name).toBe('paywall')
-    expect(r.currentRoute.value.params.topic).toBe('duyen')
-    expect(r.currentRoute.value.query.mode).toBe('donate')
+    expect(r.currentRoute.value.name).toBe('donate')
+    expect(r.currentRoute.value.path).toBe('/tam-tu')
   })
 
   it('track click reject → vẫn chuyển route (fire-and-forget, .catch ăn — C2)', async () => {
@@ -138,8 +140,8 @@ describe('DetailView CTA donate (C3)', () => {
     const { r, w } = await mountView(mkRoutes(), '/que/42')
     await w.find('[data-testid="donate-cta-open"]').trigger('click')
     await flushPromises()
-    expect(r.currentRoute.value.name).toBe('paywall')
-    expect(r.currentRoute.value.query.mode).toBe('donate')
+    expect(r.currentRoute.value.name).toBe('donate')
+    expect(r.currentRoute.value.path).toBe('/tam-tu')
   })
 
   it('không phá render hiện có: share-card-open + TopicGate vẫn nguyên, nút donate không phải dialog', async () => {
@@ -191,12 +193,32 @@ describe('useDevice.freeDeep (C1)', () => {
   })
 })
 
-// ================= Slice 3 — C4: PaywallView mode=donate =================
-async function mountS4(topic, query) {
-  const r = mkRoutes(PaywallView)
-  await r.push({ name: 'paywall', params: { topic }, query })
+// ================= Slice 3 — [HOME-V4-B] t_3647e25e: donate là route RIÊNG /tam-tu =================
+// Luật 2 (boss 02/09): cơ chế PaywallView ?mode=donate CHẾT. Màn donate = DonateView ở
+// /tam-tu. C4 vẫn là luật: /tam-tu không BAO GIỜ hiện giá; paywall không BAO GIỜ đổi chế
+// độ theo query nào. Deep-link cũ redirect đã có test riêng (homev4b-route.test.js).
+async function mountTamTu() {
+  const r = createRouter({
+    history: createMemoryHistory(),
+    routes: [
+      { path: '/', name: 'home', component: { template: '<div/>' } },
+      { path: '/tam-tu', name: 'donate', component: DonateView },
+    ],
+  })
+  await r.push('/tam-tu')
   await r.isReady()
-  const w = mount(PaywallView, { global: { plugins: [r] } }) // pattern gốc paywall.test.js: push TRƯỚC mount để donate_open thấy topic (không mount 2 lần)
+  const w = mount(DonateView, { global: { plugins: [r] } })
+  wrappers.push(w)
+  await w.vm.$nextTick()
+  await flushPromises()
+  await flushPromises()
+  return { r, w }
+}
+async function mountS4(query) {
+  const r = mkRoutes(PaywallView)
+  await r.push({ name: 'paywall', params: { topic: 'duyen' }, query })
+  await r.isReady()
+  const w = mount(PaywallView, { global: { plugins: [r] } }) // pattern gốc paywall.test.js: push TRƯỚC mount
   wrappers.push(w)
   await w.vm.$nextTick()
   await flushPromises()
@@ -204,10 +226,10 @@ async function mountS4(topic, query) {
   return { r, w }
 }
 
-describe('PaywallView donateMode (C4)', () => {
-  it('?mode=donate + freeDeep true → donateMode: ẩn pay-unlock-btn, sạch mọi wording 29k/"Trả một lần"/"Mở khóa", h1 "Lễ tùy tâm", testid pay-mode-donate, block donate giữ nguyên', async () => {
+describe('DonateView /tam-tu (HOME-V4-B thay slice C4 cũ)', () => {
+  it('/tam-tu: hiện block donate (pay-mode-donate), KHÔNG BAO GIỜ có unlock/price/wording 29k', async () => {
     client.api.me.mockResolvedValue(me({ free_deep: true }))
-    const { w } = await mountS4('duyen', { mode: 'donate' })
+    const { w } = await mountTamTu()
     expect(w.find('[data-testid="pay-mode-donate"]').exists()).toBe(true)
     expect(w.find('[data-testid="pay-unlock-btn"]').exists()).toBe(false)
     expect(w.find('[data-testid="pay-price"]').exists()).toBe(false)
@@ -220,35 +242,34 @@ describe('PaywallView donateMode (C4)', () => {
     expect(w.find('[data-testid="pay-donate-btn"]').exists()).toBe(true)
   })
 
-  it('adversary: ?mode=donate khi flag OFF → phớt lờ query, paywall 29k NGUYÊN BẢN (nút unlock + price + h1 Mở khóa)', async () => {
+  it('adversary: paywall freeDeep OFF vẫn 29k NGUYÊN BẢN (nút unlock + price + h1 Mở khóa)', async () => {
     client.api.me.mockResolvedValue(me({ free_deep: false }))
-    const { w } = await mountS4('duyen', { mode: 'donate' })
+    const { w } = await mountS4({})
     expect(w.find('[data-testid="pay-mode-donate"]').exists()).toBe(false)
     expect(w.find('[data-testid="pay-unlock-btn"]').exists()).toBe(true)
     expect(w.find('[data-testid="pay-price"]').text()).toContain('29.000')
     expect(w.find('h1').text()).toContain('Mở khóa')
   })
 
-  it('freeDeep true nhưng KHÔNG ?mode=donate → paywall 29k bình thường (mode chỉ bật qua query)', async () => {
+  it('adversary HOME-V4-B: paywall freeDeep ON cũng KHÔNG đổi gì — 1 chế độ duy nhất, không đọc query', async () => {
     client.api.me.mockResolvedValue(me({ free_deep: true }))
-    const { w } = await mountS4('duyen', {})
+    const { w } = await mountS4({})
     expect(w.find('[data-testid="pay-mode-donate"]').exists()).toBe(false)
     expect(w.find('[data-testid="pay-unlock-btn"]').exists()).toBe(true)
     expect(w.find('[data-testid="pay-price"]').exists()).toBe(true)
   })
 
-  it('donateMode: donate_open (MKT-F6-fix) vẫn bắn ĐÚNG 1 lần, semantics không đổi (C4)', async () => {
+  it('/tam-tu: donate_open vẫn bắn ĐÚNG 1 lần khi mở màn (event name giữ nguyên)', async () => {
     client.api.me.mockResolvedValue(me({ free_deep: true }))
-    await mountS4('tai_loc', { mode: 'donate' })
+    await mountTamTu()
     const opens = client.api.track.mock.calls.filter((c) => c[0].name === 'donate_open')
     expect(opens.length).toBe(1)
-    expect(opens[0][0].props).toEqual({ topic: 'tai_loc' })
   })
 
-  it('donateMode: gửi lễ vẫn chạy #7 kind=donate (block donate giữ nguyên chức năng)', async () => {
+  it('/tam-tu: gửi lễ vẫn chạy #7 kind=donate (block donate giữ nguyên chức năng)', async () => {
     client.api.me.mockResolvedValue(me({ free_deep: true }))
     client.api.createPayment.mockResolvedValue({ data: { order_code: 1, kind: 'donate', amount_vnd: 5000 } })
-    const { w } = await mountS4('duyen', { mode: 'donate' })
+    const { w } = await mountTamTu()
     await w.find('[data-testid="pay-donate-input"]').setValue('5000')
     await w.find('[data-testid="pay-donate-btn"]').trigger('click')
     await flushPromises()
