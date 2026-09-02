@@ -1,7 +1,16 @@
 // Hằng số FE — nguồn: 03-api.md §0 + mockup v2 (DESIGN-NOTES). FE hiển thị, BE enforce.
 export const PRICE_UNLOCK_VND = 29000 // C-05
-export const DONATE_OPTIONS = [1000, 2000, 5000, 50000] // C-07 khoảng 1000..500000
-export const DONATE_MIN = 1000
+// [SPEC-CHANGE boss 02/09, giữa DEV-DONATE-QR]: 4 mức gợi ý 10k/20k/50k/100k; nhập tay
+// sàn 5k (chặt hơn BE 1k — FE hiển thị, BE enforce). Tag Hán + ghi chú + layout chờ
+// MOCKUP-DONATE-V2 (t_1a2d3a1e) boss duyệt rồi mới chèn — tạm để trống, không tự chế.
+export const DONATE_OPTIONS = [10000, 20000, 50000, 100000] // C-07 khoảng 1000..500000
+export const DONATE_TIERS = [
+  { amount: 10000, han: '', note: 'một chút tâm ý' },
+  { amount: 20000, han: '', note: 'tâm ý vừa đủ' },
+  { amount: 50000, han: '', note: 'lòng thành hơn' },
+  { amount: 100000, han: '', note: 'trọn mâm lễ' },
+]
+export const DONATE_MIN = 5000 // boss 02/09: sàn nhập tay 5k (BE vẫn 1k —Rules::DONATE_MIN_VND)
 export const DONATE_MAX = 500000
 export const MAGIC_SEQUENCE_MS = 1500 // C-08 — bất biến UX, không được ngắn hơn
 export const LINE_STAGGER_MS = 250 // 04-ui §2.S2 B2: mỗi hào ~250ms

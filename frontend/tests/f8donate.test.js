@@ -255,6 +255,8 @@ describe('PaywallView donateMode (C4)', () => {
     const arg = client.api.createPayment.mock.calls[0][0]
     expect(arg.kind).toBe('donate')
     expect(arg.amount_vnd).toBe(5000)
-    expect(w.find('[data-testid="pay-thanks"]').exists()).toBe(true)
+    // [DEV-DONATE-QR] t_dc6112cf — donate giờ ra màn QR chờ paid, không còn "Cảm ơn" tức thì.
+    expect(w.find('[data-testid="pay-donate-qr"]').exists()).toBe(true)
+    expect(w.find('[data-testid="pay-donate-thanks"]').exists()).toBe(false)
   })
 })
