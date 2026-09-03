@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Rules;
 use App\Models\Device;
 use App\Services\DrawService;
+use App\Services\QuotaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * #1 GET /api/me + #10 GET /api/me/today (03-api) — bootstrap phiên device + quẻ hôm nay.
@@ -13,8 +17,21 @@ use Illuminate\Http\Request;
  */
 class MeController extends Controller
 {
-    public function __construct(private readonly DrawService $draws)
+    public function __construct(
+        private readonly DrawService $draws,
+        private readonly QuotaService $quota, // QUOTA-N/Q2 — đếm lượt THAT theo draw
+    ) {}
+
+    /**
+     * QUOTA-N/Q2 (card t_1b5a0c23): "còn x/N" cho FE — max(0, N − lượt THẬT của
+     * draw HOM NAY) (card: theo draw hom nay, khong phai moi draw trong qua kh).
+     * Chưa gieo quẻ hôm nay → còn nguyên N (quota gan DRAW, quẻ mới = sạch).
+     */
+    private function remainingDeepReads(Device $device): int
     {
+        $today = $this->draws->todayDraw($device);
+
+        return $today === null ? $this->quota->maxPerDraw() : $this->quota->remaining((int) $today->id);
     }
 
     public function index(Request $request): JsonResponse
@@ -32,6 +49,7 @@ class MeController extends Controller
             // F8-BE (C1): tín hiệu "luận sâu đang FREE" — FE CHỈ tin key này,
             // không suy từ entitlements (device trả 29k cũng đủ 3 topic).
             'free_deep' => (bool) config('project.free_deep_preview'),
+            'remaining_deep_reads' => $this->remainingDeepReads($device), // QUOTA-N/Q2
         ]);
     }
 
@@ -46,6 +64,7 @@ class MeController extends Controller
             'entitlements' => $this->entitlements($device),
             'server_date_vn' => $this->draws->serverDateVn(now()),
             'free_deep' => (bool) config('project.free_deep_preview'), // F8-BE C1 — cùng nguồn #1
+            'remaining_deep_reads' => $this->remainingDeepReads($device), // QUOTA-N/Q2
         ]]);
     }
 
@@ -61,10 +80,10 @@ class MeController extends Controller
         // PREVIEW OVERRIDE (project.php free_deep_preview): mở luận sâu free → FE
         // coi như đã unlock cả 3 topic để vào thẳng vùng hỏi, không đẩy sang paywall.
         if (config('project.free_deep_preview')) {
-            return \App\Domain\Rules::TOPICS;
+            return Rules::TOPICS;
         }
-        $paid = \Illuminate\Support\Facades\Schema::hasTable('payments')
-            ? \Illuminate\Support\Facades\DB::table('payments')
+        $paid = Schema::hasTable('payments')
+            ? DB::table('payments')
                 ->where('device_id', $device->device_id)
                 ->where('kind', 'unlock')
                 ->where('status', 'paid')

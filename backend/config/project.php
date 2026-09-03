@@ -49,6 +49,13 @@ return [
         // An toàn: 30–150 (đòn chống cháy túi provider, không phải chống user).
         'global_cap_per_hour' => 90,
 
+        // QUOTA-N/Q2 (t_1b5a0c23, D1): N lượt LUAN SAU THAT tối đa cho MỖI QUẺ
+        // (draw_id) — đếm job done có from_cache=false (bài cache/đọc lại KHÔNG
+        // trừ lượt, D2/D3). Đổi N qua env, không đổi code. Đơn vị: lượt. An toàn:
+        // 1–10. worst-case chi phí = N × số quẻ/ngày × giá call (boss chốt 03/09:
+        // "3 gọi AI/quẻ/ngày"). Hàng rào cũ cooldown/cap GIỮ NGUYÊN — đây là lớp 3.
+        'max_deep_reads_per_draw' => env('MAX_DEEP_READS_PER_DRAW', 3),
+
         // FIX-LUAN-SAU: số lần model được TỰ SINH LẠI khi bài dính wordguard
         // (AI_FILTERED) trong cùng 1 handle. Đơn vị: lần. An toàn: 0–2.
         'filter_regenerations' => 1,

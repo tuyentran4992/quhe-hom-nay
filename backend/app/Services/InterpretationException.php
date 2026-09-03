@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Http\ApiError;
+use Illuminate\Http\JsonResponse;
+
 /**
  * BE-2 — lỗi nghiệp vụ #5 kèm đúng mã HTTP + error.code 03-api §0.3.
  * Controller chỉ việc ->toResponse(); không tự map ở từng endpoint (chống lệch envelope).
@@ -59,6 +62,21 @@ class InterpretationException extends \RuntimeException
         );
     }
 
+    /**
+     * QUOTA-N/Q2 (card t_1b5a0c23, D2.3) — quẻ này đã dùng hết N lượt luận sâu
+     * THAT (đếm done !from_cache, QuotaService). 429 nhưng code KHÁC biệt với
+     * AI_COOLDOWN/AI_GLOBAL_CAP — FE/QA map theo chuỗi 'quota_exceeded' nguyên
+     * văn card chốt (viết thường, không phải enum 402 — paywall OFF).
+     */
+    public static function quotaExceeded(int $max, int $used): self
+    {
+        return new self(
+            429, 'quota_exceeded',
+            'Quẻ này đã dùng hết '.$max.' lượt luận sâu.',
+            ['max_deep_reads_per_draw' => $max, 'used' => $used, 'remaining' => max(0, $max - $used)],
+        );
+    }
+
     public static function conflict(): self
     {
         return new self(
@@ -80,8 +98,8 @@ class InterpretationException extends \RuntimeException
         );
     }
 
-    public function toResponse(): \Illuminate\Http\JsonResponse
+    public function toResponse(): JsonResponse
     {
-        return \App\Http\ApiError::json($this->status, $this->errorCode, $this->getMessage(), $this->details);
+        return ApiError::json($this->status, $this->errorCode, $this->getMessage(), $this->details);
     }
 }

@@ -23,6 +23,9 @@ use Illuminate\Support\Str;
  */
 class InterpretationService
 {
+    /** QUOTA-N/Q2: đếm lượt THAT theo draw + gate 429 quota_exceeded (QuotaService — 1 chủ nợ). */
+    public function __construct(private readonly QuotaService $quota = new QuotaService) {}
+
     /**
      * Quyết định của #5 — trả về ['conflict' => Response] controller sẽ return,
      * hoặc ['job' => AiJob, 'created' => bool]. Validation/402/429 ném DomainException.
@@ -111,6 +114,21 @@ class InterpretationService
             throw InterpretationException::globalCap();
         }
 
+        // ── QUOTA-N/Q2 (card t_1b5a0c23, D2) — LOP THU 3, ngay TRƯỚC khi tạo
+        // job/call provider (hang rao cu cooldown/cap/idempotency GIU NGUYEN thu
+        // tu — card: "đây là lớp thứ 3"). ──────────────────────────────────────
+        // (c2.0) DIEM MO RONG Q3 (KHÔNG làm ở đây — interface App\Contracts\ParaphraseJudge):
+        // khi question KHÁC văn bản với bài done gần nhất của cùng (quẻ, topic),
+        // Q3 sẽ ghép qua interface để quyết DU_GIONG → trả job tái-sử-dụng
+        // from_cache=true (0 dem). Chưa có binding = mọi question khác là hỏi that.
+        // (c2.1) quota gate: đếm done THAT theo draw_id (loại row cache —
+        // QuotaService/D3). Hết N → 429 code 'quota_exceeded' — PHÂN BIỆT code
+        // với AI_COOLDOWN/AI_GLOBAL_CAP ở trên, KHÔNG phải 402 (paywall OFF).
+        $used = $this->quota->realDoneCount((int) $draw->id);
+        if ($used >= $this->quota->maxPerDraw()) {
+            throw InterpretationException::quotaExceeded($this->quota->maxPerDraw(), $used);
+        }
+
         // (e) INSERT + dispatch — đường 202 DUY NHẤT còn lại (không còn nhánh
         // "cache done tại chỗ": đã thay bằng 409 ở (c1) theo card t_8aa93a01).
         $job = AiJob::query()->create([
@@ -151,6 +169,7 @@ class InterpretationService
     /**
      * #5b REVIEW-LUAN — quyết định đọc lại: validate hình dạng ở controller, mọi
      * gate (404 ẩn tồn tại → 402 entitlement như #5 → tra nguồn done) ở đây.
+     *
      * @return array{exists:bool, job_uuid:?string, result:?string, completed_at:?string}
      */
     public function saved(Device $device, int $drawId, Topic $topic): array
