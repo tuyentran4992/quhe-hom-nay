@@ -129,16 +129,20 @@ describe('App.vue shell — mount điểm + loại trừ (NAV-SPEC §1a/§1c)', 
     expect(w.find('[data-testid="disclaimer-bar"]').exists()).toBe(true)
   })
 
-  it('/draw → KHÔNG nav shell (nghi thức) nhưng DrawView có draw-back', async () => {
+  it('/draw → KHÔNG nav shell (nghi thức) — draw-back đã thay bằng header nghi thức UXR-4a ĐX1', async () => {
     const r = await mk('/draw')
     const w = mount(App, { global: { plugins: [r] } })
     await r.isReady()
     await flushPromises()
     expect(w.find('[data-testid="nav-brand"]').exists()).toBe(false)
     expect(w.find('[data-testid="tab-home"]').exists()).toBe(false)
-    const back = w.find('[data-testid="draw-back"]')
-    expect(back.exists()).toBe(true)
-    expect(back.attributes('href')).toBe('/')
+    // chuỗi cũ chết hẳn — testid draw-back bị header 3 điểm thay thế (không trùng testid)
+    expect(w.find('[data-testid="draw-back"]').exists()).toBe(false)
+    const brand = w.find('[data-testid="draw-brand"]')
+    expect(brand.exists()).toBe(true)
+    expect(brand.attributes('href')).toBe('/')
+    expect(w.find('[data-testid="draw-library"]').exists()).toBe(true)
+    expect(w.find('[data-testid="draw-home"]').exists()).toBe(true)
   })
 
   it('/share-card → KHÔNG nav shell (overlay fullscreen)', async () => {
