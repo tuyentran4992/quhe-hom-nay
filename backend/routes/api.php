@@ -29,6 +29,11 @@ Route::middleware(EnsureDeviceSession::class)->group(function () {
     Route::get('/me/today', [MeController::class, 'today']);      // #10
     Route::post('/draws', [DrawController::class, 'store']);      // #3 (C-01)
     Route::get('/draws/history', [DrawController::class, 'history']); // #4
+    // RL-BE (card t_0e5c0eb9, D1 a3-thuần) — #12 GET /api/draws/{draw_id}/luans:
+    // danh sách+bài toàn văn theo QUẺ cho sheet «Đã hỏi quẻ này». Cạnh #4 cùng
+    // group device; #4 KHÔNG đổi một dòng. whereNumber chặn id rác trước query.
+    Route::get('/draws/{draw_id}/luans', [DrawController::class, 'luans'])
+        ->whereNumber('draw_id');                                  // #12 (RL)
 
     // BE-2 — luận sâu AI (gate 402 + C-03 + C-06, queue DATABASE)
     // REVIEW-LUAN (t_8aa93a01): #5 khóa 1 lượt per (quẻ,topic) → 409 AI_ALREADY_DONE;
