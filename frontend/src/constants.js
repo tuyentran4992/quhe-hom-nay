@@ -168,6 +168,12 @@ export const QUOTA_COPY = {
   // mục 3 — trấn an dưới dòng nghi thức; KHÔNG hứa nút/danh sách "Xem lại"
   // (chức năng đó là card REVIEW-LIST t_d0bad510, chưa merge — luật sự thật sản phẩm)
   hint: 'Bài đã luận vẫn còn nguyên với quẻ này — lúc nào nhớ, mở lại quẻ là đọc được.',
+  // UXR-B2 (t_74c8d220) — 2 exit quiet DƯỚI nghi thức, chống ngõ cụt. Wording
+  // nguyên văn UXR-W mục 6 BẢN CHỐT; exit1() gắn drawId thật (ShareCardView đọc
+  // ?draw= — không đốt quota AI), exit2 về Sổ quẻ nơi bài đã luận còn đọc được.
+  // Cấm: "mở khóa"/paywall ngầm/nag (decision + §mô hình thu).
+  exitShare: 'Xem thẻ quẻ của hôm nay →',
+  exitLibrary: 'Về Sổ quẻ',
 }
 
 // Nhãn giá hiển thị — SUY RA từ PRICE_UNLOCK_VND, đổi giá ở trên là đổi khắp UI.
