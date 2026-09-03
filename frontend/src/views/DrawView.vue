@@ -70,6 +70,12 @@ async function roll() {
       result.value = r.data
       if (r.data?.hexagram) hxlib.prime(r.data.hexagram) // S3 đọc cache, không xin #2 lại
       if (r.data?.hexagram?.id && Array.isArray(r.data.hao_texts)) haolib.prime(r.data.hexagram.id, r.data.hao_texts) // FE-3XU: S3 zero-fetch #2b
+      // BUG-CHIP-FIRSTVISIT-01 (t_11c529da): #1 store dedupe (dòng 54) mà ở đây
+      // chưa tươi → auto-push 4b vào /que/:id gặp store.todayDraw=null → Q4 so id
+      // không khớp → chip 'Còn x lần hỏi' ẩn (F5 mới hiện). Fix: #3 OK → store làm
+      // tươi qua #10 (device.refresh = chủ duy nhất #1/#10, RULES-DETAIL §D —
+      // không fetch song song ở view). Fail-soft: #10 lỗi chỉ chậm chip, không gãy gieo.
+      device.refresh().catch(() => {})
       pending.value = false
       tryGo()
     })
