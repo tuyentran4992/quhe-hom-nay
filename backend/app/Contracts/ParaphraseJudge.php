@@ -18,6 +18,13 @@ namespace App\Contracts;
  */
 interface ParaphraseJudge
 {
+    /** 3 nhãn phán quyết (Q3, card t_1bb07a82) — đúng literal card/BOSS-GO. */
+    public const DU_GIONG = 'DU_GIONG';
+
+    public const KHAC = 'KHAC';
+
+    public const UNCLEAR = 'UNCLEAR';
+
     /**
      * Hai câu hỏi có phải cùng một ý (DU_GIONG) không?
      * $previousQuestion = question của job done gần nhất cùng (hexagram, topic)

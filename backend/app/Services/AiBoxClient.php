@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Domain\JudgePrompt;
 use App\Domain\RouterPrompt;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
@@ -73,6 +74,62 @@ class AiBoxClient
         ]);
 
         return $route;
+    }
+
+    /**
+     * QUOTA-N/Q3 (card t_1bb07a82) — bước PHÁN QUYẾT paraphrase: 1 goi nho
+     * (transport y het router: model ai.router_model non-reasoning, temp 0,
+     * max_tokens ai.router_max_tokens, timeout ai.router_timeout_seconds) xuat
+     * DU_GIONG|KHAC|UNCLEAR. KHONG phai RouterPrompt — noi dung la
+     * JudgePrompt::forPair (marker 'Hỏi lại' de test phan biet voi router).
+     *
+     * D4 fail-open: loi mang / HTTP lei / content ranh → NULL noi bo (KHONG
+     * throw — giong routeTopic, judge hong khong duoc lam hong yeu cau);
+     * LlmParaphraseJudge dich NULL → UNCLEAR → hoi that, tinh luot.
+     * Key trong → NULL (chua cau hinh = khong phan quyet duoc).
+     */
+    public function judgeParaphrase(string $previousQuestion, string $newQuestion): ?string
+    {
+        $base = rtrim((string) config('aibox.base_url'), '/');
+        $key = (string) config('aibox.api_key');
+        if ($key === '') {
+            return null;
+        }
+        $model = trim((string) config('aibox.router_model')) ?: (string) config('project.ai.router_model');
+
+        try {
+            $res = Http::timeout((int) config('project.ai.router_timeout_seconds'))
+                ->withToken($key)
+                ->post($base.'/chat/completions', [
+                    'model' => $model,
+                    'messages' => [['role' => 'user', 'content' => JudgePrompt::forPair($previousQuestion, $newQuestion)]],
+                    'temperature' => 0,
+                    'max_tokens' => (int) config('project.ai.router_max_tokens'),
+                ]);
+        } catch (\Throwable $e) {
+            logger()->warning('aibox.judge.failed', ['err' => $e->getMessage()]);
+
+            return null;
+        }
+
+        if (! $res->successful()) {
+            logger()->warning('aibox.judge.failed', ['status' => $res->status()]);
+
+            return null;
+        }
+        $text = (string) $res->json('choices.0.message.content', '');
+        $verdict = trim($text) === '' ? 'UNCLEAR' : JudgePrompt::parse($text);
+
+        // Dem duoc ca phan quyet lung (BUG-V3-3 hoc le): 1 dong = 1 call that;
+        // finish=length voi model reasoning = tin hieu budget token khong du.
+        // HAI CAU HOI khong bao gio vao log (PII — cung le §5.2 nhu router).
+        logger()->info('aibox.judge.result', [
+            'model' => $model,
+            'verdict' => $verdict,
+            'finish' => $res->json('choices.0.finish_reason'),
+        ]);
+
+        return trim($text) === '' ? null : $text;
     }
 
     /**

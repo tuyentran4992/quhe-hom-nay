@@ -78,6 +78,12 @@ return [
         // Đơn vị: giây. An toàn: 5–15.
         'router_timeout_seconds' => 10,
 
+        // QUOTA-N/Q3 (card t_1bb07a82): bước PHÁN QUYẾT paraphrase trước quota
+        // gate — 1 goi router-model (DU_GIONG|KHAC|UNCLEAR) thay luot luan sau
+        // dat khi khach hoi na nan (boss GO 03/09: tiet kiem, khong chan).
+        // bool. =false → quay về hành vi Q2 (mọi question khác = hỏi thật).
+        'paraphrase_judge' => true,
+
         // REVIEW-LUAN (boss GO 02/09): khóa MỖI (quẻ, chủ đề) 1 lượt luận — POST
         // trùng khi đã có bài done → 409 AI_ALREADY_DONE, FE sang "Xem lại".
         // bool. =false → quay về đường cũ (cooldown/cap vẫn giữ); chỉ tắt khi
