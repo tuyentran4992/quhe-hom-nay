@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Domain\BianRule;
 use App\Domain\Luan;
 use App\Domain\PromptBuilder;
+use App\Domain\RouterPrompt;
 use App\Domain\Wordguard;
 use App\Models\AiJob;
 use App\Services\AiBoxClient;
@@ -77,6 +78,17 @@ class RunAiBoxJob implements ShouldQueue
             ?? config('project.ai.filter_regenerate_budget_s'));
     }
 
+    /**
+     * ROUTER-FMT (card t_18927e08): job tab thuần (KHÔNG question) không gọi LLM —
+     * ghi thẳng domain tương ứng tab vào router_category. 1-1 với DOMAIN_TO_TAB
+     * chiều tab của RouterPrompt (KHAC/UNCLEAR không dùng cho path này).
+     */
+    private const TAB_TO_DOMAIN = [
+        'duyen' => 'tinh_duyen',
+        'tai_loc' => 'tai_loc',
+        'xuat_hanh' => 'cong_viec',
+    ];
+
     public function handle(AiBoxClient $client, ?Luan $luan = null): void
     {
         // claim atomic: queued → running; không giành được = job khác đang làm/bị skip
@@ -115,13 +127,18 @@ class RunAiBoxJob implements ShouldQueue
             $question = ($job->question !== null && trim((string) $job->question) !== '') ? trim((string) $job->question) : null;
 
             // ── LUAN-V3 (SPEC §5.3, ADR-V3-01): bước ROUTER danh mục ──────────────
-            // CHỈ chạy khi có question. route='UNCLEAR' → questionForPrompt=null về
-            // luồng cũ (câu hỏi vẫn lưu DB, FE vẫn hiển thị "Bạn hỏi:"); route=null
-            // (lỗi mạng/timeout) → T-D fallback tự xử — KHÔNG throw, KHÔNG fail job.
-            // Cross-tab KHÔNG đụng entitlement: khách mua tab nào trả tiền tab đó,
-            // ai_jobs.topic giữ nguyên tab — router chỉ đổi prompt content (quyết
-            // định nghiệp vụ anh Tuyền chốt §5.3). Cache D1 không đổi: job có question
-            // vốn không ăn cache (InterpretationService:114-117).
+            // CHỈ chạy khi có question. ROUTER-FMT (card t_18927e08): router giờ trả
+            // 1 trong 11 domain (RouterPrompt::DOMAINS) — domain lưu NGUYÊN TOKEN vào
+            // ai_jobs.router_category (kể cả UNCLEAR = dữ liệu phân loại card này cần).
+            // route='UNCLEAR' → questionForPrompt=null về luồng cũ (câu hỏi vẫn lưu DB,
+            // FE vẫn hiển thị "Bạn hỏi:"); route=null (lỗi mạng/timeout) →
+            // router_category NULL — T-D fallback tự xử — KHÔNG throw, KHÔNG fail job.
+            // Tab thuần không question: KHÔNG gọi LLM, ghi thẳng domain tương ứng tab
+            // (TAB_TO_DOMAIN). Cross-tab KHÔNG đụng entitlement: khách mua tab nào trả
+            // tiền tab đó, ai_jobs.topic vẫn giữ nguyên tab — router_category là TẦNG
+            // MỚI ghi thêm để báo cáo, PromptBuilder nhận lại tab qua DOMAIN_TO_TAB
+            // (signature V2 không đổi). Cache D1 không đổi: job có question vốn không
+            // ăn cache (InterpretationService:114-117).
             $route = null;
             $questionForPrompt = $question;
             if ($question !== null) {
@@ -130,7 +147,12 @@ class RunAiBoxJob implements ShouldQueue
                     $questionForPrompt = null;
                 }
             }
-            $routedTopic = in_array($route, ['duyen', 'tai_loc', 'xuat_hanh', 'KHONG_THUOC_NAO'], true) ? $route : null;
+            $job->forceFill([
+                'router_category' => $question === null
+                    ? (self::TAB_TO_DOMAIN[$job->topic] ?? null)
+                    : $route,
+            ])->save();
+            $routedTopic = RouterPrompt::tabFor($route);
 
             $messages = [
                 ['role' => 'system', 'content' => Wordguard::SYSTEM_PROMPT],
@@ -177,8 +199,7 @@ class RunAiBoxJob implements ShouldQueue
                 // feedback ngắn gọn appended — system prompt + bài cũ làm ngữ cảnh,
                 // model chỉ việc viết lại đủ bài sạch chữ phạm.
                 $messages[] = ['role' => 'assistant', 'content' => $text];
-                $messages[] = ['role' => 'user', 'content' =>
-                    'Bài trên chứa chữ cấm: '.implode(', ', $words).'.'
+                $messages[] = ['role' => 'user', 'content' => 'Bài trên chứa chữ cấm: '.implode(', ', $words).'.'
                     .' Viết lại TOÀN BỘ bài luận (giữ đúng cấu trúc, độ dài, nội dung),'
                     .' tuyệt đối KHÔNG xuất hiện các chữ: '.implode(', ', $words).'.'
                     .' (Ví dụ "cốt lõi" → dùng "giá trị nền tảng".) Chỉ xuất bài hoàn chỉnh, không lời dẫn.'];
