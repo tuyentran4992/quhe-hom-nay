@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Contracts\ParaphraseJudge;
 use App\Domain\Calendar;
 use App\Domain\Topic;
 use App\Jobs\RunAiBoxJob;
@@ -23,6 +24,46 @@ use Illuminate\Support\Str;
  */
 class InterpretationService
 {
+    /** QUOTA-N/Q2: đếm lượt THAT theo draw + gate 429 quota_exceeded (QuotaService — 1 chủ nợ).
+     *  Q3 (card t_1bb07a82): judge paraphrase TUỲ CHỌN — binding ParaphraseJudge
+     *  trong AppServiceProvider bật bước PHÂN QUYẾT; null = hành vi Q2 nguyên trạng. */
+    public function __construct(
+        private readonly QuotaService $quota = new QuotaService,
+        private readonly ?ParaphraseJudge $judge = null,
+    ) {}
+
+    /**
+     * QUOTA-N/Q3 (card t_1bb07a82) — nguon so sanh cua buoc PHAN QUYET: bai done
+     * gan nhat CUNG draw_id (moi topic — boss GO 03/09: tiet kiem 1 luot luan sau
+     * dat, hoi khac topic ma cung MOT VIEC van tra bai cu), question khac van ban
+     * voi hoi moi. Fail-open D4: moi exception (judge hong/timeout) → NULL = KHAC
+     * → hoi that, tinh luot. Cache hit same-question cua Q2 (idempotency (a))
+     * van di TRUOC buoc nay — 0 token.
+     */
+    private function paraphraseSource(object $draw, string $topic, string $question): ?AiJob
+    {
+        $source = AiJob::query()
+            ->where('draw_id', $draw->id)
+            ->where('status', AiJob::ST_DONE)
+            ->where('from_cache', false)
+            ->where('question', '!=', $question)
+            ->whereNotNull('question')
+            ->latest('finished_at')
+            ->first();
+        if ($source === null) {
+            return null;
+        }
+
+        try {
+            return $this->judge->isSameMeaning($source->question, $question) ? $source : null;
+        } catch (\Throwable $e) {
+            // D4 fail-open: loi judge = KHAC — khong bao gio chan khach hoi that
+            logger()->warning('q3.judge.failed_open', ['err' => $e->getMessage()]);
+
+            return null;
+        }
+    }
+
     /**
      * Quyết định của #5 — trả về ['conflict' => Response] controller sẽ return,
      * hoặc ['job' => AiJob, 'created' => bool]. Validation/402/429 ném DomainException.
@@ -111,6 +152,46 @@ class InterpretationService
             throw InterpretationException::globalCap();
         }
 
+        // ── QUOTA-N/Q2 (card t_1b5a0c23, D2) — LOP THU 3, ngay TRƯỚC khi tạo
+        // job/call provider (hang rao cu cooldown/cap/idempotency GIU NGUYEN thu
+        // tu — card: "đây là lớp thứ 3"). ──────────────────────────────────────
+        // (c2.0) DIEM MO RONG Q3 (card t_1bb07a82) — GHEP QUA INTERFACE
+        // App\Contracts\ParaphraseJudge (Q2 de lai, dung nguyen binding-lua-chon):
+        // hoi KHAC van ban voi bai done gan nhat cung (quẻ, topic) → judge quyet
+        // DU_GIONG → tai-su-dung ket qua, row moi from_cache=true (0 dem quota,
+        // Khong goi luan sau). Fail-open D4: judge hong/timeout/exception → coi
+        // la KHAC (hoi that, tinh luot). Chua co binding = hanh vi cu (moi hoi
+        // khac question la hoi that).
+        if ($question !== null && $this->judge !== null && config('project.ai.paraphrase_judge')) {
+            $na = $this->paraphraseSource($draw, $topic->value, $question);
+            if ($na !== null) {
+                $reuse = AiJob::query()->create([
+                    'job_uuid' => (string) Str::uuid(),
+                    'device_id' => $device->device_id,
+                    'draw_id' => $draw->id,
+                    'topic' => $topic->value,
+                    'question' => $question,
+                    'status' => AiJob::ST_DONE,
+                    'requested_at' => now(),
+                    'finished_at' => now(),
+                    'result' => $na->result,
+                    'router_category' => $na->router_category,
+                    'idempotency_key' => $key ?: null,
+                    'result_key_hash' => $hash,
+                    'from_cache' => true,
+                ]);
+
+                return $reuse;
+            }
+        }
+        // (c2.1) quota gate: đếm done THAT theo draw_id (loại row cache —
+        // QuotaService/D3). Hết N → 429 code 'quota_exceeded' — PHÂN BIỆT code
+        // với AI_COOLDOWN/AI_GLOBAL_CAP ở trên, KHÔNG phải 402 (paywall OFF).
+        $used = $this->quota->realDoneCount((int) $draw->id);
+        if ($used >= $this->quota->maxPerDraw()) {
+            throw InterpretationException::quotaExceeded($this->quota->maxPerDraw(), $used);
+        }
+
         // (e) INSERT + dispatch — đường 202 DUY NHẤT còn lại (không còn nhánh
         // "cache done tại chỗ": đã thay bằng 409 ở (c1) theo card t_8aa93a01).
         $job = AiJob::query()->create([
@@ -151,6 +232,7 @@ class InterpretationService
     /**
      * #5b REVIEW-LUAN — quyết định đọc lại: validate hình dạng ở controller, mọi
      * gate (404 ẩn tồn tại → 402 entitlement như #5 → tra nguồn done) ở đây.
+     *
      * @return array{exists:bool, job_uuid:?string, result:?string, completed_at:?string}
      */
     public function saved(Device $device, int $drawId, Topic $topic): array

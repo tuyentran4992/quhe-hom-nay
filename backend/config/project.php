@@ -49,6 +49,13 @@ return [
         // An toàn: 30–150 (đòn chống cháy túi provider, không phải chống user).
         'global_cap_per_hour' => 90,
 
+        // QUOTA-N/Q2 (t_1b5a0c23, D1): N lượt LUAN SAU THAT tối đa cho MỖI QUẺ
+        // (draw_id) — đếm job done có from_cache=false (bài cache/đọc lại KHÔNG
+        // trừ lượt, D2/D3). Đổi N qua env, không đổi code. Đơn vị: lượt. An toàn:
+        // 1–10. worst-case chi phí = N × số quẻ/ngày × giá call (boss chốt 03/09:
+        // "3 gọi AI/quẻ/ngày"). Hàng rào cũ cooldown/cap GIỮ NGUYÊN — đây là lớp 3.
+        'max_deep_reads_per_draw' => env('MAX_DEEP_READS_PER_DRAW', 3),
+
         // FIX-LUAN-SAU: số lần model được TỰ SINH LẠI khi bài dính wordguard
         // (AI_FILTERED) trong cùng 1 handle. Đơn vị: lần. An toàn: 0–2.
         'filter_regenerations' => 1,
@@ -70,6 +77,12 @@ return [
         // LUAN-V3 §5.2: timeout RIÊNG bước router (không đụng cap/cooldown luận).
         // Đơn vị: giây. An toàn: 5–15.
         'router_timeout_seconds' => 10,
+
+        // QUOTA-N/Q3 (card t_1bb07a82): bước PHÁN QUYẾT paraphrase trước quota
+        // gate — 1 goi router-model (DU_GIONG|KHAC|UNCLEAR) thay luot luan sau
+        // dat khi khach hoi na nan (boss GO 03/09: tiet kiem, khong chan).
+        // bool. =false → quay về hành vi Q2 (mọi question khác = hỏi thật).
+        'paraphrase_judge' => true,
 
         // REVIEW-LUAN (boss GO 02/09): khóa MỖI (quẻ, chủ đề) 1 lượt luận — POST
         // trùng khi đã có bài done → 409 AI_ALREADY_DONE, FE sang "Xem lại".

@@ -30,13 +30,14 @@ class AiJob extends Model
     protected $fillable = [
         'job_uuid', 'device_id', 'draw_id', 'topic', 'question', 'router_category', 'status', 'attempts',
         'result', 'error_code', 'requested_at', 'finished_at',
-        'idempotency_key', 'result_key_hash',
+        'idempotency_key', 'result_key_hash', 'from_cache',
     ];
 
     protected $casts = [
         'attempts' => 'integer',
         'requested_at' => 'datetime',
         'finished_at' => 'datetime',
+        'from_cache' => 'boolean',
     ];
 
     public function device(): BelongsTo
