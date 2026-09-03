@@ -25,6 +25,15 @@
   .btn-outline {
     @apply inline-flex items-center gap-2 px-4 py-2 rounded-card font-medium text-ink bg-transparent border border-gold/50 hover:bg-gold/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed;
   }
+  /* [FIX-BTNLINE t_a4978eca] `.btn-line` được 3 CTA dùng (DrawView draw-today/draw-retry,
+     HomeTodayCard home-share-btn) nhưng kế từ c0d1632 CHƯA từng định nghĩa → chữ trần
+     không viền không padding. Định nghĩa tại đây diệt cả 3 node, KHÔNG đụng .vue nào
+     (tránh conflict UXR-4b đang code DrawView cùng branch). Thừa hưởng hệ token
+     .btn-outline: border-gold/50 + padding + rounded-card + hover/focus-visible đủ;
+     semantic "nhẹ hơn btn-cinnabar một bậc". */
+  .btn-line {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-card font-medium text-ink bg-transparent border border-gold/50 hover:bg-gold/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed;
+  }
   /* [UI-POLISH t_fc6387df] chip trạng thái ĐỒNG NHẤT 1 kiểu thẻ (header S3):
      chỉ mục · hào động · trạng thái miễn phí — nền giấy, viền đồng mảnh, chữ nhỏ. */
   .chip-status {
