@@ -50,6 +50,9 @@ class MeController extends Controller
             // không suy từ entitlements (device trả 29k cũng đủ 3 topic).
             'free_deep' => (bool) config('project.free_deep_preview'),
             'remaining_deep_reads' => $this->remainingDeepReads($device), // QUOTA-N/Q2
+            // Q6 (card t_091a0424): N cho chip "Còn x/N" — cùng nguồn QuotaService,
+            // FE zero-touch (DetailView quotaMax đã đọc dự phòng field này).
+            'max_deep_reads_per_draw' => $this->quota->maxPerDraw(),
         ]);
     }
 
@@ -65,6 +68,7 @@ class MeController extends Controller
             'server_date_vn' => $this->draws->serverDateVn(now()),
             'free_deep' => (bool) config('project.free_deep_preview'), // F8-BE C1 — cùng nguồn #1
             'remaining_deep_reads' => $this->remainingDeepReads($device), // QUOTA-N/Q2
+            'max_deep_reads_per_draw' => $this->quota->maxPerDraw(), // Q6 card t_091a0424 — cùng nguồn #1
         ]]);
     }
 
