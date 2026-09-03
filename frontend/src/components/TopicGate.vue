@@ -448,6 +448,22 @@ watch(
       <div v-else-if="phase === 'quota'" data-testid="gate-quota" class="mt-2">
         <p data-testid="gate-quota-note" class="text-body text-ink mb-1">{{ QUOTA_COPY.note(maxVal) }}</p>
         <p data-testid="gate-quota-hint" class="text-small text-muted">{{ QUOTA_COPY.hint }}</p>
+        <!-- UXR-B2 (t_74c8d220): 2 exit quiet chống ngõ cụt — dưới nghi thức Q4,
+             cùng kiểu text-small link mờ (UXR-W mục 6), không btn thứ 2, không CTA
+             "mở khóa". Exit 1 render thẻ chia sẻ client-side (0 đốt quota); exit 2
+             về Sổ quẻ — bài đã luận trong phiên còn đọc lại được. -->
+        <p class="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+          <RouterLink
+            data-testid="gate-quota-share"
+            :to="`/share-card?draw=${drawId}`"
+            class="text-small text-muted underline hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+          >{{ QUOTA_COPY.exitShare }}</RouterLink>
+          <RouterLink
+            data-testid="gate-quota-library"
+            to="/cua-ban"
+            class="text-small text-muted underline hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+          >{{ QUOTA_COPY.exitLibrary }}</RouterLink>
+        </p>
       </div>
       <article v-else-if="phase === 'done'" data-testid="gate-result" class="luan-fade">
         <!-- LUAN-V2 §7.4.4 (t_d4cfddea): câu hỏi lặp lại 1 dòng NHỎ trên đầu bài —
