@@ -74,7 +74,7 @@ class LuanListTest extends TestCase
         $body = rtrim(mb_substr($ex, 0, -1));
         $this->assertTrue(
             str_ends_with($body, 'thường') || str_ends_with($body, 'huyền'),
-            "cắt phải nguyên từ, đuôi thực tế: ...".mb_substr($body, -8)
+            'cắt phải nguyên từ, đuôi thực tế: ...'.mb_substr($body, -8)
         );
 
         // không rò nội dung khối sau trần cắt
