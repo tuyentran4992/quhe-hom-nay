@@ -62,9 +62,12 @@ export const COIN_LAND_SWITCH_MS = 300
 // ý nghĩa: MagicSequence — mốc chuyển cụm xu từ class 'fly' sang 'land' sau khi bay
 // đơn vị: ms | BẮM CỨNG animation 'ms-fly-up' 0.3s trong <style> của MagicSequence —
 // đổi 1 mình số này là lệch nhịp nhìn; sửa phải soi cả CSS. An toàn: = duration fly-up.
-export const AUTO_PUSH_S3_MS = 600
-// ý nghĩa: DrawView B3 — độ trễ auto-push S3 sau reveal (giữ nhịp nhìn symbol)
-// đơn vị: ms | an toàn: 400..1000 (dài quá = khách mắc kẹt ở S2)
+export const AUTO_PUSH_S3_MS = 2200
+// ý nghĩa: DrawView B3 — độ trễ auto-push S3 sau reveal (giữ nhịp nhìn symbol).
+// UXR-4b (t_31ef1ece, decision t_UXR3 B1): 600→2200 — reveal giờ KÈM 3 quyền chọn
+// (ĐX5/B1) nên khách cần nhịp trôi ĐỌC +với tay kịp bấm; auto-push vẫn là mặc định.
+// đơn vị: ms | an toàn: 2000..3000 (dưới = lại cắt khoảnh khắc như bệnh 600ms;
+// trên = khách mắc kẹt ở S2). KHÔNG đổi MAGIC_SEQUENCE_MS=1500 (bất biến C-08).
 
 // ── HIỂN THỊ QR ─────────────────────────────────────────────────────────────
 export const QR_SIZE_PX = 240
@@ -128,6 +131,30 @@ export const QUESTION_SUGGESTIONS = {
 export const DISCLAIMER_TEXT =
   'Sản phẩm giải trí, tham khảo văn hoá — không phải nghiên cứu hay tư vấn số mệnh.'
 
+// ── UXR-4a (t_0c74b51e) — màn gieo /draw. Wording TRÍCH NGUYÊN BẢN CHỐT
+// /data/agents/copywriter-vn/outbox/t_UXR-W/wording.md (mục 1 header, mục 2 idle
+// đã-gieo + chip, mục 3 nhãn preview, mục 5 giờ quẻ). CẤM sửa chữ trong .vue.
+export const DRAW_COPY = {
+  brand: 'Quẻ Hôm Nay', // mục 1 — khớp nav-brand (NavBar đã sống)
+  library: 'Sổ quẻ', // mục 1 — khớp nav-library/tab-library
+  home: 'Trang chính', // mục 1 — theo brief CEO + aria-label draw-back cũ
+  todayBtn: 'Xem quẻ hôm nay', // mục 2 — nút phụ khi #1 có today_draw
+  // mục 2 dòng hẹn: vế tail lấy nguyên văn HOME_COPY.statusDrawn (một nguồn duy nhất);
+  // alt «Hôm nay đã gieo, hẹn 0h.» chỉ dùng nếu QA chấm dòng chốt tràn 1 hàng @320px.
+  drawnNote: `Hôm nay đã gieo — ${HOME_COPY.statusDrawn}.`,
+  quotaNote: '1 quẻ mỗi ngày · miễn phí', // mục 2 chip — "miễn phí" có bằng chứng FREE_DEEP_LABEL
+  previewHead: 'Sau khi gieo, bạn nhận về:', // mục 3 — 3 dòng dưới = HOME_COPY.steps nguyên văn
+  // mục 5 C1: GIỜ MÁY KHÁCH tại lúc bấm (new Date(), không lib lịch, CEO bác vế Âm);
+  // TUYỆT ĐỐI không kèm lời bình "giờ này hợp / quẻ này ứng" (trục KO-định-đoán).
+  castAt: (hhmm) => `gieo lúc ${hhmm}`,
+  // ── UXR-4b (t_31ef1ece) — mục 4: quyền chọn sau reveal (ĐX5+B1), nguyên văn UXR-W ──
+  detailBtn: 'Mở bảng giải', // nút CHÍNH btn-cinnabar — CTA nổi bật nhất khối reveal
+  shareCta: 'Giữ lại thẻ quẻ hôm nay →', // text-link MỜ — không phải btn thứ 2 (anti-2-CTA)
+  homeAfter: 'Về trang chính', // link phụ muted — dùng cả pending chậm (thoát kẹt màn)
+  retryPending: 'Thử lại', // pending chậm >mốc reveal — cạnh spinner, không lời xin lỗi dài
+  spinnerPending: 'Đang mở quẻ…', // mục 4 — giữ nguyên văn chuỗi đã sống (không đổi chữ)
+}
+
 // ── QUOTA-N/Q4 (card t_7dd7f983) — wording TRÍCH NGUYÊN phương án 1 bản chốt
 // /data/agents/copywriter-vn/outbox/t_QUOTA-Q1/wording.md (mục 1–2–3). {N} từ API
 // (429 details / prop), {x} từ remaining_deep_reads — CẤM hardcode 3 trong .vue.
@@ -141,6 +168,12 @@ export const QUOTA_COPY = {
   // mục 3 — trấn an dưới dòng nghi thức; KHÔNG hứa nút/danh sách "Xem lại"
   // (chức năng đó là card REVIEW-LIST t_d0bad510, chưa merge — luật sự thật sản phẩm)
   hint: 'Bài đã luận vẫn còn nguyên với quẻ này — lúc nào nhớ, mở lại quẻ là đọc được.',
+  // UXR-B2 (t_74c8d220) — 2 exit quiet DƯỚI nghi thức, chống ngõ cụt. Wording
+  // nguyên văn UXR-W mục 6 BẢN CHỐT; exit1() gắn drawId thật (ShareCardView đọc
+  // ?draw= — không đốt quota AI), exit2 về Sổ quẻ nơi bài đã luận còn đọc được.
+  // Cấm: "mở khóa"/paywall ngầm/nag (decision + §mô hình thu).
+  exitShare: 'Xem thẻ quẻ của hôm nay →',
+  exitLibrary: 'Về Sổ quẻ',
 }
 
 // Nhãn giá hiển thị — SUY RA từ PRICE_UNLOCK_VND, đổi giá ở trên là đổi khắp UI.
