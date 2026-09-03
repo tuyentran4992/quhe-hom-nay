@@ -13,7 +13,9 @@ export default { name: 'DrawView' } // router.test chốt tên component (lazy r
 // văn), A1/ĐX6 sân gieo ghost tĩnh (token MagicSequence, aria-hidden, không
 // animation — không reveal dữ liệu → không chạm C-08), A2 triện 卦 + H1 brand,
 // C1 giờ quẻ client-side new Date() tại lúc bấm (CEO bác vế Âm lịch @t_UXR3).
-import { ref, computed, onMounted } from 'vue'
+// UXR-4b (t_31ef1ece): ĐX4ii fix bug auto-push sau unmount (clearTimeout + guard),
+// ĐX5+B1 khối reveal 3 quyền chọn hủy auto-push, pending chậm có lối thoát.
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '../api/client.js'
 import { useHexagrams } from '../composables/useHexagrams.js'
@@ -22,6 +24,7 @@ import { useDevice } from '../composables/useDeviceApi.js'
 import MagicSequence from '../components/MagicSequence.vue'
 import DrawHeader from '../components/DrawHeader.vue'
 import DrawGhostField from '../components/DrawGhostField.vue'
+import DrawRevealActions from '../components/DrawRevealActions.vue'
 import { MAGIC_SEQUENCE_MS, AUTO_PUSH_S3_MS, HOME_COPY, DRAW_COPY } from '../constants.js'
 
 const emit = defineEmits(['revealed'])
@@ -53,7 +56,9 @@ onMounted(() => {
 
 let routed = false
 async function roll() {
-  if (phase.value !== 'idle') return
+  // UXR-4b: khóa chống đúp khi đang rolling — NGOẠI TRỪ pending chậm (nghi thức đã
+  // qua mốc mà #3 chưa về): khách có quyền bấm «Thử lại» (không kẹt màn không hành động)
+  if (phase.value === 'rolling' && !(done.value && !result.value)) return
   phase.value = 'rolling'
   pending.value = true
   rollErr.value = ''
@@ -85,14 +90,37 @@ function onDone() {
   if (!result.value) pending.value = true
   tryGo()
 }
+// ── UXR-4b ĐX4ii — bug thật @8b9d613: setTimeout(router.push) không cleanup →
+// timer sống lâu hơn component, KÉO TRÁI Ý khách về /que/:id sau khi đã rời màn
+// (đúng cửa sổ QA matrix ô (d)). Fix 2 lớp: clearTimeout khi unmount + guard alive.
+let pushTimer = null
+let alive = true
+function cancelAutoPush() {
+  if (pushTimer != null) {
+    clearTimeout(pushTimer)
+    pushTimer = null
+  }
+}
+onBeforeUnmount(() => {
+  alive = false
+  cancelAutoPush()
+})
 function tryGo() {
   if (routed || !done.value || !result.value) return
   routed = true
   emit('revealed')
-  // B3: auto-push S3 sau khi reveal (giữ nhịp nhìn symbol — CFG-FE: nhịp về constants)
-  setTimeout(() => {
+  // B3: auto-push S3 sau khi reveal — UXR-4b B1: nhịp 600→2200ms (đủ ĐỌC 3 quyền
+  // chọn + với tay; auto-push vẫn là mặc định — CFG-FE: nhịp về constants)
+  pushTimer = setTimeout(() => {
+    pushTimer = null
+    if (!alive) return // guard 2: timer đua với unmount — không push qua màn đã chết
     router.push({ name: 'detail', params: { drawId: result.value.draw.id } })
   }, AUTO_PUSH_S3_MS)
+}
+// ĐX5+B1 — bấm 1 trong 3 quyền chọn → HỦY auto-push (khách cầm lại điều khiển)
+function chooseDetail() {
+  cancelAutoPush()
+  if (result.value) router.push({ name: 'detail', params: { drawId: result.value.draw.id } })
 }
 </script>
 
@@ -158,14 +186,21 @@ function tryGo() {
         :ten="result?.hexagram?.ten || 'Đang gieo…'"
         @done="onDone"
       />
-      <p v-if="pending" data-testid="draw-spinner" class="text-small text-muted animate-pulse">
-        Đang mở quẻ…
+      <!-- pending nhanh (<mốc reveal): chỉ spinner nối mạch; pending CHẬM + khối kết quả
+           + 3 quyền chọn (ĐX5/B1) về DrawRevealActions.vue (component riêng, chống god-file) -->
+      <p v-if="pending && !done" data-testid="draw-spinner" class="text-small text-muted animate-pulse">
+        {{ DRAW_COPY.spinnerPending }}
       </p>
-      <div v-else-if="result && done" data-testid="draw-result" class="text-center">
-        <!-- C1: giờ quẻ là DẤU MỰC (wording UXR-W mục 5) — cấm thêm lời bình giờ.
-             Nhánh nút quyền chọn + link giữ thẻ = UXR-4b (B1/ĐX5), chưa ở đây. -->
-        <p class="text-body text-muted">{{ result.hexagram.ten }} — {{ DRAW_COPY.castAt(castTime) }}</p>
-      </div>
+      <DrawRevealActions
+        :pending-slow="pending && done"
+        :result-ready="done && !!result"
+        :ten="result?.hexagram?.ten || ''"
+        :cast-time="castTime"
+        :draw-id="result ? result.draw.id : null"
+        @retry="roll"
+        @goto-detail="chooseDetail"
+        @cancel-push="cancelAutoPush"
+      />
     </div>
 
     <!-- A2: H1 brand chân trang trong vùng web (ngay trên DisclaimerBar toàn cục) -->
@@ -193,5 +228,6 @@ function tryGo() {
   opacity: 0.9;
   box-shadow: 0 1px 3px rgb(30 27 24 / 0.25);
 }
-/* sân gieo tinh: CSS về DrawGhostField.vue (component riêng) */
+/* sân gieo tinh: CSS về DrawGhostField.vue; text-link reveal về DrawRevealActions.vue
+   (component riêng — chống god-file, RULES-DETAIL) */
 </style>

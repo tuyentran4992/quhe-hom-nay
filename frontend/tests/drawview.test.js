@@ -35,6 +35,7 @@ function mk() {
       { path: '/draw', name: 'draw', component: DrawView },
       { path: '/que/:drawId', name: 'detail', component: { template: '<div/>' } },
       { path: '/cua-ban', name: 'library', component: { template: '<div/>' } }, // UXR-4a header draw-library
+      { path: '/share-card', name: 'share-card', component: { template: '<div/>' } }, // UXR-4b draw-share-cta
     ],
   })
 }
@@ -76,8 +77,8 @@ describe('DrawView (C-08)', () => {
     await vi.advanceTimersByTimeAsync(1) // t=3060 = revealAt PA1 (mockup 3.06s)
     await flushPromises()
     expect(w.find('[data-testid="draw-result"]').exists()).toBe(true)
-    // 04-ui B3: reveal xong → auto-push S3
-    await vi.advanceTimersByTimeAsync(2000)
+    // 04-ui B3: reveal xong → auto-push S3 — UXR-4b: nhịp 600→2200 (B1), chờ đủ 2200ms
+    await vi.advanceTimersByTimeAsync(2200)
     expect(r.currentRoute.value.path).toBe('/que/42')
   })
 

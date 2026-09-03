@@ -40,6 +40,7 @@ function mk() {
       { path: '/draw', name: 'draw', component: DrawView },
       { path: '/que/:drawId', name: 'detail', component: { template: '<div/>' } },
       { path: '/cua-ban', name: 'library', component: { template: '<div/>' } },
+      { path: '/share-card', name: 'share-card', component: { template: '<div/>' } }, // UXR-4b draw-share-cta
     ],
   })
 }
@@ -170,12 +171,13 @@ describe('UXR-4a C1 — giờ quẻ «gieo lúc HH:MM» (dấu mực, không l�
     const w = await revealAt(14, 6)
     const res = w.find('[data-testid="draw-result"]')
     expect(res.exists()).toBe(true)
-    expect(res.text()).toBe('Địa Thiên Thái — gieo lúc 14:06')
+    // UXR-4b: khối giờ cũng CHỨA 3 quyền chọn (ĐX5/B1) → soi đúng dòng giờ (p đầu)
+    expect(res.find('p').text()).toBe('Địa Thiên Thái — gieo lúc 14:06')
     expect(w.text()).not.toContain('đang vào bảng giải')
   })
   it('pad số 0 + mốc đêm: 23:05 → «23:05», 00:05 → «00:05» (giờ máy khách, không lib lịch)', async () => {
-    expect((await revealAt(23, 5)).find('[data-testid="draw-result"]').text()).toBe('Địa Thiên Thái — gieo lúc 23:05')
-    expect((await revealAt(0, 5)).find('[data-testid="draw-result"]').text()).toBe('Địa Thiên Thái — gieo lúc 00:05')
+    expect((await revealAt(23, 5)).find('[data-testid="draw-result"] p').text()).toBe('Địa Thiên Thái — gieo lúc 23:05')
+    expect((await revealAt(0, 5)).find('[data-testid="draw-result"] p').text()).toBe('Địa Thiên Thái — gieo lúc 00:05')
   })
   it('KO-định-đoán: không lời bình giờ, không vế Âm lịch', async () => {
     const w = await revealAt(9, 0)
