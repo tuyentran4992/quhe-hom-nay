@@ -34,6 +34,7 @@ function mk() {
       { path: '/', name: 'home', component: { template: '<div/>' } },
       { path: '/draw', name: 'draw', component: DrawView },
       { path: '/que/:drawId', name: 'detail', component: { template: '<div/>' } },
+      { path: '/cua-ban', name: 'library', component: { template: '<div/>' } }, // UXR-4a header draw-library
     ],
   })
 }
