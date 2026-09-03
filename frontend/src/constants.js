@@ -190,3 +190,25 @@ export const CAPTION_1X1 = '{hexagram_ten} — bạn là quẻ nào?' // dòng p
 // card B-0 t_917caf19 (P1.B kho CAP-THE) — CẤM tự sửa chữ. Không chứa "hôm nay"
 // (miễn nhiễm stale-date). Worst-case 11/12 từ trên 64 tên quẻ thật (QA-verified).
 export const CAPTION_CLIPBOARD = 'Tôi gieo được {hexagram_ten} — bạn là quẻ nào?' // clipboard (nút Copy link, 2 khung)
+
+// ── RL-FE (card t_47c88de0, REVIEW-LIST) — nhãn domain Router + wording sheet ──
+// «Đã hỏi quẻ này». Nguồn D4: /data/agents/ux-ui/outbox/t_RL-UX/LABELS.md (bản
+// chốt thread #517). Key khớp đúng token RouterPrompt::DOMAINS (KHAC/UNCLEAR giữ
+// hoa); job tiền-ROUTER-FMT router_category NULL → ROUTER_LABEL_DEFAULT. FE ƯU
+// TIÊN label BE trả sẵn — map này là fallback. Cấm hardcode chuỗi « » trong .vue.
+export const ROUTER_LABELS = {
+  tinh_duyen: 'Tình duyên', tai_loc: 'Tài lộc', cong_viec: 'Công việc', di_lich: 'Đi lại',
+  suc_khoe: 'Sức khỏe', hoc_hanh: 'Học hành', gia_dinh: 'Gia đình',
+  phap_ly: 'Điều cần bàn', tong_quan: 'Điều cần bàn', KHAC: 'Điều cần bàn', UNCLEAR: 'Điều cần bàn',
+}
+export const ROUTER_LABEL_DEFAULT = 'Điều cần bàn'
+export const LUAN_LIST = {
+  title: 'Đã hỏi quẻ này', // title sheet (testid luans-title)
+  open: (n) => `Đã hỏi quẻ này — ${n} lời`, // nút mở, chỉ hiện khi n ≥ 1
+  close: 'Đóng', // aria-label + nhãn nút đóng
+  back: 'Danh sách', // nút quay lại list từ bài full-text
+  questionPrefix: 'Bạn hỏi:', // dòng hỏi trong bài (giọng TopicGate đã sống)
+  retry: 'Thử lại', // nút khối failed (khuôn gate-retry TopicGate)
+  failed: 'Hôm nay bàn cờ im tiếng, thử lại nhé.', // dòng lỗi — nguyên văn giọng sống
+}
+

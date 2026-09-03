@@ -87,6 +87,10 @@ export const api = {
   shareLinks: (draw_id) => req('POST', '/api/share-links', { draw_id }),
   // #12 F7 payload công khai thẻ /s/{token}
   shareCard: (token) => req('GET', `/api/share-links/${encodeURIComponent(token)}`),
+  // #13 RL-FE (card t_47c88de0, contract [RL-BE]): toàn văn bài đã luận của 1 quẻ.
+  // → 200 {data:[{id,job_uuid,topic,router_category,label,question,excerpt,finished_at,result}],
+  //   meta:{count}} sort mới nhất đầu; device-scope → 404 ẩn cho quẻ của device khác.
+  drawLuans: (draw_id) => req('GET', `/api/draws/${draw_id}/luans`),
 }
 
 export { uuid8 }
