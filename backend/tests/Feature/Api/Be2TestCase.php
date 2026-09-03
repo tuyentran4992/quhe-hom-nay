@@ -9,7 +9,6 @@ use App\Models\Draw;
 use App\Models\Payment;
 use Database\Seeders\HexagramSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -23,7 +22,7 @@ abstract class Be2TestCase extends TestCase
 {
     use RefreshDatabase;
 
-    protected string $cleanMd = "Quẻ hôm nay nhắc mình chậm lại. Duyên không phải thứ săn được, mà là khoảng lặng đủ dài để nghe nhau. Bài viết chỉ mang tính tham khảo giải trí về văn hoá.";
+    protected string $cleanMd = 'Quẻ hôm nay nhắc mình chậm lại. Duyên không phải thứ săn được, mà là khoảng lặng đủ dài để nghe nhau. Bài viết chỉ mang tính tham khảo giải trí về văn hoá.';
 
     /** Hàng đợi nội dung provider trả về qua fakeAi()/fakeAiSeq(). */
     protected array $aiQueue = [];
@@ -32,15 +31,16 @@ abstract class Be2TestCase extends TestCase
      * LUAN-V3 (SPEC §5.2/§8) — hàng đợi riêng cho bước ROUTER. Nhận diện call
      * router trong fake: body có `max_tokens` (chỉ router gửi, =8) — KHÔNG
      * phân biệt theo model vì router_model mặc định fallback đúng model luận.
-     * Hết hàng đợi → trả 'duyen': khớp tab duyen của mọi test cũ → router ra
-     * T-A, prompt y nguyên V2 → các assertion cũ không đổi màu (regression baseline).
+     * Hết hàng đợi → trả 'tinh_duyen': ROUTER-FMT (card t_18927e08) whitelist
+     * là 11 domain — 'tinh_duyen' map DOMAIN_TO_TAB → tab 'duyen', khớp tab của
+     * mọi test cũ → router ra T-A, prompt y nguyên V2 (regression baseline).
      */
     protected array $routerQueue = [];
 
     protected function setUp(): void
     {
         parent::setUp();
-        (new HexagramSeeder())->run();
+        (new HexagramSeeder)->run();
         // 01 §2: queue DATABASE thật — dispatch CHỈ ghi pending (không inline),
         // worker RunAiBoxJob::handle() được gọi thủ công trong test → exception
         // provider không nổ ngược vào request #5.
@@ -50,7 +50,7 @@ abstract class Be2TestCase extends TestCase
         Http::fake(['*chat/completions' => function ($request) {
             $body = json_decode((string) $request->body(), true) ?: [];
             if (array_key_exists('max_tokens', $body)) { // call ROUTER (LUAN-V3 §5.2, max_tokens=8)
-                $next = array_shift($this->routerQueue) ?? 'duyen';
+                $next = array_shift($this->routerQueue) ?? 'tinh_duyen';
                 if ($next instanceof \Throwable) {
                     throw $next;
                 }
@@ -113,7 +113,7 @@ abstract class Be2TestCase extends TestCase
             'amount_vnd' => 29000,
             'status' => Payment::ST_PAID,
             'paid_at' => now(),
-            'idempotency_key' => 'seed-'.\Illuminate\Support\Str::random(24),
+            'idempotency_key' => 'seed-'.Str::random(24),
         ]);
     }
 

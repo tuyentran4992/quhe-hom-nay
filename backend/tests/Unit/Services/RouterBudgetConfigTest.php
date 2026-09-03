@@ -106,7 +106,8 @@ class RouterBudgetConfigTest extends TestCase
     /** Payload router khi env KHÔNG khai router_model: về default project.php, không fallback model luận. */
     public function test_rong_khong_fallback_model_luan_nua(): void
     {
-        $this->assertSame('duyen', $this->routeWith('duyen'));
+        // ROUTER-FMT (card t_18927e08): whitelist giờ là 11 domain — stub 'tinh_duyen'
+        $this->assertSame('tinh_duyen', $this->routeWith('tinh_duyen'));
         Http::assertSent(function (Request $r) {
             $this->assertSame((string) config('project.ai.router_model'), (string) $r['model'],
                 'router_model rỗng → default project.php (model luận reasoning là bug, cấm fallback)');
@@ -127,11 +128,11 @@ class RouterBudgetConfigTest extends TestCase
     /** BUG-V3-3: log GIÁ TRỊ route sau parse; log đếm-mù trước parse biến mất. */
     public function test_log_gia_tri_route_sau_parse(): void
     {
-        $this->routeWith('duyen');
+        $this->routeWith('tinh_duyen'); // ROUTER-FMT: token whitelist mới (11 domain)
         $this->assertNull($this->lastLog('aibox.router.sent'), 'log đếm-mù trước parse phải bỏ');
         $entry = $this->lastLog('aibox.router.result');
         $this->assertNotNull($entry, 'phải có aibox.router.result sau parse');
-        $this->assertSame('duyen', $entry['context']['route']);
+        $this->assertSame('tinh_duyen', $entry['context']['route']);
     }
 
     /** Đúng kịch bản BUG-V3-1 (content rỗng + finish=length) → route=null + finish hiện log. */

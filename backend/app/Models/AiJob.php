@@ -28,7 +28,7 @@ class AiJob extends Model
     ];
 
     protected $fillable = [
-        'job_uuid', 'device_id', 'draw_id', 'topic', 'question', 'status', 'attempts',
+        'job_uuid', 'device_id', 'draw_id', 'topic', 'question', 'router_category', 'status', 'attempts',
         'result', 'error_code', 'requested_at', 'finished_at',
         'idempotency_key', 'result_key_hash',
     ];

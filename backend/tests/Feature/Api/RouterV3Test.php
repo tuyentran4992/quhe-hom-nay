@@ -258,6 +258,64 @@ class RouterV3Test extends Be2TestCase
         $this->assertStringNotContainsString('Nếu câu hỏi của khách không thuộc', $p, 'UNCLEAR không phải T-D');
         // câu hỏi vẫn lưu DB (FE còn hiển thị "Bạn hỏi:")
         $this->assertSame('??? abc', $job->question);
+        // ROUTER-FMT A2: UNCLEAR VẪN là dữ liệu phân loại — lưu nguyên token
+        $this->assertSame('UNCLEAR', $job->router_category);
+    }
+
+    // ─── ROUTER-FMT (card t_18927e08) — ai_jobs.router_category ──────────────────
+
+    private function routerCalls(): array
+    {
+        return array_values(array_filter($this->sentCalls(), fn ($c) => array_key_exists('max_tokens', $c['body'])));
+    }
+
+    /** A2(a) — question route 'suc_khoe' → DB router_category='suc_khoe' + prompt T-C. */
+    public function test_worker_luu_router_category_va_ranh_khong_thuoc_nao(): void
+    {
+        $this->routerQueue[] = 'suc_khoe';
+        $job = $this->runWorker('duyen', 'bệnh của em có khỏi không');
+        $this->assertSame(AiJob::ST_DONE, $job->status);
+        $this->assertSame('suc_khoe', $job->router_category, 'domain router phải lưu nguyên token');
+        $this->assertSame('duyen', $job->topic, 'topic GIỮ NGUYÊN tab đã trả tiền');
+
+        $calls = $this->sentCalls();
+        $luanPrompt = $this->userPromptOf($calls[count($calls) - 1]);
+        $this->assertStringContainsString('Việc khách hỏi: "bệnh của em có khỏi không" — hỏi gì đáp nấy.', $luanPrompt);
+        $this->assertStringContainsString('Ràng buộc: mọi điều khuyên phải bám đúng lời quẻ', $luanPrompt);
+        $this->assertStringNotContainsString('Chủ đề luận sâu', $luanPrompt);
+    }
+
+    /** A2(b) — tab thuần không question: 0 call router, router_category = domain tương ứng tab. */
+    public function test_worker_tab_thuan_ghi_router_category_khong_goi_llm(): void
+    {
+        $cases = ['duyen' => 'tinh_duyen', 'tai_loc' => 'tai_loc', 'xuat_hanh' => 'cong_viec'];
+        foreach ($cases as $topic => $want) {
+            $d = $this->device();
+            $this->payUnlock($d, $topic);
+            $draw = $this->drawWith(11, [2], 20, $d);
+            $res = $this->cookieFor($d)->postJson('/api/ai/interpretations', [
+                'draw_id' => $draw->id, 'topic' => $topic, 'idempotency_key' => 'rf-'.Str::random(16),
+            ])->assertStatus(202)->json('data');
+            $job = AiJob::query()->where('job_uuid', $res['job_uuid'])->firstOrFail();
+            (new RunAiBoxJob($job->id))->handle(app(AiBoxClient::class));
+            $job->refresh();
+
+            $this->assertSame(AiJob::ST_DONE, $job->status, $topic);
+            $this->assertSame($want, $job->router_category, "tab $topic → domain $want");
+            $this->assertCount(0, $this->routerCalls(), "tab thuần $topic: CẤM gọi router");
+        }
+    }
+
+    /** A2(c) — router LỖI (null vì mạng) → router_category NULL, prompt T-D nguyên trạng. */
+    public function test_worker_router_loi_router_category_null(): void
+    {
+        $this->routerQueue[] = new ConnectionException('connection refused');
+        $job = $this->runWorker('xuat_hanh', 'chuyến đi có thuận lợi không');
+        $this->assertSame(AiJob::ST_DONE, $job->status);
+        $this->assertNull($job->router_category, 'router lỗi = không có dữ liệu phân loại, để NULL');
+        $calls = $this->sentCalls();
+        $p = $this->userPromptOf($calls[count($calls) - 1]);
+        $this->assertStringContainsString('Nếu câu hỏi của khách không thuộc chủ đề đã nêu', $p, 'T-D fallback giữ nguyên');
     }
 
     /** T28 — cache key không đổi dù có router: 2 request cùng draw+topic+question → cùng hash. */
@@ -291,7 +349,7 @@ class RouterV3Test extends Be2TestCase
     {
         $this->assertArrayHasKey('router_model', config('aibox'));
         config(['aibox.router_model' => '']);
-        $this->routerQueue[] = 'duyen';
+        $this->routerQueue[] = 'tinh_duyen';
         $job = $this->runWorker('duyen', 'abc duyen');
         $this->assertSame(AiJob::ST_DONE, $job->status);
         $calls = $this->sentCalls();
