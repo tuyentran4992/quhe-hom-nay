@@ -49,10 +49,51 @@ async function load() {
 onMounted(load)
 
 function onKey(e) {
-  if (e.key === 'Escape') emit('close')
+  if (e.key === 'Escape') {
+    emit('close')
+    return
+  }
+  // focus-trap nhẹ (R1-đ1): Tab rơi ra ngoài panel → kéo về element focus được
+  // đầu/cuối trong panel — đủ cho aria-modal="true" đã khai, 0 lib.
+  if (e.key === 'Tab' && panelEl.value) {
+    const focusables = panelEl.value.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    )
+    if (!focusables.length) return
+    const first = focusables[0]
+    const last = focusables[focusables.length - 1]
+    const active = document.activeElement
+    if (!panelEl.value.contains(active)) {
+      e.preventDefault()
+      ;(e.shiftKey ? last : first).focus()
+    } else if (e.shiftKey && active === first) {
+      e.preventDefault()
+      last.focus()
+    } else if (!e.shiftKey && active === last) {
+      e.preventDefault()
+      first.focus()
+    }
+  }
 }
-onMounted(() => window.addEventListener('keydown', onKey))
-onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
+
+// a11y modal chuẩn (R1-đ1): mở = khoá cuộn body + nhớ trigger + focus title;
+// đóng/unmount = trả focus về trigger + mở khoá. Self-contained trong sheet.
+const panelEl = ref(null)
+const titleEl = ref(null)
+let triggerEl = null
+let prevBodyOverflow = ''
+onMounted(() => {
+  triggerEl = document.activeElement instanceof HTMLElement ? document.activeElement : null
+  prevBodyOverflow = document.body.style.overflow
+  document.body.style.overflow = 'hidden'
+  titleEl.value?.focus()
+  window.addEventListener('keydown', onKey)
+})
+onBeforeUnmount(() => {
+  document.body.style.overflow = prevBodyOverflow
+  triggerEl?.focus?.()
+  window.removeEventListener('keydown', onKey)
+})
 
 function close() {
   emit('close')
@@ -91,11 +132,12 @@ const items = computed(() =>
          panel không đá với translate centering (bài học anti-pattern) -->
     <div class="absolute inset-0 flex flex-col justify-end md:justify-start md:pt-16 pointer-events-none">
       <div
+        ref="panelEl"
         data-testid="luans-panel"
         class="luans-panel-enter pointer-events-auto w-full md:w-[min(40rem,92vw)] mx-auto max-h-[85vh] flex flex-col rounded-t-2xl md:rounded-2xl bg-paper border border-gold/40 shadow-lift"
       >
       <header class="flex items-center justify-between gap-3 px-4 py-3 border-b border-paper2">
-        <h2 data-testid="luans-title" class="han text-h2 font-semibold text-ink">{{ LUAN_LIST.title }}</h2>
+        <h2 ref="titleEl" tabindex="-1" data-testid="luans-title" class="han text-h2 font-semibold text-ink">{{ LUAN_LIST.title }}</h2>
         <button
           type="button"
           data-testid="luans-close"
@@ -112,6 +154,7 @@ const items = computed(() =>
       </div>
 
       <div v-else-if="loading" data-testid="luans-loading" class="px-4 py-6 space-y-2">
+        <p class="sr-only" aria-live="polite">{{ LUAN_LIST.loading }}</p>
         <div class="sk h-4 w-11/12" />
         <div class="sk h-4 w-full" />
         <div class="sk h-4 w-3/4" />

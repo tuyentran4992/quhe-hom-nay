@@ -233,6 +233,43 @@ describe('RL-FE sheet close', () => {
   })
 })
 
+// ══ R1-đ1 (dev-lead review) — a11y modal THẬT: scroll-lock + focus restore ══
+// TEST-FIELDS hứa với QA Playwright: mở sheet → body hết cuộn + focus vào title;
+// đóng → focus trả về phần tử mở (luans-open) + mở khoá. Phải CÓ TRONG CODE.
+describe('RL-FE a11y modal (R1-đ1)', () => {
+  it('mở: body overflow hidden + focus vào luans-title; unmount: trả focus + mở khoá', async () => {
+    const btn = document.createElement('button')
+    btn.setAttribute('data-testid', 'luans-open')
+    document.body.appendChild(btn)
+    btn.focus()
+    client.api.drawLuans.mockResolvedValue(LUANS3)
+    wrapper = mount(AskedLuansSheet, { props: { drawId: 42 }, attachTo: document.body })
+    await flushPromises()
+    expect(document.body.style.overflow).toBe('hidden')
+    expect(document.activeElement?.getAttribute('data-testid')).toBe('luans-title')
+    wrapper.unmount()
+    wrapper = null
+    expect(document.body.style.overflow).toBe('')
+    expect(document.activeElement).toBe(btn)
+    btn.remove()
+  })
+
+  it('Tab khi focus lọt ra NGOÀI panel → bị kéo về element focus được đầu trong panel', async () => {
+    const btn = document.createElement('button')
+    document.body.appendChild(btn)
+    client.api.drawLuans.mockResolvedValue(LUANS3)
+    wrapper = mount(AskedLuansSheet, { props: { drawId: 42 }, attachTo: document.body })
+    await flushPromises()
+    btn.focus() // ra khỏi sheet
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }))
+    const panel = document.querySelector('[data-testid="luans-panel"]')
+    expect(panel.contains(document.activeElement)).toBe(true)
+    wrapper.unmount()
+    wrapper = null
+    btn.remove()
+  })
+})
+
 // ══ mục 5 — state lỗi: failed + «Thử lại» ═══════════════════════════════════
 describe('RL-FE failed state', () => {
   it('429/network → khối luans-failed + nút Thử lại; retry thành công → render list', async () => {
@@ -252,6 +289,16 @@ describe('RL-FE failed state', () => {
     const w = mountSheet()
     await flushPromises()
     expect(w.find('[data-testid="luans-failed"]').exists()).toBe(true)
+  })
+  it('loading hiện nhãn «Đang mở kho lời…» (R1-đ2: doc = code, sr-only aria-live)', async () => {
+    let resolveLater
+    client.api.drawLuans.mockReturnValue(new Promise((r) => { resolveLater = r }))
+    const w = mountSheet()
+    const box = w.find('[data-testid="luans-loading"]')
+    expect(box.exists()).toBe(true)
+    expect(box.text()).toContain('Đang mở kho lời')
+    resolveLater({ data: [], meta: { count: 0 } })
+    await flushPromises()
   })
 })
 

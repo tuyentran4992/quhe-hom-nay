@@ -210,5 +210,6 @@ export const LUAN_LIST = {
   questionPrefix: 'Bạn hỏi:', // dòng hỏi trong bài (giọng TopicGate đã sống)
   retry: 'Thử lại', // nút khối failed (khuôn gate-retry TopicGate)
   failed: 'Hôm nay bàn cờ im tiếng, thử lại nhé.', // dòng lỗi — nguyên văn giọng sống
+  loading: 'Đang mở kho lời…', // nhãn aria-live khối skeleton (R1-đ2: doc = code)
 }
 
