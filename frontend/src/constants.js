@@ -128,6 +128,21 @@ export const QUESTION_SUGGESTIONS = {
 export const DISCLAIMER_TEXT =
   'Sản phẩm giải trí, tham khảo văn hoá — không phải nghiên cứu hay tư vấn số mệnh.'
 
+// ── QUOTA-N/Q4 (card t_7dd7f983) — wording TRÍCH NGUYÊN phương án 1 bản chốt
+// /data/agents/copywriter-vn/outbox/t_QUOTA-Q1/wording.md (mục 1–2–3). {N} từ API
+// (429 details / prop), {x} từ remaining_deep_reads — CẤM hardcode 3 trong .vue.
+export const QUOTA_COPY = {
+  // mục 1 — dòng nghi thức hết quota (thế trọn khối nút hỏi)
+  note: (n) => (n == null
+    ? 'Quẻ này đã đủ lời. Ngẫm kỹ bài đã luận — ngày mai gieo quẻ mới.'
+    : `Quẻ này đã đủ ${n} lời. Ngẫm kỹ bài đã luận — ngày mai gieo quẻ mới.`),
+  // mục 2 — bộ đếm; N vắng → dạng ngắn không mẫu số (lọc mềm, không bịa số)
+  remaining: (x, n) => (n == null ? `Còn ${x} lần hỏi` : `Còn ${x}/${n} lần hỏi`),
+  // mục 3 — trấn an dưới dòng nghi thức; KHÔNG hứa nút/danh sách "Xem lại"
+  // (chức năng đó là card REVIEW-LIST t_d0bad510, chưa merge — luật sự thật sản phẩm)
+  hint: 'Bài đã luận vẫn còn nguyên với quẻ này — lúc nào nhớ, mở lại quẻ là đọc được.',
+}
+
 // Nhãn giá hiển thị — SUY RA từ PRICE_UNLOCK_VND, đổi giá ở trên là đổi khắp UI.
 // Đừng trả lại literal '29.000đ' (bài học drift CFG-FE t_130d6f4b).
 export const PRICE_LABEL = `${fmtVnd(PRICE_UNLOCK_VND)}đ` // vd "29.000đ" — kiểu VN

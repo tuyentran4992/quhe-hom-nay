@@ -41,6 +41,19 @@ const original = ref(false)
 const TOPIC_QUERY_TABS = ['congViec', 'tinhDuyen', 'taiLoc']
 if (TOPIC_QUERY_TABS.includes(route.query.topic)) tab.value = route.query.topic
 
+// ── QUOTA-N/Q4 (card t_7dd7f983): cầu nối số dư xuống TopicGate ─────────────
+// CHỈ đọc store useDevice (chủ duy nhất của #1/#10 — không fetch song song ở
+// đây). Quota gắn DRAW theo ngày nên chỉ truyền khi quẻ đang xem là quẻ hôm
+// nay; quẻ quá khứ → null → TopicGate tự lọc mềm (ẩn bộ đếm, không bịa số).
+// max-deep-reads: field top-level chưa có trong #1 (đã đề nghị bên Q2/Q6 —
+// comment #461); đọc dự phòng, BE vá vào là ăn ngay không sửa FE.
+const quotaRemaining = computed(() =>
+  d.todayDraw.value?.id === Number(route.params.drawId)
+    ? d.me.value?.remaining_deep_reads ?? null
+    : null,
+)
+const quotaMax = computed(() => d.me.value?.max_deep_reads_per_draw ?? null)
+
 async function resolveDraw(id) {
   // 1) draw hôm nay từ #1 (kể cả đã prime bởi S2)
   if (!d.me.value) await d.load(true)
@@ -213,6 +226,8 @@ watch(donateCtaVisible, (v) => {
           v-if="draw"
           :draw-id="draw.id"
           :topic="topicForTab"
+          :remaining="quotaRemaining"
+          :max-deep-reads="quotaMax"
         />
         <!-- [F8-FE C3] t_03424b76 + polish: CTA donate BẬC 1 — btn-cinnabar + hover/
              focus-visible/disabled; click → donate_cta_click + màn /tam-tu (flow C2 giữ). -->

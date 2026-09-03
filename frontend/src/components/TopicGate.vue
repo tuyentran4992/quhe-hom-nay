@@ -13,14 +13,23 @@ import { useRouter } from 'vue-router'
 import { api } from '../api/client.js'
 import { useCountdown } from '../composables/useCountdown.js'
 import { useDevice } from '../composables/useDeviceApi.js'
-import { AI_POLL_MS, AI_POLL_MAX_MS, TOPIC_LABELS, PRICE_LABEL, QUESTION_MAX, QUESTION_SUGGESTIONS } from '../constants.js'
+import { AI_POLL_MS, AI_POLL_MAX_MS, TOPIC_LABELS, PRICE_LABEL, QUESTION_MAX, QUESTION_SUGGESTIONS, QUOTA_COPY } from '../constants.js'
 
-const props = defineProps({ drawId: { type: Number, required: true }, topic: { type: String, required: true } })
+const props = defineProps({
+  drawId: { type: Number, required: true },
+  topic: { type: String, required: true },
+  // QUOTA-N/Q4 (card t_7dd7f983): cha truyền xuống từ payload THẬT #1/#10
+  // (remaining_deep_reads) — FE KHÔNG tự đếm. Vắng (API cũ/chưa load) → đọc
+  // store theo quẻ hôm nay; vẫn không biết → LỌC MỀM: ẩn bộ đếm, không bịa số,
+  // không chặn đường hỏi.
+  remaining: { type: Number, default: null },
+  maxDeepReads: { type: Number, default: null }, // N — 429 details override lúc runtime
+})
 const router = useRouter()
 const device = useDevice()
 const cd = useCountdown()
 
-const phase = ref('idle') // idle | submitting | queued | running | done | saved | failed | cooldown | cap | locked
+const phase = ref('idle') // idle | submitting | queued | running | done | saved | failed | cooldown | cap | locked | quota (QUOTA-N/Q4)
 const result = ref('')
 // REVIEW-LUAN: bài #5b lấy về lúc probe (job_uuid + result + completed_at). `savedMeta`
 // null → chưa có bài lưu. `reviewOpen` = khách đã bấm "Xem lại" chưa — hai state tách
@@ -67,9 +76,46 @@ const displayedQuestion = computed(() => (askedQuestion.value || jobQuestion.val
 // thô [Hoàn cảnh]/[Vì sao]/[Việc nên làm] thành heading + body sạch.
 const luanBlocks = computed(() => parseLuan(result.value))
 
+// ── QUOTA-N/Q4 (card t_7dd7f983) ─────────────────────────────────────────────
+// x (remaining): prop > override sau-lượt-done > store #1 (CHỈ khi draw đang xem
+// là quẻ hôm nay — quota gắn DRAW theo ngày). N (max): override từ 429 details >
+// prop. Tất cả vắng → lọc mềm: ẩn bộ đếm, dòng nghi thức bỏ số — FE không bịa N.
+// remOverride: giá trị freshly-refreshed #10 sau 1 lượt done THẬT — kênh riêng,
+// xóa khi đổi ngữ cảnh (watch), không đụng store chủ (useDevice vẫn 1 chủ duy nhất).
+const remOverride = ref(null)
+const quotaMaxOverride = ref(null) // details.max_deep_reads_per_draw từ 429
+const storeRemaining = computed(() =>
+  device.todayDraw.value?.id === props.drawId
+    ? device.me.value?.remaining_deep_reads ?? null
+    : null,
+)
+const remainingVal = computed(() => remOverride.value ?? props.remaining ?? storeRemaining.value)
+const maxVal = computed(() => quotaMaxOverride.value ?? props.maxDeepReads ?? null)
+// x=0 BIẾT CHẮC → hết hẹn: ẩn trọn khối hỏi, hiện dòng nghi thức (card #2).
+// Vắng (null — API cũ/chưa load) → KHÔNG chặn (lọc mềm), 429 sẽ là chốt cuối.
+const quotaExhausted = computed(() => remainingVal.value === 0)
+// Bộ đếm (mục 2 PA1 "Còn {x}/{N} lần hỏi") chỉ hiện khi CÒN lượt (x ≥ 1) và
+// không ở phase quota/locked; x=0 → nhường khối nghi thức (wording Q1 §2).
+const showRemaining = computed(
+  () => remainingVal.value > 0 && phase.value !== 'quota' && phase.value !== 'locked',
+)
+
 function stopPoll() {
   if (pollTimer) clearTimeout(pollTimer)
   pollTimer = null
+}
+// QUOTA-N/Q4: sau 1 lượt done THẬT, số dư đổi ngay phía BE — refresh qua STORE
+// (device.refresh = chủ duy nhất của #10, không bắn fetch song song), rồi nhớ giá
+// trị mới vào kênh override vì prop của cha có thể còn cũ (prop đổi lại → ưu tiên
+// prop, xem watcher dưới). Lỗi refresh = im lặng, bộ đếm cũ còn tốt, 429 sẽ chặn.
+async function refreshQuota() {
+  try {
+    const merged = await device.refresh()
+    const v = merged?.remaining_deep_reads ?? null
+    if (v != null) remOverride.value = v
+  } catch {
+    /* đếm lỗi không chặn UX bài đã hiện */
+  }
 }
 // Unmount: gen++ để mọi callback về muộn chặn luôn — Vue KHÔNG tự vô hiệu hóa việc
 // ghi ref sau unmount (ref vẫn sống), nên cờ này là bắt buộc chứ không phải thừa.
@@ -164,6 +210,14 @@ async function askFresh() {
       })
     } else if (e.code === 'AI_GLOBAL_CAP') {
       phase.value = 'cap'
+    } else if (e.code === 'quota_exceeded') {
+      // QUOTA-N/Q4: BE chốt (t_1b5a0c23) — 429 code NGUYÊN VĂN 'quota_exceeded',
+      // details {max_deep_reads_per_draw, used, remaining}. Nhặt N thật từ details
+      // (FE không hardcode 3 — D1) rồi vào phase 'quota' ẩn trọn khối hỏi.
+      if (typeof e.details?.max_deep_reads_per_draw === 'number') {
+        quotaMaxOverride.value = e.details.max_deep_reads_per_draw
+      }
+      phase.value = 'quota'
     } else if (e.code === 'UNLOCK_REQUIRED') {
       await device.refresh()
       if (myGen !== gen) return
@@ -187,6 +241,9 @@ async function poll(uuid, myGen) {
     if (j.status === 'done') {
       phase.value = 'done'
       result.value = j.result || ''
+      // QUOTA-N/Q4: lượt THẬT vừa tiêu → số dư phía BE đã đổi; refresh qua store
+      // để bộ đếm "còn x/N" tươi ngay (best-effort, không chắn bài vừa về).
+      refreshQuota()
       return
     }
     if (j.status === 'failed') {
@@ -219,6 +276,9 @@ watch(
     const wasLocked = old ? !old[2] : false
     savedMeta.value = null
     reviewOpen.value = false
+    // QUOTA-N/Q4: kênh override số dư là của ngữ cảnh CŨ — xóa cùng vòng reset.
+    remOverride.value = null
+    quotaMaxOverride.value = null
     if (!nowUnlocked) {
       phase.value = 'locked'
       return
@@ -227,6 +287,12 @@ watch(
     const found = await probeSaved()
     if (found) return
     if (myGen !== gen) return // đổi tab trong lúc probe → watch cũ dừng, watch mới lo
+    // QUOTA-N/Q4 (card mục 2): hết hẹn BIẾT CHẮC (x=0) và topic chưa có bài lưu
+    // → thẳng phase 'quota' — KHÔNG tự động xin luận (wasLocked path cũng bị chặn).
+    if (quotaExhausted.value) {
+      phase.value = 'quota'
+      return
+    }
     if (phase.value === 'idle' && wasLocked) askFresh()
   },
   { immediate: true },
@@ -235,7 +301,19 @@ watch(
 
 <template>
   <section class="mt-6" data-testid="topic-gate" :data-topic="topic">
-    <h3 class="text-h2 font-semibold text-ink mb-2">Luận sâu · {{ label }}</h3>
+    <!-- QUOTA-N/Q4 mục 2 (Q1 PA1): bộ đếm "Còn x/N lần hỏi" cắm ngay cạnh nhãn
+         «Luận sâu · …» trên cùng hàng, phải — token đồng bộ gate-question-counter
+         (text-small tabular-nums text-muted). Desktop đủ mẫu số; mobile bản ngắn
+         "còn x lần" (2 span breakpoint, 1 nguồn số duy nhất). -->
+    <div class="flex items-baseline justify-between gap-3 mb-2">
+      <h3 class="text-h2 font-semibold text-ink">Luận sâu · {{ label }}</h3>
+      <span
+        v-if="showRemaining"
+        data-testid="gate-remaining"
+        class="shrink-0 text-small tabular-nums text-muted"
+        aria-live="polite"
+      ><span class="hidden md:inline">{{ QUOTA_COPY.remaining(remainingVal, maxVal) }}</span><span class="md:hidden">còn {{ remainingVal }} lần</span></span>
+    </div>
 
     <!-- nhánh 1: chưa unlock -->
     <div v-if="phase === 'locked'" data-testid="gate-locked">
@@ -338,7 +416,7 @@ watch(
         </div>
       </div>
       <button
-        v-if="phase === 'idle' || phase === 'submitting'"
+        v-if="(phase === 'idle' || phase === 'submitting') && !quotaExhausted"
         type="button"
         class="btn-cinnabar"
         data-testid="gate-ask"
@@ -363,6 +441,13 @@ watch(
       <div v-else-if="phase === 'failed'" data-testid="gate-failed">
         <p class="text-body text-muted mb-2">Hôm nay bàn cờ im tiếng, thử lại nhé.</p>
         <button type="button" class="btn-cinnabar" data-testid="gate-retry" @click="askFresh">Thử lại</button>
+      </div>
+      <!-- QUOTA-N/Q4 mục 1+3: hết hẹn → THAY TRỌN khối hỏi bằng nghi thức 2 dòng
+           (Q1 PA1): dòng 1 text-body text-ink, dòng 2 text-small text-muted.
+           N lấy từ 429 details/prop — vắng thì bỏ số, không bịa (D1). -->
+      <div v-else-if="phase === 'quota'" data-testid="gate-quota" class="mt-2">
+        <p data-testid="gate-quota-note" class="text-body text-ink mb-1">{{ QUOTA_COPY.note(maxVal) }}</p>
+        <p data-testid="gate-quota-hint" class="text-small text-muted">{{ QUOTA_COPY.hint }}</p>
       </div>
       <article v-else-if="phase === 'done'" data-testid="gate-result" class="luan-fade">
         <!-- LUAN-V2 §7.4.4 (t_d4cfddea): câu hỏi lặp lại 1 dòng NHỎ trên đầu bài —
