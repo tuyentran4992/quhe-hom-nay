@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Luan;
+use App\Exceptions\ApiException;
 use App\Models\Device;
 use App\Services\DrawService;
+use App\Services\LuanService;
 use App\Services\ShareLinkService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -24,6 +26,7 @@ class DrawController extends Controller
         private readonly DrawService $draws,
         private readonly Luan $luan,
         private readonly ShareLinkService $shareLinks,
+        private readonly LuanService $luans,
     ) {
     }
 
@@ -106,5 +109,29 @@ class DrawController extends Controller
             'data' => $payload,
             'meta' => ['count' => count($payload)],
         ]);
+    }
+
+    /**
+     * RL-BE #12 (card t_0e5c0eb9, D1 a3-thuần) — GET /api/draws/{draw_id}/luans:
+     * danh sách + TOÀN VĂN bài đã luận của 1 quẻ, device-scope như #4, FE DetailView
+     * gọi lazy khi mở sheet «Đã hỏi quẻ này». `history()` ở trên KHÔNG đổi một dòng
+     * nào (byte-parity baseline fab832a) — mọi thứ nằm ở endpoint riêng này.
+     * Quẻ không của device → 404 ẩn tồn tại (khuôn #6/#5b). Nghiệp vụ đọc ở
+     * Services\LuanService; nhãn/excerpt thuần ở Domain\LuanList.
+     */
+    public function luans(Request $request, int|string $drawId): JsonResponse
+    {
+        /** @var Device $device */
+        $device = $request->attributes->get('device');
+
+        $draw = $device->draws()->whereKey($drawId)->first();
+        if ($draw === null) {
+            // ẩn tồn tại (F7): quẻ lạ lẫn draw_id không phải số — cùng 1 khuôn 404, không lộ gì
+            throw ApiException::notFound('Không tìm thấy tài nguyên.');
+        }
+
+        $data = $this->luans->listForDraw((int) $draw->id);
+
+        return response()->json(['data' => $data, 'meta' => ['count' => count($data)]]);
     }
 }
