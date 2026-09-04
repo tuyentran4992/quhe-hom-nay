@@ -18,6 +18,10 @@ import { useHaoTexts } from '../composables/useHaoTexts.js'
 import LineChart from '../components/LineChart.vue'
 import LuanHomNay from '../components/LuanHomNay.vue'
 import TopicGate from '../components/TopicGate.vue'
+// [RL-FE t_47c88de0] «Đã hỏi quẻ này» — overlay sheet nội bộ, DetailView KHÔNG unmount.
+import AskedLuansSheet from '../components/AskedLuansSheet.vue'
+import { useDrawLuans } from '../composables/useDrawLuans.js'
+import { LUAN_LIST } from '../constants.js'
 import { changingLabel } from '../utils/format.js'
 
 const route = useRoute()
@@ -53,6 +57,28 @@ const quotaRemaining = computed(() =>
     : null,
 )
 const quotaMax = computed(() => d.me.value?.max_deep_reads_per_draw ?? null)
+
+// ── [RL-FE t_47c88de0] «Đã hỏi quẻ này — N lời» ─────────────────────────────
+// Nút chỉ hiện khi quẻ có ≥1 bài done (F4: 0 bài = ẩn hoàn toàn, không dòng
+// "chưa hỏi gì"). N lấy từ #13: DetailView ensure ĐÚNG 1 lần lúc load (request
+// slim/lazy — quẻ hôm nay đi thẳng từ #1 nên không phình page-load; chủ fetch
+// duy nhất là useDrawLuans — sheet mở sau ăn cache Map, 0 fetch trùng §D).
+// Lỗi (404 ẩn/network) → nuốt im: không nút, không khối lỗi trên trang (lọc mềm).
+const luans = useDrawLuans()
+const luanCount = ref(0)
+const sheetOpen = ref(false)
+async function loadLuanCount(id) {
+  try {
+    luanCount.value = (await luans.ensure(id)).length
+  } catch {
+    luanCount.value = 0
+  }
+}
+watch(draw, (dr) => {
+  sheetOpen.value = false
+  luanCount.value = 0 // quẻ mới → đếm lại từ đầu, không để số của quẻ cũ leo tạm
+  if (dr) loadLuanCount(dr.id)
+})
 
 async function resolveDraw(id) {
   // 1) draw hôm nay từ #1 (kể cả đã prime bởi S2)
@@ -222,6 +248,17 @@ watch(donateCtaVisible, (v) => {
           class="btn-outline inline-flex items-center gap-2 px-4 py-2 rounded-card font-medium"
           @click="router.push({ name: 'share-card', query: { draw: String(draw.id) } })"
         >Chia sẻ thẻ quẻ</button>
+        <!-- [RL-FE t_47c88de0] bậc 2 quiet (outline như share — CTA chính của vùng
+             này vẫn là TopicGate/donate): chỉ hiện khi ≥1 bài done. Overlay mount
+             NỘI BỘ tại đây — TopicGate/DetailView không unmount khi mở/đóng. -->
+        <button
+          v-if="luanCount > 0"
+          type="button"
+          data-testid="luans-open"
+          class="btn-outline inline-flex items-center gap-2 px-4 py-2 rounded-card font-medium"
+          :aria-expanded="sheetOpen"
+          @click="sheetOpen = true"
+        >{{ LUAN_LIST.open(luanCount) }}</button>
         <TopicGate
           v-if="draw"
           :draw-id="draw.id"
@@ -239,6 +276,9 @@ watch(donateCtaVisible, (v) => {
           @click="openDonateCta"
         >Lễ tùy tâm ủng hộ</button>
       </div>
+      <!-- sheet overlay atop trang (D3): chỉ tồn tại khi mở — đóng = unmount sheet
+           duy nhất, DetailView + TopicGate bên dưới còn nguyên state. -->
+      <AskedLuansSheet v-if="sheetOpen && draw" :draw-id="draw.id" @close="sheetOpen = false" />
     </template>
   </div>
 </template>
